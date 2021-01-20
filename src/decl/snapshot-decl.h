@@ -1,17 +1,18 @@
 static
-size_t snapshot_stack_size(size_t n);
+size_t data_stack_size(size_t n);
 
 static
-size_t snapshot_nodes_size(size_t n);
+size_t node_stack_size(size_t n);
 
 static inline
-void stack_grow(struct snapshot_stack* x, r_ssize i);
+void data_stack_grow(struct snapshot_data_stack* x, r_ssize i);
 
 static inline
-void nodes_grow(struct snapshot_nodes* x, r_ssize i);
+void node_stack_grow(struct snapshot_node_stack* x, r_ssize i);
 
 static
-void nodes_push(struct snapshot_nodes* nodes, struct snapshot_node node);
+void node_stack_push(struct snapshot_node_stack* node_stack,
+                     struct snapshot_node node);
 
 static
 struct snapshot_state* new_snapshot_state();
