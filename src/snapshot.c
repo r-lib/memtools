@@ -35,6 +35,7 @@ struct snapshot_node {
 };
 struct snapshot_node_stack {
   sexp* shelter;
+  sexp* shelter_extra;
   r_ssize size;
   r_ssize n;
   struct snapshot_node v_nodes[];
@@ -81,10 +82,10 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   sexp* id = KEEP(r_sexp_address(x));
   sexp* arrow_list = KEEP(new_arrow_list(x));
 
-  // FIXME: How do we update sizes? Push index in the dict?
   struct snapshot_node node = {
     .id = id,
     .type = type,
+    .size = 10, // TODO: Actual size computation
     .arrow_list = arrow_list
   };
 
@@ -113,22 +114,36 @@ static
 struct snapshot_state* new_snapshot_state() {
   sexp* shelter = KEEP(r_new_vector(r_type_list, SNAPSHOT_SHELTER_total_size));
 
+
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SNAPSHOT_SHELTER_data, state_shelter);
 
-  sexp* data_stack_shelter = r_new_node(r_new_vector(r_type_raw, data_stack_size(STACK_INIT_SIZE)), r_null);
+  sexp* data_stack_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_size(STACK_INIT_SIZE)));
   r_list_poke(shelter, SNAPSHOT_SHELTER_stack, data_stack_shelter);
 
-  sexp* node_stack_shelter = r_new_node(r_new_vector(r_type_raw, node_stack_size(NODES_INIT_SIZE)), r_null);
-  r_list_poke(shelter, SNAPSHOT_SHELTER_nodes, node_stack_shelter);
+
+  sexp* node_stack_shelter_meta = r_new_vector(r_type_list, 2);
+  r_list_poke(shelter, SNAPSHOT_SHELTER_nodes, node_stack_shelter_meta);
+
+  sexp* node_stack_shelter = r_new_vector(r_type_raw, node_stack_size(NODES_INIT_SIZE));
+  r_list_poke(node_stack_shelter_meta, 0, node_stack_shelter);
+
+  sexp* node_stack_shelter_extra = r_pairlist(r_new_vector(r_type_list, NODES_INIT_SIZE * 2));
+  r_list_poke(node_stack_shelter_meta, 1, node_stack_shelter_extra);
+
 
   struct r_dict dict = r_new_dict(DICT_INIT_SIZE);
   r_list_poke(shelter, SNAPSHOT_SHELTER_dict, dict.shelter);
 
-  struct snapshot_data_stack* data_stack = (struct snapshot_data_stack*) r_raw_deref(data_stack_shelter);
-  struct snapshot_node_stack* node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
-  node_stack->size = 0;
+
+  struct snapshot_data_stack* data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
+  data_stack->shelter = data_stack_shelter;
   data_stack->size = 0;
+
+  struct snapshot_node_stack* node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
+  node_stack->shelter = node_stack_shelter_meta;
+  node_stack->shelter_extra = node_stack_shelter_extra;
+  node_stack->size = 0;
   node_stack->n = 0;
 
   struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
@@ -164,7 +179,7 @@ void data_stack_grow(struct snapshot_data_stack* x, r_ssize i) {
   size_t new_size = r_ssize_mult(size, STACK_GROWTH_FACTOR);
   new_size = data_stack_size(new_size);
 
-  sexp* shelter = r_raw_resize(x->shelter, new_size);
+  sexp* shelter = r_raw_resize(r_node_car(x->shelter), new_size);
   r_node_poke_car(x->shelter, shelter);
 }
 
@@ -178,16 +193,28 @@ void node_stack_grow(struct snapshot_node_stack* x, r_ssize i) {
   size_t new_size = r_ssize_mult(size, NODES_GROWTH_FACTOR);
   new_size = node_stack_size(new_size);
 
-  sexp* shelter = r_raw_resize(x->shelter, new_size);
-  r_node_poke_car(x->shelter, shelter);
+  size_t new_size_extra = r_ssize_mult(new_size, 2);
+
+  sexp* shelter = r_raw_resize(r_list_get(x->shelter, 0), new_size);
+  r_list_poke(x->shelter, 0, shelter);
+
+  sexp* shelter_extra = r_list_resize(x->shelter_extra, new_size_extra);
+  r_list_poke(x->shelter, 1, shelter);
+  x->shelter_extra = shelter_extra;
 }
 
 static
-void node_stack_push(struct snapshot_node_stack* node_stack, struct snapshot_node node) {
+void node_stack_push(struct snapshot_node_stack* node_stack,
+                     struct snapshot_node node) {
   r_ssize n = node_stack->n + 1;
   node_stack_grow(node_stack, n);
-  node_stack->v_nodes[n] = node;
+
   node_stack->n = n;
+  node_stack->v_nodes[n] = node;
+
+  // Protect `sexp*` members of the snapshot node
+  r_list_poke(node_stack->shelter_extra, n, node.id);
+  r_list_poke(node_stack->shelter_extra, n + 1, node.arrow_list);
 }
 
 
