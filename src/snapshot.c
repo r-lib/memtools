@@ -11,6 +11,9 @@ static sexp* snapshot_node_names = NULL;
 #define NODES_INIT_SIZE 65536
 #define NODES_GROWTH_FACTOR 2
 
+#define ARROWS_INIT_SIZE 5
+#define ARROWS_GROWTH_FACTOR 2
+
 struct snapshot_stack_info {
   r_ssize retained_size;
   r_ssize retained_count;
@@ -25,7 +28,8 @@ struct snapshot_node {
   sexp* id;
   enum r_type type;
   r_ssize size;
-  sexp* arrows;
+  sexp* arrow_list;
+  int arrow_list_n;
   r_ssize retained_count;
   r_ssize retained_size;
 };
@@ -75,9 +79,22 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   }
 
   sexp* id = KEEP(r_sexp_address(x));
-  sexp* parent_id = KEEP(r_sexp_address(parent));
+  sexp* arrow_list = KEEP(new_arrow_list(x));
 
-  FREE(2);
+  // FIXME: How do we update sizes? Push index in the dict?
+  struct snapshot_node node = {
+    .id = id,
+    .type = type,
+    .arrow_list = arrow_list
+  };
+
+  // TODO: Update arrows of parent as well?
+  sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
+  node_push_arrow(&node, arrow);
+
+  nodes_push(state->nodes, node);
+
+  FREE(3);
   return R_SEXP_ITERATE_next;
 }
 
@@ -171,6 +188,59 @@ void nodes_push(struct snapshot_nodes* nodes, struct snapshot_node node) {
   nodes_grow(nodes, n);
   nodes->v_nodes[n] = node;
   nodes->n = n;
+}
+
+
+// Nodes and arrows -------------------------------------------------------
+
+static
+sexp* new_arrow_list(sexp* x) {
+  // Make space for a few arrows per node. The arrow lists are
+  // compacted later on.
+  r_ssize n = ARROWS_INIT_SIZE;
+
+  switch (r_typeof(x)) {
+  default:
+    break;
+  case r_type_character:
+  case r_type_expression:
+  case r_type_list:
+    n += r_length(x);
+    break;
+  }
+
+  return r_new_vector(r_type_list, n), r_null;
+}
+
+static
+sexp* new_arrow(sexp* id,
+                int depth,
+                sexp* parent,
+                enum r_node_relation rel,
+                r_ssize i) {
+  sexp* arrow = KEEP(r_new_vector(r_type_list, 5));
+
+  sexp* to_from = r_new_vector(r_type_character, 2);
+  r_list_poke(arrow, 0, to_from);
+
+  r_chr_poke(to_from, 0, r_sexp_address(parent));
+  r_chr_poke(to_from, 1, id);
+
+  // TODO: Add rest of data
+
+  FREE(1);
+  return arrow;
+}
+
+static
+void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
+  sexp* arrow_list = node->arrow_list;
+
+  if (node->arrow_list_n == r_length(arrow_list)) {
+    r_abort("TODO: Grow arrow list");
+  }
+
+  r_list_poke(arrow_list, node->arrow_list_n++, arrow);
 }
 
 

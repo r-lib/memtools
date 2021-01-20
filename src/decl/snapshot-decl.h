@@ -25,3 +25,16 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_relation rel,
                                       r_ssize i,
                                       enum r_node_direction dir);
+
+static
+sexp* new_arrow_list(sexp* x);
+
+static
+sexp* new_arrow(sexp* id,
+                int depth,
+                sexp* parent,
+                enum r_node_relation rel,
+                r_ssize i);
+
+static
+void node_push_arrow(struct snapshot_node* node, sexp* arrow);
