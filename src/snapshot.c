@@ -44,8 +44,8 @@ struct snapshot_node_stack {
 struct snapshot_state {
   sexp* shelter;
   struct r_dict dict;
-  struct snapshot_node_stack* node_stack;
-  struct snapshot_data_stack* data_stack;
+  struct snapshot_node_stack* p_node_stack;
+  struct snapshot_data_stack* p_data_stack;
 };
 
 #include "decl/snapshot-decl.h"
@@ -71,8 +71,8 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_relation rel,
                                       r_ssize i,
                                       enum r_node_direction dir) {
-  struct snapshot_state* state = (struct snapshot_state*) data;
-  data_stack_grow(state->data_stack, depth);
+  struct snapshot_state* p_state = (struct snapshot_state*) data;
+  data_stack_grow(p_state->p_data_stack, depth);
 
   if (dir == R_NODE_DIRECTION_outgoing) {
     return R_SEXP_ITERATE_next;
@@ -93,7 +93,7 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
   node_push_arrow(&node, arrow);
 
-  node_stack_push(state->node_stack, node);
+  node_stack_push(p_state->p_node_stack, node);
 
   FREE(3);
   return R_SEXP_ITERATE_next;
@@ -136,20 +136,20 @@ struct snapshot_state* new_snapshot_state() {
   r_list_poke(shelter, SNAPSHOT_SHELTER_dict, dict.shelter);
 
 
-  struct snapshot_data_stack* data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
-  data_stack->shelter = data_stack_shelter;
-  data_stack->size = 0;
+  struct snapshot_data_stack* p_data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
+  p_data_stack->shelter = data_stack_shelter;
+  p_data_stack->size = 0;
 
-  struct snapshot_node_stack* node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
-  node_stack->shelter = node_stack_shelter_meta;
-  node_stack->shelter_extra = node_stack_shelter_extra;
-  node_stack->size = 0;
-  node_stack->n = 0;
+  struct snapshot_node_stack* p_node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
+  p_node_stack->shelter = node_stack_shelter_meta;
+  p_node_stack->shelter_extra = node_stack_shelter_extra;
+  p_node_stack->size = 0;
+  p_node_stack->n = 0;
 
   struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
   state->shelter = shelter;
-  state->node_stack = node_stack;
-  state->data_stack = data_stack;
+  state->p_node_stack = p_node_stack;
+  state->p_data_stack = p_data_stack;
   state->dict = dict;
 
   FREE(1);
@@ -204,17 +204,17 @@ void node_stack_grow(struct snapshot_node_stack* x, r_ssize i) {
 }
 
 static
-void node_stack_push(struct snapshot_node_stack* node_stack,
+void node_stack_push(struct snapshot_node_stack* p_node_stack,
                      struct snapshot_node node) {
-  r_ssize n = node_stack->n + 1;
-  node_stack_grow(node_stack, n);
+  r_ssize n = p_node_stack->n + 1;
+  node_stack_grow(p_node_stack, n);
 
-  node_stack->n = n;
-  node_stack->v_nodes[n] = node;
+  p_node_stack->n = n;
+  p_node_stack->v_nodes[n] = node;
 
   // Protect `sexp*` members of the snapshot node
-  r_list_poke(node_stack->shelter_extra, n, node.id);
-  r_list_poke(node_stack->shelter_extra, n + 1, node.arrow_list);
+  r_list_poke(p_node_stack->shelter_extra, n, node.id);
+  r_list_poke(p_node_stack->shelter_extra, n + 1, node.arrow_list);
 }
 
 
