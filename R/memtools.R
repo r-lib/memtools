@@ -2,5 +2,5 @@
 NULL
 
 mem_snapshot <- function(x) {
-  .Call(ptr_snapshot, x)
+  .Call(c_ptr_snapshot, x)
 }

@@ -273,15 +273,18 @@ void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
 
 // Initialisation ---------------------------------------------------------
 
-void init_snapshot() {
+sexp* init_memtools() {
   const char* snapshot_node_names_code = "c('id', 'type', 'parent')";
   snapshot_node_names = r_parse_eval(snapshot_node_names_code, r_base_env);
-  r_mark_precious(snapshot_node_names);
+  r_preserve_global(snapshot_node_names);
+  return r_null;
 }
 
 static
 const R_CallMethodDef r_callables[] = {
-  {"ptr_snapshot",           (r_void_fn) &snapshot, 1},
+  {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
+  {"c_ptr_init_library",           (r_void_fn) &r_init_library, 1},
+  {"c_ptr_init_memtools",          (r_void_fn) &init_memtools, 1},
   {NULL, NULL, 0}
 };
 
@@ -289,7 +292,4 @@ r_visible
 void R_init_memtools(DllInfo* dll) {
   R_registerRoutines(dll, NULL, r_callables, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
-
-  r_init_library();
-  init_snapshot();
 }
