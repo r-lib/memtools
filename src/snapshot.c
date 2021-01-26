@@ -100,7 +100,7 @@ sexp* snapshot(sexp* x) {
     struct snapshot_node node = v_nodes[i];
     r_chr_poke(id, i, node.id);
     r_chr_poke(type, i, r_type_as_string(node.type));
-    r_list_poke(arrows, i, node.arrow_list);
+    r_list_poke(arrows, i, arrow_list_compact(node.arrow_list));
   }
 
   FREE(2);
@@ -319,6 +319,25 @@ void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
   }
 
   r_list_poke(arrow_list, node->arrow_list_n++, arrow);
+}
+
+sexp* arrow_list_compact(sexp* x) {
+  sexp* const * v_x = r_list_deref_const(x);
+
+  r_ssize i = 0;
+  r_ssize n = r_length(x);
+
+  for (; i < n; ++i) {
+    if (v_x[i] == r_null) {
+      break;
+    }
+  }
+
+  if (i == n) {
+    return x;
+  } else {
+    return r_list_resize(x, i);
+  }
 }
 
 

@@ -1,4 +1,7 @@
 static
+sexp* arrow_list_compact(sexp* x);
+
+static
 size_t data_stack_size(size_t n);
 
 static
