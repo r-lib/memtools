@@ -167,6 +167,15 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   r_dict_put(&p_state->dict, x, node_location);
 
   FREE(3);
+
+  // Skip bindings of the global environment as they will contain
+  // objects from the debugging session, including memory snapshots.
+  // TODO: Traverse global env manually to collect hidden symbols
+  // starting with a dot.
+  if (parent == r_global_env && rel != R_NODE_RELATION_environment_enclos) {
+    return R_SEXP_ITERATE_skip;
+  }
+
   return R_SEXP_ITERATE_next;
 }
 
