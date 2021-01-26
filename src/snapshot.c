@@ -130,17 +130,19 @@ struct snapshot_state* new_snapshot_state() {
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_data, state_shelter);
 
-  sexp* data_stack_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_size(STACK_INIT_SIZE)));
+  r_ssize data_stack_n = data_stack_size(STACK_INIT_SIZE);
+  sexp* data_stack_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_n));
   r_list_poke(shelter, SHELTER_SNAPSHOT_stack, data_stack_shelter);
 
 
   sexp* node_stack_shelter_meta = r_new_vector(r_type_list, 2);
   r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_stack_shelter_meta);
 
-  sexp* node_stack_shelter = r_new_vector(r_type_raw, node_stack_size(NODES_INIT_SIZE));
+  r_ssize node_stack_n = node_stack_size(NODES_INIT_SIZE);
+  sexp* node_stack_shelter = r_new_vector(r_type_raw, node_stack_n);
   r_list_poke(node_stack_shelter_meta, 0, node_stack_shelter);
 
-  sexp* node_stack_shelter_extra = r_pairlist(r_new_vector(r_type_list, NODES_INIT_SIZE));
+  sexp* node_stack_shelter_extra = r_new_vector(r_type_list, NODES_INIT_SIZE);
   r_list_poke(node_stack_shelter_meta, 1, node_stack_shelter_extra);
 
 
@@ -150,12 +152,12 @@ struct snapshot_state* new_snapshot_state() {
 
   struct snapshot_data_stack* p_data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
   p_data_stack->shelter = data_stack_shelter;
-  p_data_stack->size = 0;
+  p_data_stack->size = data_stack_n;
 
   struct snapshot_node_stack* p_node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
   p_node_stack->shelter = node_stack_shelter_meta;
   p_node_stack->shelter_extra = node_stack_shelter_extra;
-  p_node_stack->size = 0;
+  p_node_stack->size = node_stack_n;
   p_node_stack->n = 0;
 
   struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
@@ -216,10 +218,9 @@ void node_stack_grow(struct snapshot_node_stack* x, r_ssize i) {
 static
 void node_stack_push(struct snapshot_node_stack* p_node_stack,
                      struct snapshot_node node) {
-  r_ssize n = p_node_stack->n + 1;
+  r_ssize n = p_node_stack->n++;
   node_stack_grow(p_node_stack, n);
 
-  p_node_stack->n = n;
   p_node_stack->v_nodes[n] = node;
 
   r_list_poke(p_node_stack->shelter_extra, n, node.shelter);
