@@ -102,28 +102,28 @@ enum r_sexp_iterate snapshot_iterator(void* data,
 
 // Snapshot data ----------------------------------------------------------
 
-enum snapshot_shelter {
-  SNAPSHOT_SHELTER_data,
-  SNAPSHOT_SHELTER_stack,
-  SNAPSHOT_SHELTER_nodes,
-  SNAPSHOT_SHELTER_dict,
-  SNAPSHOT_SHELTER_total_size
+enum shelter_snapshot {
+  SHELTER_SNAPSHOT_data,
+  SHELTER_SNAPSHOT_stack,
+  SHELTER_SNAPSHOT_nodes,
+  SHELTER_SNAPSHOT_dict,
+  SHELTER_SNAPSHOT_total_size
 };
 
 static
 struct snapshot_state* new_snapshot_state() {
-  sexp* shelter = KEEP(r_new_vector(r_type_list, SNAPSHOT_SHELTER_total_size));
+  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_total_size));
 
 
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
-  r_list_poke(shelter, SNAPSHOT_SHELTER_data, state_shelter);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_data, state_shelter);
 
   sexp* data_stack_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_size(STACK_INIT_SIZE)));
-  r_list_poke(shelter, SNAPSHOT_SHELTER_stack, data_stack_shelter);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_stack, data_stack_shelter);
 
 
   sexp* node_stack_shelter_meta = r_new_vector(r_type_list, 2);
-  r_list_poke(shelter, SNAPSHOT_SHELTER_nodes, node_stack_shelter_meta);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_stack_shelter_meta);
 
   sexp* node_stack_shelter = r_new_vector(r_type_raw, node_stack_size(NODES_INIT_SIZE));
   r_list_poke(node_stack_shelter_meta, 0, node_stack_shelter);
@@ -133,7 +133,7 @@ struct snapshot_state* new_snapshot_state() {
 
 
   struct r_dict dict = r_new_dict(DICT_INIT_SIZE);
-  r_list_poke(shelter, SNAPSHOT_SHELTER_dict, dict.shelter);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_dict, dict.shelter);
 
 
   struct snapshot_data_stack* p_data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
