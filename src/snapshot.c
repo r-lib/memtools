@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <rlang.h>
 
-static sexp* snapshot_node_names = NULL;
-
 #define DICT_INIT_SIZE 1024
 
 #define STACK_INIT_SIZE 1024
@@ -13,6 +11,24 @@ static sexp* snapshot_node_names = NULL;
 
 #define ARROWS_INIT_SIZE 5
 #define ARROWS_GROWTH_FACTOR 2
+
+
+static
+const char* snapshot_df_names_c_strings[] = {
+  "id",
+  "type",
+  "arrows"
+};
+static
+const enum r_type snapshot_df_types[] = {
+  r_type_character,
+  r_type_character,
+  r_type_list
+};
+
+#define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
+static sexp* snapshot_df_names = NULL;
+
 
 struct snapshot_data {
   r_ssize retained_size;
@@ -64,8 +80,31 @@ sexp* snapshot(sexp* x) {
 
   sexp_iterate(x, &snapshot_iterator, p_state);
 
-  FREE(1);
-  return r_null;
+  struct snapshot_node_stack* p_node_stack = p_state->p_node_stack;
+
+  // Transform to data frame
+  r_ssize n_rows = p_node_stack->n;
+  sexp* df = KEEP(r_alloc_df_list(n_rows,
+                                  snapshot_df_names,
+                                  snapshot_df_types,
+                                  SNAPSHOT_DF_SIZE));
+  r_init_tibble(df, n_rows);
+
+  sexp* id = r_list_get(df, 0);
+  sexp* type = r_list_get(df, 1);
+  sexp* arrows = r_list_get(df, 2);
+
+  struct snapshot_node* v_nodes = p_node_stack->v_nodes;
+
+  for (r_ssize i = 0; i < n_rows; ++i) {
+    struct snapshot_node node = v_nodes[i];
+    r_chr_poke(id, i, node.id);
+    r_chr_poke(type, i, r_type_as_string(node.type));
+    r_list_poke(arrows, i, node.arrow_list);
+  }
+
+  FREE(2);
+  return df;
 }
 
 static
@@ -286,9 +325,13 @@ void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
 // Initialisation ---------------------------------------------------------
 
 sexp* init_memtools() {
-  const char* snapshot_node_names_code = "c('id', 'type', 'parent')";
-  snapshot_node_names = r_parse_eval(snapshot_node_names_code, r_base_env);
-  r_preserve_global(snapshot_node_names);
+  size_t df_names_size = R_ARR_SIZEOF(snapshot_df_names_c_strings);
+  size_t df_types_size = R_ARR_SIZEOF(snapshot_df_types);
+  RLANG_ASSERT(df_names_size == df_types_size);
+
+  snapshot_df_names = r_chr_n(snapshot_df_names_c_strings, df_names_size);
+  r_preserve_global(snapshot_df_names);
+
   return r_null;
 }
 
