@@ -58,7 +58,7 @@ struct snapshot_node_stack {
   struct snapshot_node v_nodes[];
 };
 enum shelter_node {
-  SHELTER_NODE_id = 0,
+  SHELTER_NODE_location = 0,
   SHELTER_NODE_arrow_list
 };
 
@@ -122,22 +122,32 @@ enum r_sexp_iterate snapshot_iterator(void* data,
     return R_SEXP_ITERATE_next;
   }
 
-  bool seen = !r_dict_put(&p_state->dict, x, r_null);
-  if (seen && type == r_type_environment) {
+  sexp* id = KEEP(r_sexp_address(x));
+  sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
+
+  sexp* cached = r_dict_get0(&p_state->dict, x);
+  if (cached) {
+    int node_i = r_int_get(cached, 0);
+
+    struct snapshot_node* p_node = p_state->p_node_stack->v_nodes + node_i;
+    node_push_arrow(p_node, arrow);
+
+    FREE(2);
     return R_SEXP_ITERATE_skip;
   }
 
   data_stack_grow(p_state->p_data_stack, depth);
 
   if (dir == R_NODE_DIRECTION_outgoing) {
+    FREE(2);
     return R_SEXP_ITERATE_next;
     r_abort("TODO: Carry");
   }
 
   sexp* node_shelter = KEEP(r_new_list(2));
 
-  sexp* id = r_sexp_address(x);
-  r_list_poke(node_shelter, SHELTER_NODE_id, id);
+  sexp* node_location = r_int(p_state->p_node_stack->n);
+  r_list_poke(node_shelter, SHELTER_NODE_location, node_location);
 
   sexp* arrow_list = new_arrow_list(x);
   r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list);
@@ -150,13 +160,13 @@ enum r_sexp_iterate snapshot_iterator(void* data,
     .arrow_list = arrow_list
   };
 
-  // TODO: Update arrows of parent as well?
-  sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
   node_push_arrow(&node, arrow);
-
   node_stack_push(p_state, node);
 
-  FREE(2);
+  // Cache this node. FIXME: Shelter node via dictionary
+  r_dict_put(&p_state->dict, x, node_location);
+
+  FREE(3);
   return R_SEXP_ITERATE_next;
 }
 
@@ -325,11 +335,12 @@ void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
 
   if (node->arrow_list_n == n) {
     r_ssize new_n = r_ssize_mult(n, ARROWS_GROWTH_FACTOR);
-    arrow_list = r_list_resize(arrow_list, new_n);
+    arrow_list = node->arrow_list = r_list_resize(arrow_list, new_n);
     r_list_poke(node->shelter, SHELTER_NODE_arrow_list, arrow_list);
   }
 
-  r_list_poke(arrow_list, node->arrow_list_n++, arrow);
+  r_list_poke(arrow_list, node->arrow_list_n, arrow);
+  ++node->arrow_list_n;
 }
 
 sexp* arrow_list_compact(sexp* x) {
