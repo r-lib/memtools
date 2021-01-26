@@ -116,11 +116,17 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_relation rel,
                                       r_ssize i,
                                       enum r_node_direction dir) {
+  struct snapshot_state* p_state = (struct snapshot_state*) data;
+
   if (type == r_type_null) {
     return R_SEXP_ITERATE_next;
   }
 
-  struct snapshot_state* p_state = (struct snapshot_state*) data;
+  bool seen = !r_dict_put(&p_state->dict, x, r_null);
+  if (seen && type == r_type_environment) {
+    return R_SEXP_ITERATE_skip;
+  }
+
   data_stack_grow(p_state->p_data_stack, depth);
 
   if (dir == R_NODE_DIRECTION_outgoing) {
