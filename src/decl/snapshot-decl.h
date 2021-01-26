@@ -2,19 +2,19 @@ static
 sexp* arrow_list_compact(sexp* x);
 
 static
-size_t data_stack_size(size_t n);
+size_t data_stack_byte_size(size_t n);
 
 static
-size_t node_stack_size(size_t n);
+size_t node_stack_byte_size(size_t n);
 
 static inline
 void data_stack_grow(struct snapshot_data_stack* x, r_ssize i);
 
 static inline
-void node_stack_grow(struct snapshot_node_stack* x, r_ssize i);
+void node_stack_grow(struct snapshot_state* p_state, r_ssize i);
 
 static
-void node_stack_push(struct snapshot_node_stack* node_stack,
+void node_stack_push(struct snapshot_state* p_state,
                      struct snapshot_node node);
 
 static
