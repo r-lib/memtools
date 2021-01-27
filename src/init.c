@@ -7,7 +7,7 @@ sexp* init_memtools() {
   return r_null;
 }
 
-sexp* r_sexp_size(sexp* addr);
+sexp* r_sexp_self_size(sexp* addr);
 sexp* addr_deref(sexp* addr);
 sexp* snapshot(sexp* x);
 
@@ -16,7 +16,7 @@ const R_CallMethodDef r_callables[] = {
   {"c_ptr_init_library",           (r_void_fn) &r_init_library, 1},
   {"c_ptr_init_memtools",          (r_void_fn) &init_memtools, 1},
   {"c_ptr_addr_deref",             (r_void_fn) &addr_deref, 1},
-  {"c_ptr_sexp_size",              (r_void_fn) &r_sexp_size, 1},
+  {"c_ptr_sexp_self_size",         (r_void_fn) &r_sexp_self_size, 1},
   {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
   {NULL, NULL, 0}
 };

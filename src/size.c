@@ -1,6 +1,6 @@
 #include <rlang.h>
 
-double sexp_size(sexp* x, enum r_type type) {
+double sexp_self_size(sexp* x, enum r_type type) {
   switch (type) {
   case r_type_null:
   case r_type_special:
@@ -12,6 +12,6 @@ double sexp_size(sexp* x, enum r_type type) {
 }
 
 // [[ register() ]]
-sexp* r_sexp_size(sexp* x) {
-  return r_dbl(sexp_size(x, r_typeof(x)));
+sexp* r_sexp_self_size(sexp* x) {
+  return r_dbl(sexp_self_size(x, r_typeof(x)));
 }
