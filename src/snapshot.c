@@ -41,7 +41,6 @@ struct snapshot_data_stack {
 };
 
 struct snapshot_node {
-  sexp* shelter;
   sexp* id;
   enum r_type type;
   r_ssize size;
@@ -52,7 +51,6 @@ struct snapshot_node {
 };
 struct snapshot_node_stack {
   sexp* shelter;
-  sexp* shelter_extra;
   r_ssize size;
   r_ssize n;
   struct snapshot_node v_nodes[];
@@ -127,10 +125,10 @@ enum r_sexp_iterate snapshot_iterator(void* data,
 
   sexp* cached = r_dict_get0(&p_state->dict, x);
   if (cached) {
-    int node_i = r_int_get(cached, 0);
+    int node_i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
 
     struct snapshot_node* p_node = p_state->p_node_stack->v_nodes + node_i;
-    node_push_arrow(p_node, arrow);
+    node_push_arrow(p_node, arrow, cached);
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
@@ -144,8 +142,11 @@ enum r_sexp_iterate snapshot_iterator(void* data,
     r_abort("TODO: Carry");
   }
 
+  // Shelter node objects in the dictionary
   sexp* node_shelter = KEEP(r_new_list(2));
 
+  // Store node location in the stack so we can update the list of
+  // parents when the node is reached again
   sexp* node_location = r_int(p_state->p_node_stack->n);
   r_list_poke(node_shelter, SHELTER_NODE_location, node_location);
 
@@ -153,18 +154,16 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list);
 
   struct snapshot_node node = {
-    .shelter = node_shelter,
     .id = id,
     .type = type,
     .size = 10, // TODO: Actual size computation
     .arrow_list = arrow_list
   };
 
-  node_push_arrow(&node, arrow);
+  node_push_arrow(&node, arrow, node_shelter);
   node_stack_push(p_state, node);
 
-  // Cache this node. FIXME: Shelter node via dictionary
-  r_dict_put(&p_state->dict, x, node_location);
+  r_dict_put(&p_state->dict, x, node_shelter);
 
   FREE(3);
 
@@ -201,15 +200,8 @@ struct snapshot_state* new_snapshot_state() {
   sexp* data_stack_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_byte_size(STACK_INIT_SIZE)));
   r_list_poke(shelter, SHELTER_SNAPSHOT_stack, data_stack_shelter);
 
-
-  sexp* node_stack_shelter_meta = r_new_vector(r_type_list, 2);
-  r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_stack_shelter_meta);
-
-  sexp* node_stack_shelter = r_new_vector(r_type_raw, node_stack_byte_size(NODES_INIT_SIZE));
-  r_list_poke(node_stack_shelter_meta, 0, node_stack_shelter);
-
-  sexp* node_stack_shelter_extra = r_new_vector(r_type_list, NODES_INIT_SIZE);
-  r_list_poke(node_stack_shelter_meta, 1, node_stack_shelter_extra);
+  sexp* node_stack_shelter = r_pairlist(r_new_vector(r_type_raw, node_stack_byte_size(NODES_INIT_SIZE)));
+  r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_stack_shelter);
 
 
   struct r_dict dict = r_new_dict(DICT_INIT_SIZE);
@@ -220,9 +212,8 @@ struct snapshot_state* new_snapshot_state() {
   p_data_stack->shelter = data_stack_shelter;
   p_data_stack->size = STACK_INIT_SIZE;
 
-  struct snapshot_node_stack* p_node_stack = (struct snapshot_node_stack*) r_raw_deref(node_stack_shelter);
-  p_node_stack->shelter = node_stack_shelter_meta;
-  p_node_stack->shelter_extra = node_stack_shelter_extra;
+  struct snapshot_node_stack* p_node_stack = (struct snapshot_node_stack*) r_raw_deref(r_node_car(node_stack_shelter));
+  p_node_stack->shelter = node_stack_shelter;
   p_node_stack->size = NODES_INIT_SIZE;
   p_node_stack->n = 0;
 
@@ -272,14 +263,10 @@ void node_stack_grow(struct snapshot_state* p_state, r_ssize i) {
 
   size_t new_size = r_ssize_mult(size, NODES_GROWTH_FACTOR);
 
-  sexp* shelter = r_raw_resize(r_list_get(p_state->p_node_stack->shelter, 0),
-                               node_stack_byte_size(new_size));
-  struct snapshot_node_stack* p_node_stack = r_raw_deref(shelter);
-  r_list_poke(p_node_stack->shelter, 0, shelter);
-
-  sexp* shelter_extra = r_list_resize(p_node_stack->shelter_extra, new_size);
-  r_list_poke(p_node_stack->shelter, 1, shelter_extra);
-  p_node_stack->shelter_extra = shelter_extra;
+  sexp* node_stack_shelter = r_raw_resize(r_node_car(p_state->p_node_stack->shelter),
+                                          node_stack_byte_size(new_size));
+  struct snapshot_node_stack* p_node_stack = r_raw_deref(node_stack_shelter);
+  r_node_poke_car(p_node_stack->shelter, node_stack_shelter);
 
   p_node_stack->size = new_size;
   p_state->p_node_stack = p_node_stack;
@@ -292,7 +279,6 @@ void node_stack_push(struct snapshot_state* p_state,
   node_stack_grow(p_state, n);
 
   p_state->p_node_stack->v_nodes[n] = node;
-  r_list_poke(p_state->p_node_stack->shelter_extra, n, node.shelter);
 }
 
 
@@ -353,14 +339,18 @@ sexp* new_arrow(sexp* id,
 }
 
 static
-void node_push_arrow(struct snapshot_node* node, sexp* arrow) {
+void node_push_arrow(struct snapshot_node* node,
+                     sexp* arrow,
+                     sexp* shelter) {
   sexp* arrow_list = node->arrow_list;
   r_ssize n = r_length(arrow_list);
 
   if (node->arrow_list_n == n) {
     r_ssize new_n = r_ssize_mult(n, ARROWS_GROWTH_FACTOR);
-    arrow_list = node->arrow_list = r_list_resize(arrow_list, new_n);
-    r_list_poke(node->shelter, SHELTER_NODE_arrow_list, arrow_list);
+    arrow_list = r_list_resize(arrow_list, new_n);
+
+    r_list_poke(shelter, SHELTER_NODE_arrow_list, arrow_list);
+    node->arrow_list = arrow_list;
   }
 
   r_list_poke(arrow_list, node->arrow_list_n, arrow);

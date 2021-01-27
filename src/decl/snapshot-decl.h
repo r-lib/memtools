@@ -41,4 +41,6 @@ sexp* new_arrow(sexp* id,
                 r_ssize i);
 
 static
-void node_push_arrow(struct snapshot_node* node, sexp* arrow);
+void node_push_arrow(struct snapshot_node* node,
+                     sexp* arrow,
+                     sexp* shelter);
