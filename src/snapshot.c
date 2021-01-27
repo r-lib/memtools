@@ -28,7 +28,8 @@ const enum r_type snapshot_df_types[] = {
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
 
-static sexp* snapshot_df_names = NULL;
+static
+sexp* snapshot_df_names = NULL;
 
 
 struct snapshot_data {
@@ -314,7 +315,8 @@ const char* v_arrow_names_c_strs[] = {
 };
 #define ARROW_SIZE R_ARR_SIZEOF(v_arrow_names_c_strs)
 
-static sexp* arrow_names = NULL;
+static
+sexp* arrow_names = NULL;
 
 static
 sexp* new_arrow(sexp* id,
@@ -359,6 +361,7 @@ void node_push_arrow(struct snapshot_node* node,
   ++node->arrow_list_n;
 }
 
+static
 sexp* arrow_list_compact(sexp* x) {
   sexp* const * v_x = r_list_deref_const(x);
 
