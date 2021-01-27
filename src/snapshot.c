@@ -27,6 +27,7 @@ const enum r_type snapshot_df_types[] = {
 };
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
+
 static sexp* snapshot_df_names = NULL;
 
 
@@ -312,6 +313,7 @@ const char* v_arrow_names_c_strs[] = {
   "name"
 };
 #define ARROW_SIZE R_ARR_SIZEOF(v_arrow_names_c_strs)
+
 static sexp* arrow_names = NULL;
 
 static
@@ -377,25 +379,7 @@ sexp* arrow_list_compact(sexp* x) {
 }
 
 
-// Utils ------------------------------------------------------------------
-
-#include <stdlib.h>
-
-sexp* sexp_deref(sexp* addr) {
-  if (!r_is_string(addr)) {
-    r_abort("`addr` must be a string.");
-  }
-
-  const char* addr_c_str = r_chr_get_c_string(addr, 0);
-  sexp* obj = (sexp*) strtoul(addr_c_str, NULL, 0);
-
-  return obj;
-}
-
-
-// Initialisation ---------------------------------------------------------
-
-sexp* init_memtools() {
+void init_snapshot() {
   size_t df_names_size = R_ARR_SIZEOF(snapshot_df_names_c_strings);
   size_t df_types_size = R_ARR_SIZEOF(snapshot_df_types);
   RLANG_ASSERT(df_names_size == df_types_size);
@@ -405,21 +389,4 @@ sexp* init_memtools() {
 
   arrow_names = r_chr_n(v_arrow_names_c_strs, ARROW_SIZE);
   r_preserve_global(arrow_names);
-
-  return r_null;
-}
-
-static
-const R_CallMethodDef r_callables[] = {
-  {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
-  {"c_ptr_init_library",           (r_void_fn) &r_init_library, 1},
-  {"c_ptr_init_memtools",          (r_void_fn) &init_memtools, 1},
-  {"c_ptr_sexp_deref",             (r_void_fn) &sexp_deref, 1},
-  {NULL, NULL, 0}
-};
-
-r_visible
-void R_init_memtools(DllInfo* dll) {
-  R_registerRoutines(dll, NULL, r_callables, NULL, NULL);
-  R_useDynamicSymbols(dll, FALSE);
 }
