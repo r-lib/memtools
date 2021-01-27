@@ -17,7 +17,7 @@ static
 const char* snapshot_df_names_c_strings[] = {
   "id",
   "type",
-  "arrows"
+  "parents"
 };
 static
 const enum r_type snapshot_df_types[] = {
@@ -92,7 +92,7 @@ sexp* snapshot(sexp* x) {
 
   sexp* id = r_list_get(df, 0);
   sexp* type = r_list_get(df, 1);
-  sexp* arrows = r_list_get(df, 2);
+  sexp* parents = r_list_get(df, 2);
 
   struct snapshot_node* v_nodes = p_node_stack->v_nodes;
 
@@ -100,7 +100,7 @@ sexp* snapshot(sexp* x) {
     struct snapshot_node node = v_nodes[i];
     r_chr_poke(id, i, node.id);
     r_chr_poke(type, i, r_type_as_string(node.type));
-    r_list_poke(arrows, i, arrow_list_compact(node.arrow_list));
+    r_list_poke(parents, i, arrow_list_compact(node.arrow_list));
   }
 
   FREE(2);
