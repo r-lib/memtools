@@ -372,6 +372,22 @@ sexp* arrow_list_compact(sexp* x) {
 }
 
 
+// Utils ------------------------------------------------------------------
+
+#include <stdlib.h>
+
+sexp* sexp_deref(sexp* addr) {
+  if (!r_is_string(addr)) {
+    r_abort("`addr` must be a string.");
+  }
+
+  const char* addr_c_str = r_chr_get_c_string(addr, 0);
+  sexp* obj = (sexp*) strtoul(addr_c_str, NULL, 0);
+
+  return obj;
+}
+
+
 // Initialisation ---------------------------------------------------------
 
 sexp* init_memtools() {
@@ -390,6 +406,7 @@ const R_CallMethodDef r_callables[] = {
   {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
   {"c_ptr_init_library",           (r_void_fn) &r_init_library, 1},
   {"c_ptr_init_memtools",          (r_void_fn) &init_memtools, 1},
+  {"c_ptr_sexp_deref",             (r_void_fn) &sexp_deref, 1},
   {NULL, NULL, 0}
 };
 
