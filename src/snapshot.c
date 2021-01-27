@@ -318,20 +318,35 @@ sexp* new_arrow_list(sexp* x) {
 }
 
 static
+const char* v_arrow_names_c_strs[] = {
+  "from_to",
+  "depth",
+  "rel",
+  "i",
+  "name"
+};
+#define ARROW_SIZE R_ARR_SIZEOF(v_arrow_names_c_strs)
+static sexp* arrow_names = NULL;
+
+static
 sexp* new_arrow(sexp* id,
                 int depth,
                 sexp* parent,
                 enum r_node_relation rel,
                 r_ssize i) {
-  sexp* arrow = KEEP(r_new_vector(r_type_list, 5));
+  sexp* arrow = KEEP(r_new_vector(r_type_list, ARROW_SIZE));
 
-  sexp* to_from = r_new_vector(r_type_character, 2);
+  sexp* to_from = r_new_vector(r_type_character, 5);
   r_list_poke(arrow, 0, to_from);
+  r_list_poke(arrow, 1, r_int(depth));
+  r_list_poke(arrow, 2, r_chr(r_node_relation_as_c_string(rel)));
+  r_list_poke(arrow, 3, r_len(i));
+  r_list_poke(arrow, 4, r_null); // TODO: Fetch name
 
   r_chr_poke(to_from, 0, r_sexp_address(parent));
   r_chr_poke(to_from, 1, id);
 
-  // TODO: Add rest of data
+  r_attrib_poke_names(arrow, arrow_names);
 
   FREE(1);
   return arrow;
@@ -397,6 +412,9 @@ sexp* init_memtools() {
 
   snapshot_df_names = r_chr_n(snapshot_df_names_c_strings, df_names_size);
   r_preserve_global(snapshot_df_names);
+
+  arrow_names = r_chr_n(v_arrow_names_c_strs, ARROW_SIZE);
+  r_preserve_global(arrow_names);
 
   return r_null;
 }
