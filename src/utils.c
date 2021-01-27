@@ -2,7 +2,7 @@
 #include <rlang.h>
 
 // [[ register() ]]
-sexp* sexp_deref(sexp* addr) {
+sexp* addr_deref(sexp* addr) {
   if (!r_is_string(addr)) {
     r_abort("`addr` must be a string.");
   }

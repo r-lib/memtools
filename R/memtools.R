@@ -5,6 +5,6 @@ mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
 }
 
-sexp_deref <- function(x) {
-  .Call(c_ptr_sexp_deref, x)
+addr_deref <- function(x) {
+  .Call(c_ptr_addr_deref, x)
 }
