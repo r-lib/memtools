@@ -338,13 +338,23 @@ sexp* new_arrow_list(sexp* x) {
 
 static
 const char* v_arrow_names_c_strs[] = {
-  "from_to",
+  "parent",
+  "child",
   "depth",
   "rel",
   "i",
   "name"
 };
 #define ARROW_SIZE R_ARR_SIZEOF(v_arrow_names_c_strs)
+
+enum arrow_locs {
+  ARROW_LOCS_parent = 0,
+  ARROW_LOCS_child,
+  ARROW_LOCS_depth,
+  ARROW_LOCS_rel,
+  ARROW_LOCS_i,
+  ARROW_LOCS_name
+};
 
 static
 sexp* arrow_names = NULL;
@@ -356,20 +366,18 @@ sexp* new_arrow(sexp* id,
                 enum r_node_relation rel,
                 r_ssize i) {
   sexp* arrow = KEEP(r_new_vector(r_type_list, ARROW_SIZE));
+  sexp* addr_parent = KEEP(r_sexp_address(parent));
 
-  sexp* to_from = r_new_vector(r_type_character, 5);
-  r_list_poke(arrow, 0, to_from);
-  r_list_poke(arrow, 1, r_int(depth));
-  r_list_poke(arrow, 2, r_chr(r_node_relation_as_c_string(rel)));
-  r_list_poke(arrow, 3, r_len(i));
-  r_list_poke(arrow, 4, r_null); // TODO: Fetch name
-
-  r_chr_poke(to_from, 0, r_sexp_address(parent));
-  r_chr_poke(to_from, 1, id);
+  r_list_poke(arrow, ARROW_LOCS_parent, r_str_as_character(addr_parent));
+  r_list_poke(arrow, ARROW_LOCS_child, r_str_as_character(id));
+  r_list_poke(arrow, ARROW_LOCS_depth, r_int(depth));
+  r_list_poke(arrow, ARROW_LOCS_rel, r_chr(r_node_relation_as_c_string(rel)));
+  r_list_poke(arrow, ARROW_LOCS_i, r_len(i));
+  r_list_poke(arrow, ARROW_LOCS_name, r_null); // TODO: Fetch name
 
   r_attrib_poke_names(arrow, arrow_names);
 
-  FREE(1);
+  FREE(2);
   return arrow;
 }
 
