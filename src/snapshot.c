@@ -19,20 +19,26 @@ const char* snapshot_df_names_c_strings[] = {
   "id",
   "type",
   "parents",
-  "self_size"
+  "self_size",
+  "retained_size",
+  "retained_count"
 };
 static
 const enum r_type snapshot_df_types[] = {
   r_type_character,
   r_type_character,
   r_type_list,
-  r_type_double
+  r_type_double,
+  r_type_double,
+  r_type_integer
 };
 enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_id = 0,
   SNAPSHOT_DF_LOCS_type,
   SNAPSHOT_DF_LOCS_parents,
-  SNAPSHOT_DF_LOCS_self_size
+  SNAPSHOT_DF_LOCS_self_size,
+  SNAPSHOT_DF_LOCS_retained_size,
+  SNAPSHOT_DF_LOCS_retained_count
 };
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
@@ -104,8 +110,12 @@ sexp* snapshot(sexp* x) {
   sexp* type = r_list_get(df, SNAPSHOT_DF_LOCS_type);
   sexp* parents = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
   sexp* self_size = r_list_get(df, SNAPSHOT_DF_LOCS_self_size);
+  sexp* retained_size = r_list_get(df, SNAPSHOT_DF_LOCS_retained_size);
+  sexp* retained_count = r_list_get(df, SNAPSHOT_DF_LOCS_retained_count);
 
   double* v_self_size = r_dbl_deref(self_size);
+  double* v_retained_size = r_dbl_deref(retained_size);
+  int* v_retained_count = r_int_deref(retained_count);
 
   struct snapshot_node* v_nodes = p_node_stack->v_nodes;
 
@@ -115,6 +125,8 @@ sexp* snapshot(sexp* x) {
     r_chr_poke(type, i, r_type_as_string(node.type));
     r_list_poke(parents, i, arrow_list_compact(node.arrow_list));
     v_self_size[i] = r_ssize_as_double(node.self_size);
+    v_retained_size[i] = r_ssize_as_double(node.retained_size);
+    v_retained_count[i] = r_ssize_as_integer(node.retained_count);
   }
 
   FREE(2);
@@ -122,7 +134,13 @@ sexp* snapshot(sexp* x) {
 }
 
 static
-enum r_sexp_iterate snapshot_iterator(void* data,
+struct snapshot_node* get_cached_node(struct snapshot_state* p_state, sexp* cached) {
+  int node_i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
+  return &p_state->p_node_stack->v_nodes[node_i];
+}
+
+static
+enum r_sexp_iterate snapshot_iterator(void* payload,
                                       sexp* x,
                                       enum r_type type,
                                       int depth,
@@ -130,34 +148,54 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_relation rel,
                                       r_ssize i,
                                       enum r_node_direction dir) {
-  struct snapshot_state* p_state = (struct snapshot_state*) data;
+  struct snapshot_state* p_state = (struct snapshot_state*) payload;
 
   if (type == r_type_null) {
     return R_SEXP_ITERATE_next;
   }
 
+  sexp* cached = r_dict_get0(&p_state->dict, x);
+
+  struct snapshot_data_stack* p_data_stack = p_state->p_data_stack;
+  struct snapshot_data* p_data = &p_data_stack->v_data[p_data_stack->n - 1];
+
+  if (!cached && dir == R_NODE_DIRECTION_incoming) {
+    // Push node
+    data_stack_push(&p_state->p_data_stack);
+  }
+
+  if (dir == R_NODE_DIRECTION_outgoing) {
+    // Commit
+    struct snapshot_node* p_node = get_cached_node(p_state, cached);
+    p_node->retained_count = p_data->retained_count;
+    p_node->retained_size = p_data->retained_size;
+
+    // Collect
+    p_data->retained_count += 1;
+    p_data->retained_size += p_node->self_size;
+
+    // Pop
+    --p_data_stack->n;
+
+    // Carry
+    r_ssize i = p_data_stack->n - 1;
+    p_data_stack->v_data[i].retained_size += p_data->retained_size;
+    p_data_stack->v_data[i].retained_count += p_data->retained_count;
+
+    return R_SEXP_ITERATE_next;
+  }
+
+
   sexp* id = KEEP(r_sexp_address(x));
   sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
 
-  sexp* cached = r_dict_get0(&p_state->dict, x);
   if (cached) {
-    int node_i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
-
-    struct snapshot_node* p_node = p_state->p_node_stack->v_nodes + node_i;
+    struct snapshot_node* p_node = get_cached_node(p_state, cached);
     node_push_arrow(p_node, arrow, cached);
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
   }
-
-  if (dir == R_NODE_DIRECTION_outgoing) {
-    FREE(2);
-    return R_SEXP_ITERATE_next;
-    r_abort("TODO: Carry");
-  }
-
-  struct snapshot_data stack_data = { 0 };
-  data_stack_push(&p_state->p_data_stack, stack_data);
 
   // Shelter node objects in the dictionary
   sexp* node_shelter = KEEP(r_new_list(2));
@@ -181,8 +219,15 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   node_stack_push(p_state, node);
 
   r_dict_put(&p_state->dict, x, node_shelter);
-
   FREE(3);
+
+  // Collect leaf
+  if (dir == R_NODE_DIRECTION_leaf) {
+    // FIXME: What if root is a leaf?
+    p_data->retained_count += 1;
+    p_data->retained_size += node.self_size;
+  }
+
 
   // Skip bindings of the global environment as they will contain
   // objects from the debugging session, including memory snapshots.
@@ -297,12 +342,14 @@ void node_stack_grow(struct snapshot_state* p_state, r_ssize i) {
 }
 
 static
-void data_stack_push(struct snapshot_data_stack** pp_data_stack,
-                     struct snapshot_data data) {
-  r_ssize n = ((*pp_data_stack)->n)++;
-  data_stack_grow(pp_data_stack, n);
+void data_stack_push(struct snapshot_data_stack** pp_stack) {
+  r_ssize i = (*pp_stack)->n;
+  data_stack_grow(pp_stack, i);
 
-  (*pp_data_stack)->v_data[n] = data;
+  static const struct snapshot_data empty_data = { 0 };
+  (*pp_stack)->v_data[i] = empty_data;
+
+  ++((*pp_stack)->n);
 }
 
 static

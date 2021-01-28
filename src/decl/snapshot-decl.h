@@ -11,8 +11,7 @@ static
 void data_stack_grow(struct snapshot_data_stack** pp_x, r_ssize i);
 
 static
-void data_stack_push(struct snapshot_data_stack** pp_data_stack,
-                     struct snapshot_data data);
+void data_stack_push(struct snapshot_data_stack** pp_data_stack);
 
 static
 void node_stack_grow(struct snapshot_state* p_state, r_ssize i);
