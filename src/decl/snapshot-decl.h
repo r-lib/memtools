@@ -7,10 +7,14 @@ size_t data_stack_byte_size(size_t n);
 static
 size_t node_stack_byte_size(size_t n);
 
-static inline
-void data_stack_grow(struct snapshot_data_stack* x, r_ssize i);
+static
+void data_stack_grow(struct snapshot_data_stack** pp_x, r_ssize i);
 
-static inline
+static
+void data_stack_push(struct snapshot_data_stack** pp_data_stack,
+                     struct snapshot_data data);
+
+static
 void node_stack_grow(struct snapshot_state* p_state, r_ssize i);
 
 static
