@@ -10,6 +10,7 @@ r_ssize sizes_vector = -1;
 
 r_ssize sexp_self_size(sexp* x, enum r_type type) {
   if (ALTREP(x)) {
+    return 0;
     r_abort("TODO: altrep size");
   }
 

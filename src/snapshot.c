@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <rlang.h>
+#include "size.h"
 
 #define DICT_INIT_SIZE 1024
 
@@ -17,13 +18,21 @@ static
 const char* snapshot_df_names_c_strings[] = {
   "id",
   "type",
-  "parents"
+  "parents",
+  "self_size"
 };
 static
 const enum r_type snapshot_df_types[] = {
   r_type_character,
   r_type_character,
-  r_type_list
+  r_type_list,
+  r_type_double
+};
+enum snapshot_df_locs {
+  SNAPSHOT_DF_LOCS_id = 0,
+  SNAPSHOT_DF_LOCS_type,
+  SNAPSHOT_DF_LOCS_parents,
+  SNAPSHOT_DF_LOCS_self_size
 };
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
@@ -45,7 +54,7 @@ struct snapshot_data_stack {
 struct snapshot_node {
   sexp* id;
   enum r_type type;
-  r_ssize size;
+  r_ssize self_size;
   sexp* arrow_list;
   int arrow_list_n;
   r_ssize retained_count;
@@ -90,9 +99,12 @@ sexp* snapshot(sexp* x) {
                                   SNAPSHOT_DF_SIZE));
   r_init_tibble(df, n_rows);
 
-  sexp* id = r_list_get(df, 0);
-  sexp* type = r_list_get(df, 1);
-  sexp* parents = r_list_get(df, 2);
+  sexp* id = r_list_get(df, SNAPSHOT_DF_LOCS_id);
+  sexp* type = r_list_get(df, SNAPSHOT_DF_LOCS_type);
+  sexp* parents = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
+  sexp* self_size = r_list_get(df, SNAPSHOT_DF_LOCS_self_size);
+
+  double* v_self_size = r_dbl_deref(self_size);
 
   struct snapshot_node* v_nodes = p_node_stack->v_nodes;
 
@@ -101,6 +113,7 @@ sexp* snapshot(sexp* x) {
     r_chr_poke(id, i, node.id);
     r_chr_poke(type, i, r_type_as_string(node.type));
     r_list_poke(parents, i, arrow_list_compact(node.arrow_list));
+    v_self_size[i] = r_ssize_as_double(node.self_size);
   }
 
   FREE(2);
@@ -158,7 +171,7 @@ enum r_sexp_iterate snapshot_iterator(void* data,
   struct snapshot_node node = {
     .id = id,
     .type = type,
-    .size = 10, // TODO: Actual size computation
+    .self_size = sexp_self_size(x, type),
     .arrow_list = arrow_list
   };
 
