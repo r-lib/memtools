@@ -81,7 +81,7 @@ enum shelter_node {
 
 struct snapshot_state {
   sexp* shelter;
-  struct r_dict dict;
+  struct r_dict* p_dict;
   struct snapshot_node_stack* p_node_stack;
   struct snapshot_data_stack* p_data_stack;
 };
@@ -154,7 +154,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     return R_SEXP_ITERATE_next;
   }
 
-  sexp* cached = r_dict_get0(&p_state->dict, x);
+  sexp* cached = r_dict_get0(p_state->p_dict, x);
 
   struct snapshot_data_stack* p_data_stack = p_state->p_data_stack;
   struct snapshot_data* p_data = &p_data_stack->v_data[p_data_stack->n - 1];
@@ -218,7 +218,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   node_push_arrow(&node, arrow, node_shelter);
   node_stack_push(p_state, node);
 
-  r_dict_put(&p_state->dict, x, node_shelter);
+  r_dict_put(p_state->p_dict, x, node_shelter);
   FREE(3);
 
   // Collect leaf
@@ -266,8 +266,8 @@ struct snapshot_state* new_snapshot_state() {
   r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_stack_shelter);
 
 
-  struct r_dict dict = r_new_dict(DICT_INIT_SIZE);
-  r_list_poke(shelter, SHELTER_SNAPSHOT_dict, dict.shelter);
+  struct r_dict* p_dict = r_new_dict(DICT_INIT_SIZE);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_dict, p_dict->shelter);
 
 
   struct snapshot_data_stack* p_data_stack = (struct snapshot_data_stack*) r_raw_deref(r_node_car(data_stack_shelter));
@@ -284,7 +284,7 @@ struct snapshot_state* new_snapshot_state() {
   state->shelter = shelter;
   state->p_node_stack = p_node_stack;
   state->p_data_stack = p_data_stack;
-  state->dict = dict;
+  state->p_dict = p_dict;
 
   FREE(1);
   return state;
