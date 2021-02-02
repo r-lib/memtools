@@ -55,7 +55,7 @@ struct snapshot_data_vector {
   sexp* shelter;
   r_ssize size;
   r_ssize n;
-  struct snapshot_data v_data[];
+  struct snapshot_data* v_data;
 };
 
 struct snapshot_node {
@@ -71,7 +71,7 @@ struct snapshot_node_vector {
   sexp* shelter;
   r_ssize size;
   r_ssize n;
-  struct snapshot_node v_nodes[];
+  struct snapshot_node* v_nodes;
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
@@ -161,7 +161,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   if (!cached && dir == R_NODE_DIRECTION_incoming) {
     // Push node
-    data_stack_push(&p_state->p_data_vec);
+    data_vec_push(p_state->p_data_vec);
   }
 
   if (dir == R_NODE_DIRECTION_outgoing) {
@@ -216,7 +216,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   };
 
   node_push_arrow(&node, arrow, node_shelter);
-  node_stack_push(p_state, node);
+  node_vec_push(p_state->p_node_vec, node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
   FREE(3);
@@ -244,8 +244,8 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 // Snapshot data ----------------------------------------------------------
 
 enum shelter_snapshot {
+  SHELTER_SNAPSHOT_state,
   SHELTER_SNAPSHOT_data,
-  SHELTER_SNAPSHOT_stack,
   SHELTER_SNAPSHOT_nodes,
   SHELTER_SNAPSHOT_dict,
   SHELTER_SNAPSHOT_total_size
@@ -255,30 +255,17 @@ static
 struct snapshot_state* new_snapshot_state() {
   sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_total_size));
 
-
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
-  r_list_poke(shelter, SHELTER_SNAPSHOT_data, state_shelter);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
 
-  sexp* data_vec_shelter = r_pairlist(r_new_vector(r_type_raw, data_stack_byte_size(STACK_INIT_SIZE)));
-  r_list_poke(shelter, SHELTER_SNAPSHOT_stack, data_vec_shelter);
+  struct snapshot_data_vector* p_data_vec = new_data_vector(STACK_INIT_SIZE);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_data, p_data_vec->shelter);
 
-  sexp* node_vec_shelter = r_pairlist(r_new_vector(r_type_raw, node_stack_byte_size(NODES_INIT_SIZE)));
-  r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, node_vec_shelter);
-
+  struct snapshot_node_vector* p_node_vec = new_node_vector(NODES_INIT_SIZE);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, p_node_vec->shelter);
 
   struct r_dict* p_dict = r_new_dict(DICT_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_dict, p_dict->shelter);
-
-
-  struct snapshot_data_vector* p_data_vec = (struct snapshot_data_vector*) r_raw_deref(r_node_car(data_vec_shelter));
-  p_data_vec->shelter = data_vec_shelter;
-  p_data_vec->size = STACK_INIT_SIZE;
-  p_data_vec->n = 0;
-
-  struct snapshot_node_vector* p_node_vec = (struct snapshot_node_vector*) r_raw_deref(r_node_car(node_vec_shelter));
-  p_node_vec->shelter = node_vec_shelter;
-  p_node_vec->size = NODES_INIT_SIZE;
-  p_node_vec->n = 0;
 
   struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
   state->shelter = shelter;
@@ -290,75 +277,95 @@ struct snapshot_state* new_snapshot_state() {
   return state;
 }
 
+
 static
-size_t data_stack_byte_size(size_t n) {
-  return
-    sizeof(struct snapshot_data_vector) +
-    sizeof(struct snapshot_data) * n;
-}
-static
-size_t node_stack_byte_size(size_t n) {
-  return
-    sizeof(struct snapshot_node_vector) +
-    sizeof(struct snapshot_node) * n;
+struct snapshot_data_vector* new_data_vector(size_t size) {
+  sexp* shelter = KEEP(r_new_list(2));
+
+  sexp* vec_raw = r_new_raw0(sizeof(struct snapshot_data_vector));
+  r_list_poke(shelter, 0, vec_raw);
+
+  sexp* arr_raw = r_new_raw(sizeof(struct snapshot_data) * size);
+  r_list_poke(shelter, 1, arr_raw);
+
+  struct snapshot_data_vector* p_vec = r_raw_deref(vec_raw);
+  p_vec->shelter = shelter;
+  p_vec->size = size;
+  p_vec->v_data = r_raw_deref(arr_raw);
+
+  FREE(1);
+  return p_vec;
 }
 
 static
-void data_stack_grow(struct snapshot_data_vector** pp_x, r_ssize i) {
-  struct snapshot_data_vector* p_x = *pp_x;
-
-  r_ssize size = p_x->size;
-  if (i <= size) {
+void data_vec_grow(struct snapshot_data_vector* p_vec, r_ssize i) {
+  r_ssize size = p_vec->size;
+  if (i < size) {
     return;
   }
 
   r_ssize new_size = r_ssize_mult(size, STACK_GROWTH_FACTOR);
 
-  sexp* shelter = r_raw_resize(r_node_car(p_x->shelter),
-                               data_stack_byte_size(new_size));
-  p_x = (struct snapshot_data_vector*) r_raw_deref(shelter);
-  r_node_poke_car(p_x->shelter, shelter);
+  sexp* arr_raw = r_raw_resize(r_list_get(p_vec->shelter, 1),
+                               sizeof(struct snapshot_data) * new_size);
+  r_list_poke(p_vec->shelter, 1, arr_raw);
 
-  p_x->size = new_size;
-  *pp_x = p_x;
+  p_vec->size = new_size;
+  p_vec->v_data = r_raw_deref(arr_raw);
 }
 
 static
-void node_stack_grow(struct snapshot_state* p_state, r_ssize i) {
-  r_ssize size = p_state->p_node_vec->size;
+void data_vec_push(struct snapshot_data_vector* p_vec) {
+  ++p_vec->n;
+  r_ssize i = p_vec->n - 1;
+  data_vec_grow(p_vec, i);
+  p_vec->v_data[i] = (struct snapshot_data) { 0 };
+}
+
+
+static
+struct snapshot_node_vector* new_node_vector(size_t size) {
+  sexp* shelter = KEEP(r_new_list(2));
+
+  sexp* vec_raw = r_new_raw0(sizeof(struct snapshot_node_vector));
+  r_list_poke(shelter, 0, vec_raw);
+
+  sexp* arr_raw = r_new_raw(sizeof(struct snapshot_node) * size);
+  r_list_poke(shelter, 1, arr_raw);
+
+  struct snapshot_node_vector* p_vec = r_raw_deref(vec_raw);
+  p_vec->shelter = shelter;
+  p_vec->size = size;
+  p_vec->v_nodes = r_raw_deref(arr_raw);
+
+  FREE(1);
+  return p_vec;
+}
+
+static
+void node_vec_grow(struct snapshot_node_vector* p_vec, r_ssize i) {
+  r_ssize size = p_vec->size;
   if (i < size) {
     return;
   }
 
   r_ssize new_size = r_ssize_mult(size, NODES_GROWTH_FACTOR);
 
-  sexp* node_vec_shelter = r_raw_resize(r_node_car(p_state->p_node_vec->shelter),
-                                          node_stack_byte_size(new_size));
-  struct snapshot_node_vector* p_node_vec = r_raw_deref(node_vec_shelter);
-  r_node_poke_car(p_node_vec->shelter, node_vec_shelter);
+  sexp* arr_raw = r_raw_resize(r_list_get(p_vec->shelter, 1),
+                               sizeof(struct snapshot_node) * new_size);
+  r_list_poke(p_vec->shelter, 1, arr_raw);
 
-  p_node_vec->size = new_size;
-  p_state->p_node_vec = p_node_vec;
+  p_vec->size = new_size;
+  p_vec->v_nodes = r_raw_deref(arr_raw);
 }
 
 static
-void data_stack_push(struct snapshot_data_vector** pp_stack) {
-  r_ssize i = (*pp_stack)->n;
-  data_stack_grow(pp_stack, i);
-
-  static const struct snapshot_data empty_data = { 0 };
-  (*pp_stack)->v_data[i] = empty_data;
-
-  ++((*pp_stack)->n);
-}
-
-static
-void node_stack_push(struct snapshot_state* p_state,
-                     struct snapshot_node node) {
-  r_ssize n = p_state->p_node_vec->n++;
-  node_stack_grow(p_state, n);
-
-  p_state->p_node_vec->v_nodes[n] = node;
+void node_vec_push(struct snapshot_node_vector* p_vec,
+                   struct snapshot_node node) {
+  ++p_vec->n;
+  r_ssize i = p_vec->n - 1;
+  node_vec_grow(p_vec, i);
+  p_vec->v_nodes[i] = node;
 }
 
 
