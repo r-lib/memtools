@@ -8,10 +8,10 @@ static
 size_t node_stack_byte_size(size_t n);
 
 static
-void data_stack_grow(struct snapshot_data_stack** pp_x, r_ssize i);
+void data_stack_grow(struct snapshot_data_vector** pp_x, r_ssize i);
 
 static
-void data_stack_push(struct snapshot_data_stack** pp_data_stack);
+void data_stack_push(struct snapshot_data_vector** pp_data_stack);
 
 static
 void node_stack_grow(struct snapshot_state* p_state, r_ssize i);
