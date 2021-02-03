@@ -2,25 +2,6 @@ static
 sexp* arrow_list_compact(sexp* x);
 
 static
-struct snapshot_data_vector* new_data_vector(size_t size);
-
-static
-void data_vec_grow(struct snapshot_data_vector* p_vec, r_ssize i);
-
-static
-void data_vec_push(struct snapshot_data_vector* p_vec);
-
-static
-struct snapshot_node_vector* new_node_vector(size_t size);
-
-static
-void node_vec_grow(struct snapshot_node_vector* p_vec, r_ssize i);
-
-static
-void node_vec_push(struct snapshot_node_vector* p_vec,
-                   struct snapshot_node node);
-
-static
 struct snapshot_state* new_snapshot_state();
 
 static
