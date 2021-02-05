@@ -56,8 +56,7 @@ struct snapshot_node {
   sexp* id;
   enum r_type type;
   r_ssize self_size;
-  sexp* arrow_list;
-  int arrow_list_n;
+  struct r_dyn_array* arrow_list;
   r_ssize retained_count;
   r_ssize retained_size;
 };
@@ -110,7 +109,7 @@ sexp* snapshot(sexp* x) {
     struct snapshot_node node = v_nodes[i];
     r_chr_poke(id, i, node.id);
     r_chr_poke(type, i, r_type_as_string(node.type));
-    r_list_poke(parents, i, arrow_list_compact(node.arrow_list));
+    r_list_poke(parents, i, r_arr_unwrap(node.arrow_list));
     v_self_size[i] = r_ssize_as_double(node.self_size);
     v_retained_size[i] = r_ssize_as_double(node.retained_size);
     v_retained_count[i] = r_ssize_as_integer(node.retained_count);
@@ -177,7 +176,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   if (cached) {
     struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
-    node_push_arrow(p_node, arrow, cached);
+    r_arr_push_back(p_node->arrow_list, arrow);
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
@@ -191,8 +190,9 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   sexp* node_location = r_int(p_node_arr->count);
   r_list_poke(node_shelter, SHELTER_NODE_location, node_location);
 
-  sexp* arrow_list = new_arrow_list(x);
-  r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list);
+  struct r_dyn_array* arrow_list = new_arrow_dyn_list(x);
+  r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list->shelter);
+  r_arr_push_back(arrow_list, arrow);
 
   struct snapshot_node node = {
     .id = id,
@@ -200,8 +200,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     .self_size = sexp_self_size(x, type),
     .arrow_list = arrow_list
   };
-
-  node_push_arrow(&node, arrow, node_shelter);
   r_arr_push_back(p_state->p_node_arr, &node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
@@ -267,7 +265,7 @@ struct snapshot_state* new_snapshot_state() {
 // Nodes and arrows -------------------------------------------------------
 
 static
-sexp* new_arrow_list(sexp* x) {
+struct r_dyn_array* new_arrow_dyn_list(sexp* x) {
   // Make space for a few arrows per node. The arrow lists are
   // compacted later on.
   r_ssize n = ARROWS_INIT_SIZE;
@@ -282,7 +280,7 @@ sexp* new_arrow_list(sexp* x) {
     break;
   }
 
-  return r_new_list(n);
+  return r_new_dyn_vector(r_type_list, n);
 }
 
 static
@@ -329,46 +327,6 @@ sexp* new_arrow(sexp* id,
   FREE(2);
   return arrow;
 }
-
-static
-void node_push_arrow(struct snapshot_node* node,
-                     sexp* arrow,
-                     sexp* shelter) {
-  sexp* arrow_list = node->arrow_list;
-  r_ssize n = r_length(arrow_list);
-
-  if (node->arrow_list_n == n) {
-    r_ssize new_n = r_ssize_mult(n, ARROWS_GROWTH_FACTOR);
-    arrow_list = r_list_resize(arrow_list, new_n);
-
-    r_list_poke(shelter, SHELTER_NODE_arrow_list, arrow_list);
-    node->arrow_list = arrow_list;
-  }
-
-  r_list_poke(arrow_list, node->arrow_list_n, arrow);
-  ++node->arrow_list_n;
-}
-
-static
-sexp* arrow_list_compact(sexp* x) {
-  sexp* const * v_x = r_list_deref_const(x);
-
-  r_ssize i = 0;
-  r_ssize n = r_length(x);
-
-  for (; i < n; ++i) {
-    if (v_x[i] == r_null) {
-      break;
-    }
-  }
-
-  if (i == n) {
-    return x;
-  } else {
-    return r_list_resize(x, i);
-  }
-}
-
 
 void init_snapshot() {
   size_t df_names_size = R_ARR_SIZEOF(snapshot_df_names_c_strings);
