@@ -146,11 +146,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   struct r_dyn_array* p_data_arr = p_state->p_data_arr;
   struct snapshot_data* p_data = r_arr_ptr_back(p_data_arr);
 
-  if (!cached && dir == R_NODE_DIRECTION_incoming) {
-    // Push node
-    r_arr_push_back(p_data_arr, 0);
-  }
-
   if (dir == R_NODE_DIRECTION_outgoing) {
     // Commit node
     struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
@@ -180,6 +175,11 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
+  }
+
+  if (dir == R_NODE_DIRECTION_incoming) {
+    // Push node
+    r_arr_push_back(p_data_arr, 0);
   }
 
   // Shelter node objects in the dictionary
