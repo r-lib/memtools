@@ -19,26 +19,20 @@ const char* snapshot_df_names_c_strings[] = {
   "id",
   "type",
   "parents",
-  "self_size",
-  "retained_size",
-  "retained_count"
+  "self_size"
 };
 static
 const enum r_type snapshot_df_types[] = {
   r_type_character,
   r_type_character,
   r_type_list,
-  r_type_double,
-  r_type_double,
-  r_type_integer
+  r_type_double
 };
 enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_id = 0,
   SNAPSHOT_DF_LOCS_type,
   SNAPSHOT_DF_LOCS_parents,
-  SNAPSHOT_DF_LOCS_self_size,
-  SNAPSHOT_DF_LOCS_retained_size,
-  SNAPSHOT_DF_LOCS_retained_count
+  SNAPSHOT_DF_LOCS_self_size
 };
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
@@ -47,18 +41,11 @@ static
 sexp* snapshot_df_names = NULL;
 
 
-struct snapshot_data {
-  r_ssize retained_size;
-  r_ssize retained_count;
-};
-
 struct snapshot_node {
   sexp* id;
   enum r_type type;
   r_ssize self_size;
   struct r_dyn_array* arrow_list;
-  r_ssize retained_count;
-  r_ssize retained_size;
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
@@ -69,7 +56,6 @@ struct snapshot_state {
   sexp* shelter;
   struct r_dict* p_dict;
   struct r_dyn_array* p_node_arr;
-  struct r_dyn_array* p_data_arr;
 };
 
 #include "decl/snapshot-decl.h"
@@ -96,12 +82,7 @@ sexp* snapshot(sexp* x) {
   sexp* type = r_list_get(df, SNAPSHOT_DF_LOCS_type);
   sexp* parents = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
   sexp* self_size = r_list_get(df, SNAPSHOT_DF_LOCS_self_size);
-  sexp* retained_size = r_list_get(df, SNAPSHOT_DF_LOCS_retained_size);
-  sexp* retained_count = r_list_get(df, SNAPSHOT_DF_LOCS_retained_count);
-
   double* v_self_size = r_dbl_deref(self_size);
-  double* v_retained_size = r_dbl_deref(retained_size);
-  int* v_retained_count = r_int_deref(retained_count);
 
   struct snapshot_node* v_nodes = r_arr_ptr_front(p_node_arr);
 
@@ -111,8 +92,6 @@ sexp* snapshot(sexp* x) {
     r_chr_poke(type, i, r_type_as_string(node.type));
     r_list_poke(parents, i, r_arr_unwrap(node.arrow_list));
     v_self_size[i] = r_ssize_as_double(node.self_size);
-    v_retained_size[i] = r_ssize_as_double(node.retained_size);
-    v_retained_count[i] = r_ssize_as_integer(node.retained_count);
   }
 
   FREE(2);
@@ -143,28 +122,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   sexp* cached = r_dict_get0(p_state->p_dict, x);
 
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
-  struct r_dyn_array* p_data_arr = p_state->p_data_arr;
-  struct snapshot_data* p_data = r_arr_ptr_back(p_data_arr);
-
-  if (dir == R_NODE_DIRECTION_outgoing) {
-    // Commit node
-    struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
-    p_node->retained_count = p_data->retained_count;
-    p_node->retained_size = p_data->retained_size;
-
-    // Collect
-    int retained_count = p_data->retained_count + 1;
-    r_ssize retained_size = p_data->retained_size + p_node->self_size;
-
-    // Pop and Carry
-    r_arr_pop_back(p_data_arr);
-    struct snapshot_data* p_prev = r_arr_ptr_back(p_data_arr);
-    p_prev->retained_count += retained_count;
-    p_prev->retained_size += retained_size;
-
-    return R_SEXP_ITERATE_next;
-  }
-
 
   sexp* id = KEEP(r_sexp_address(x));
   sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
@@ -175,11 +132,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
-  }
-
-  if (dir == R_NODE_DIRECTION_incoming) {
-    // Push node
-    r_arr_push_back(p_data_arr, 0);
   }
 
   // Shelter node objects in the dictionary
@@ -205,13 +157,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   r_dict_put(p_state->p_dict, x, node_shelter);
   FREE(3);
 
-  // Collect leaf
-  if (dir == R_NODE_DIRECTION_leaf) {
-    // FIXME: What if root is a leaf?
-    p_data->retained_count += 1;
-    p_data->retained_size += node.self_size;
-  }
-
 
   // Skip bindings of the global environment as they will contain
   // objects from the debugging session, including memory snapshots.
@@ -229,7 +174,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
 enum shelter_snapshot {
   SHELTER_SNAPSHOT_state,
-  SHELTER_SNAPSHOT_data,
   SHELTER_SNAPSHOT_nodes,
   SHELTER_SNAPSHOT_dict,
   SHELTER_SNAPSHOT_total_size
@@ -242,9 +186,6 @@ struct snapshot_state* new_snapshot_state() {
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
 
-  struct r_dyn_array* p_data_arr = r_new_dyn_array(sizeof(struct snapshot_data), STACK_INIT_SIZE);
-  r_list_poke(shelter, SHELTER_SNAPSHOT_data, p_data_arr->shelter);
-
   struct r_dyn_array* p_node_arr = r_new_dyn_array(sizeof(struct snapshot_node), NODES_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, p_node_arr->shelter);
 
@@ -254,7 +195,6 @@ struct snapshot_state* new_snapshot_state() {
   struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
   state->shelter = shelter;
   state->p_node_arr = p_node_arr;
-  state->p_data_arr = p_data_arr;
   state->p_dict = p_dict;
 
   FREE(1);
