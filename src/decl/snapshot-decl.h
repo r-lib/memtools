@@ -12,7 +12,7 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_direction dir);
 
 static
-struct r_dyn_array* new_arrow_dyn_list(sexp* x);
+struct r_dict* new_arrow_dict(sexp* x);
 
 static
 sexp* new_arrow(sexp* id,

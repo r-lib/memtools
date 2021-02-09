@@ -45,11 +45,11 @@ struct snapshot_node {
   sexp* id;
   enum r_type type;
   r_ssize self_size;
-  struct r_dyn_array* arrow_list;
+  struct r_dict* p_arrow_dict;
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
-  SHELTER_NODE_arrow_list
+  SHELTER_NODE_arrow_dict
 };
 
 struct snapshot_state {
@@ -90,7 +90,7 @@ sexp* snapshot(sexp* x) {
     struct snapshot_node node = v_nodes[i];
     r_chr_poke(id, i, node.id);
     r_chr_poke(type, i, r_type_as_string(node.type));
-    r_list_poke(parents, i, r_arr_unwrap(node.arrow_list));
+    r_list_poke(parents, i, r_dict_as_list(node.p_arrow_dict));
     v_self_size[i] = r_ssize_as_double(node.self_size);
   }
 
@@ -124,6 +124,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
 
   sexp* id = KEEP(r_sexp_address(x));
+  sexp* parent_id = KEEP(r_sexp_address(parent));
 
   sexp* arrow = r_null;
   if (rel != R_NODE_RELATION_root) {
@@ -134,10 +135,10 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   if (cached) {
     if (arrow != r_null && dir != R_NODE_DIRECTION_outgoing) {
       struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
-      r_arr_push_back(p_node->arrow_list, arrow);
+      r_dict_put(p_node->p_arrow_dict, parent_id, arrow);
     }
 
-    FREE(2);
+    FREE(3);
     return R_SEXP_ITERATE_skip;
   }
 
@@ -149,23 +150,23 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   sexp* node_location = r_int(p_node_arr->count);
   r_list_poke(node_shelter, SHELTER_NODE_location, node_location);
 
-  struct r_dyn_array* arrow_list = new_arrow_dyn_list(x);
-  r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list->shelter);
+  struct r_dict* p_arrow_dict = new_arrow_dict(x);
+  r_list_poke(node_shelter, SHELTER_NODE_arrow_dict, p_arrow_dict->shelter);
 
   if (arrow != r_null) {
-    r_arr_push_back(arrow_list, arrow);
+    r_dict_put(p_arrow_dict, parent_id, arrow);
   }
 
   struct snapshot_node node = {
     .id = id,
     .type = type,
     .self_size = sexp_self_size(x, type),
-    .arrow_list = arrow_list
+    .p_arrow_dict = p_arrow_dict
   };
   r_arr_push_back(p_state->p_node_arr, &node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
-  FREE(3);
+  FREE(4);
 
 
   // Skip bindings of the global environment as they will contain
@@ -215,7 +216,7 @@ struct snapshot_state* new_snapshot_state() {
 // Nodes and arrows -------------------------------------------------------
 
 static
-struct r_dyn_array* new_arrow_dyn_list(sexp* x) {
+struct r_dict* new_arrow_dict(sexp* x) {
   // Make space for a few arrows per node. The arrow lists are
   // compacted later on.
   r_ssize n = ARROWS_INIT_SIZE;
@@ -230,7 +231,7 @@ struct r_dyn_array* new_arrow_dyn_list(sexp* x) {
     break;
   }
 
-  return r_new_dyn_vector(r_type_list, n);
+  return r_new_dict(n);
 }
 
 static
