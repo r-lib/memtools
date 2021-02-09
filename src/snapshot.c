@@ -124,11 +124,18 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
 
   sexp* id = KEEP(r_sexp_address(x));
-  sexp* arrow = KEEP(new_arrow(id, depth, parent, rel, i));
+
+  sexp* arrow = r_null;
+  if (rel != R_NODE_RELATION_root) {
+    arrow = new_arrow(id, depth, parent, rel, i);
+  }
+  KEEP(arrow);
 
   if (cached) {
-    struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
-    r_arr_push_back(p_node->arrow_list, arrow);
+    if (arrow != r_null && dir != R_NODE_DIRECTION_outgoing) {
+      struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
+      r_arr_push_back(p_node->arrow_list, arrow);
+    }
 
     FREE(2);
     return R_SEXP_ITERATE_skip;
@@ -144,7 +151,10 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   struct r_dyn_array* arrow_list = new_arrow_dyn_list(x);
   r_list_poke(node_shelter, SHELTER_NODE_arrow_list, arrow_list->shelter);
-  r_arr_push_back(arrow_list, arrow);
+
+  if (arrow != r_null) {
+    r_arr_push_back(arrow_list, arrow);
+  }
 
   struct snapshot_node node = {
     .id = id,
