@@ -118,37 +118,6 @@ sexp* snapshot(sexp* x) {
 }
 
 static
-struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
-                                      sexp* x) {
-  sexp* cached = r_dict_get0(p_state->p_dict, x);
-  if (cached) {
-    int i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
-    return r_arr_ptr(p_state->p_node_arr, i);
-  } else {
-    return NULL;
-  }
-}
-static
-struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
-                                             sexp* parent) {
-  static sexp* last_sexp = NULL;
-  static struct snapshot_node* p_last_node = NULL;
-
-  if (parent == last_sexp) {
-    return p_last_node;
-  }
-
-  last_sexp = parent;
-  p_last_node = get_cached_node(p_state, parent);
-
-  if (!p_last_node) {
-    r_stop_internal("get_cached_parent_node", "Can't find cached parent node.");
-  }
-
-  return p_last_node;
-}
-
-static
 enum r_sexp_iterate snapshot_iterator(void* payload,
                                       sexp* x,
                                       enum r_type type,
@@ -234,6 +203,33 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   }
 
   return R_SEXP_ITERATE_next;
+}
+
+static
+struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
+                                      sexp* x) {
+  sexp* cached = r_dict_get0(p_state->p_dict, x);
+  if (cached) {
+    int i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
+    return r_arr_ptr(p_state->p_node_arr, i);
+  } else {
+    return NULL;
+  }
+}
+static
+struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
+                                             sexp* parent) {
+  static sexp* last_sexp = NULL;
+  static struct snapshot_node* p_last_node = NULL;
+
+  if (parent == last_sexp) {
+    return p_last_node;
+  }
+
+  last_sexp = parent;
+  p_last_node = get_cached_node(p_state, parent);
+
+  return p_last_node;
 }
 
 
