@@ -6,6 +6,16 @@ mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
 }
 
+#' @export
+print.memtools_node <- function(x, ...) {
+  writeLines(sprintf("<memtools/node>"))
+  writeLines(sprintf("id: \"%s\"", x$id))
+  writeLines(sprintf("type: \"%s\"", x$type))
+  writeLines(sprintf("self_size: %d", x$self_size))
+  writeLines(sprintf("parents: %s", pillar::obj_sum(list(x$parents))))
+  writeLines(sprintf("children: %s", pillar::obj_sum(list(x$children))))
+}
+
 addr_deref <- function(x) {
   .Call(c_ptr_addr_deref, x)
 }

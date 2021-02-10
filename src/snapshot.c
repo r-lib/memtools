@@ -13,33 +13,39 @@
 #define ARROWS_INIT_SIZE 2
 #define ARROWS_GROWTH_FACTOR 2
 
+struct {
+  sexp* id;
+  sexp* type;
+  sexp* self_size;
+  sexp* parents;
+  sexp* children;
+} syms;
 
 static
 const char* snapshot_df_names_c_strings[] = {
   "id",
   "type",
+  "node",
   "parents",
-  "self_size"
 };
 static
 const enum r_type snapshot_df_types[] = {
   r_type_character,
   r_type_character,
   r_type_list,
-  r_type_double
+  r_type_list,
 };
 enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_id = 0,
   SNAPSHOT_DF_LOCS_type,
+  SNAPSHOT_DF_LOCS_node,
   SNAPSHOT_DF_LOCS_parents,
-  SNAPSHOT_DF_LOCS_self_size
 };
 
 #define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
 
 static
 sexp* snapshot_df_names = NULL;
-
 
 struct snapshot_node {
   sexp* id;
@@ -78,20 +84,31 @@ sexp* snapshot(sexp* x) {
                                   SNAPSHOT_DF_SIZE));
   r_init_tibble(df, n_rows);
 
-  sexp* id = r_list_get(df, SNAPSHOT_DF_LOCS_id);
-  sexp* type = r_list_get(df, SNAPSHOT_DF_LOCS_type);
-  sexp* parents = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
-  sexp* self_size = r_list_get(df, SNAPSHOT_DF_LOCS_self_size);
-  double* v_self_size = r_dbl_deref(self_size);
+  sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
+  sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
+  sexp* node_col = r_list_get(df, SNAPSHOT_DF_LOCS_node);
+  sexp* parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
 
   struct snapshot_node* v_nodes = r_arr_ptr_front(p_node_arr);
 
   for (r_ssize i = 0; i < n_rows; ++i) {
     struct snapshot_node node = v_nodes[i];
-    r_chr_poke(id, i, node.id);
-    r_chr_poke(type, i, r_type_as_string(node.type));
-    r_list_poke(parents, i, r_dict_as_list(node.p_arrow_dict));
-    v_self_size[i] = r_ssize_as_double(node.self_size);
+
+    sexp* node_type_str = KEEP(r_type_as_string(node.type));
+    sexp* parents_list = KEEP(r_dict_as_list(node.p_arrow_dict));
+
+    sexp* env = new_node_environment();
+    r_env_poke(env, syms.id, r_str_as_character(node.id));
+    r_env_poke(env, syms.type, r_str_as_character(node_type_str));
+    r_env_poke(env, syms.self_size, r_len(node.self_size));
+    r_env_poke(env, syms.parents, parents_list);
+
+    r_chr_poke(id_col, i, node.id);
+    r_chr_poke(type_col, i, node_type_str);
+    r_list_poke(node_col, i, env);
+    r_list_poke(parents_col, i, parents_list);
+
+    FREE(2);
   }
 
   FREE(2);
@@ -212,8 +229,26 @@ struct snapshot_state* new_snapshot_state() {
   return state;
 }
 
+// Nodes ------------------------------------------------------------------
 
-// Nodes and arrows -------------------------------------------------------
+static sexp* node_template_env = NULL;
+
+static
+sexp* new_node_environment() {
+  sexp* env = KEEP(Rf_allocSExp(ENVSXP));
+
+  SET_ENCLOS(env, ENCLOS(node_template_env));
+  SET_HASHTAB(env, r_copy(HASHTAB(node_template_env)));
+  SET_FRAME(env, r_copy(FRAME(node_template_env)));
+  r_poke_attrib(env, r_attrib(node_template_env));
+  r_mark_object(env);
+
+  FREE(1);
+  return env;
+}
+
+
+// Arrows -----------------------------------------------------------------
 
 static
 struct r_dict* new_arrow_dict(sexp* x) {
@@ -279,6 +314,7 @@ sexp* new_arrow(sexp* id,
   return arrow;
 }
 
+
 void init_snapshot() {
   size_t df_names_size = R_ARR_SIZEOF(snapshot_df_names_c_strings);
   size_t df_types_size = R_ARR_SIZEOF(snapshot_df_types);
@@ -289,4 +325,20 @@ void init_snapshot() {
 
   arrow_names = r_chr_n(v_arrow_names_c_strs, ARROW_SIZE);
   r_preserve_global(arrow_names);
+
+  syms.id = r_sym("id");
+  syms.type = r_sym("type");
+  syms.self_size = r_sym("self_size");
+  syms.parents = r_sym("parents");
+  syms.children = r_sym("children");
+
+  node_template_env = r_preserve_global(r_new_environment(r_empty_env, 5));
+  r_attrib_poke_class(node_template_env, r_chr("memtools_node"));
+  r_mark_shared(r_attrib(node_template_env));
+
+  r_env_poke(node_template_env, syms.id, r_null);
+  r_env_poke(node_template_env, syms.type, r_null);
+  r_env_poke(node_template_env, syms.self_size, r_null);
+  r_env_poke(node_template_env, syms.parents, r_null);
+  r_env_poke(node_template_env, syms.children, r_null);
 }

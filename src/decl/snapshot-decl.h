@@ -20,3 +20,6 @@ sexp* new_arrow(sexp* id,
                 sexp* parent,
                 enum r_node_relation rel,
                 r_ssize i);
+
+static
+sexp* new_node_environment();
