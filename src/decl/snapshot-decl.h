@@ -19,7 +19,7 @@ struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
                                              sexp* parent);
 
 static
-struct r_dict* new_arrow_dict(sexp* x);
+struct r_dyn_array* new_arrow_list(sexp* x);
 
 static
 sexp* new_arrow(sexp* parent_node,

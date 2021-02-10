@@ -53,8 +53,8 @@ struct snapshot_node {
   sexp* id;
   enum r_type type;
   r_ssize self_size;
-  struct r_dict* p_parents_dict;
-  struct r_dict* p_children_dict;
+  struct r_dyn_array* p_parents_list;
+  struct r_dyn_array* p_children_list;
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
@@ -103,8 +103,8 @@ sexp* snapshot(sexp* x) {
     struct snapshot_node node = v_nodes[i];
 
     sexp* node_type_str = KEEP(r_type_as_string(node.type));
-    sexp* parents_list = KEEP(r_dict_as_list(node.p_parents_dict));
-    sexp* children_list = KEEP(r_dict_as_list(node.p_children_dict));
+    sexp* parents_list = KEEP(r_arr_unwrap(node.p_parents_list));
+    sexp* children_list = KEEP(r_arr_unwrap(node.p_children_list));
 
     sexp* node_env = node.env;
     r_env_poke(node_env, syms.id, r_str_as_character(node.id));
@@ -143,13 +143,10 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   // The parent node is `NULL` if `x` is the root
   struct snapshot_node* p_parent_node = get_cached_parent_node(p_state, parent);
+  sexp* parent_node_env = p_parent_node ? p_parent_node->env : r_null;
 
   // We might have already visited `x`
   struct snapshot_node* p_cached_node = get_cached_node(p_state, x);
-
-  sexp* parent_node_env = p_parent_node ? p_parent_node->env : r_null;
-  sexp* parent_id = KEEP(r_sexp_address(parent));
-  sexp* id = KEEP(r_sexp_address(x));
 
   if (p_cached_node) {
     if (dir != R_NODE_DIRECTION_outgoing) {
@@ -158,12 +155,11 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
                                    depth,
                                    rel,
                                    i));
-      r_dict_put(p_cached_node->p_parents_dict, parent_id, arrow);
-      r_dict_put(p_parent_node->p_children_dict, id, arrow);
+      r_arr_push_back(p_cached_node->p_parents_list, arrow);
+      r_arr_push_back(p_parent_node->p_children_list, arrow);
       FREE(1);
     }
 
-    FREE(2);
     return R_SEXP_ITERATE_skip;
   }
 
@@ -171,6 +167,8 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   // Shelter node objects in the dictionary
   sexp* node_shelter = KEEP(r_new_list(SHELTER_NODE_SIZE));
+
+  sexp* id = KEEP(r_sexp_address(x));
   r_list_poke(node_shelter, SHELTER_NODE_id, id);
 
   sexp* env = new_node_environment();
@@ -181,17 +179,17 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   sexp* node_location = r_int(p_node_arr->count);
   r_list_poke(node_shelter, SHELTER_NODE_location, node_location);
 
-  struct r_dict* p_parents_dict = new_arrow_dict(r_null);
-  r_list_poke(node_shelter, SHELTER_NODE_parents_dict, p_parents_dict->shelter);
+  struct r_dyn_array* p_parents_list = new_arrow_list(r_null);
+  r_list_poke(node_shelter, SHELTER_NODE_parents_dict, p_parents_list->shelter);
 
-  struct r_dict* p_children_dict = new_arrow_dict(x);
-  r_list_poke(node_shelter, SHELTER_NODE_children_dict, p_children_dict->shelter);
+  struct r_dyn_array* p_children_list = new_arrow_list(x);
+  r_list_poke(node_shelter, SHELTER_NODE_children_dict, p_children_list->shelter);
   
   // Only NULL when parent is root node
   if (p_parent_node) {
     sexp* arrow = new_arrow(parent_node_env, env, depth, rel, i);
-    r_dict_put(p_parents_dict, parent_id, arrow);
-    r_dict_put(p_parent_node->p_children_dict, id, arrow);
+    r_arr_push_back(p_parents_list, arrow);
+    r_arr_push_back(p_parent_node->p_children_list, arrow);
   }
 
   struct snapshot_node node = {
@@ -199,13 +197,13 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     .id = id,
     .type = type,
     .self_size = sexp_self_size(x, type),
-    .p_parents_dict = p_parents_dict,
-    .p_children_dict = p_children_dict
+    .p_parents_list = p_parents_list,
+    .p_children_list = p_children_list
   };
   r_arr_push_back(p_state->p_node_arr, &node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
-  FREE(3);
+  FREE(2);
 
 
   // Skip bindings of the global environment as they will contain
@@ -300,7 +298,7 @@ sexp* new_node_environment() {
 // Arrows -----------------------------------------------------------------
 
 static
-struct r_dict* new_arrow_dict(sexp* x) {
+struct r_dyn_array* new_arrow_list(sexp* x) {
   // Make space for a few arrows per node. The arrow lists are
   // compacted later on.
   r_ssize n = ARROWS_INIT_SIZE;
@@ -315,7 +313,7 @@ struct r_dict* new_arrow_dict(sexp* x) {
     break;
   }
 
-  return r_new_dict(n);
+  return r_new_dyn_vector(r_type_list, n);
 }
 
 enum arrow_locs {
