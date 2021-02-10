@@ -54,6 +54,7 @@ struct snapshot_node {
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
+  SHELTER_NODE_id,
   SHELTER_NODE_env,
   SHELTER_NODE_arrow_dict,
   SHELTER_NODE_SIZE
@@ -169,7 +170,6 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   }
   struct snapshot_node* p_cached_node = get_cached_node(p_state, x);
 
-  sexp* id = KEEP(r_sexp_address(x));
   sexp* parent_id = KEEP(r_sexp_address(parent));
 
   if (p_cached_node) {
@@ -183,7 +183,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
       FREE(1);
     }
 
-    FREE(2);
+    FREE(1);
     return R_SEXP_ITERATE_skip;
   }
 
@@ -194,6 +194,9 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   sexp* env = new_node_environment();
   r_list_poke(node_shelter, SHELTER_NODE_env, env);
+
+  sexp* id = r_sexp_address(x);
+  r_list_poke(node_shelter, SHELTER_NODE_id, id);
 
   // Store node location in the stack so we can update the list of
   // parents when the node is reached again
@@ -219,7 +222,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   r_arr_push_back(p_state->p_node_arr, &node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
-  FREE(3);
+  FREE(2);
 
 
   // Skip bindings of the global environment as they will contain
