@@ -48,6 +48,7 @@ static
 sexp* snapshot_df_names = NULL;
 
 struct snapshot_node {
+  sexp* env;
   sexp* id;
   enum r_type type;
   r_ssize self_size;
@@ -55,7 +56,9 @@ struct snapshot_node {
 };
 enum shelter_node {
   SHELTER_NODE_location = 0,
-  SHELTER_NODE_arrow_dict
+  SHELTER_NODE_env,
+  SHELTER_NODE_arrow_dict,
+  SHELTER_NODE_max
 };
 
 struct snapshot_state {
@@ -97,15 +100,15 @@ sexp* snapshot(sexp* x) {
     sexp* node_type_str = KEEP(r_type_as_string(node.type));
     sexp* parents_list = KEEP(r_dict_as_list(node.p_arrow_dict));
 
-    sexp* env = new_node_environment();
-    r_env_poke(env, syms.id, r_str_as_character(node.id));
-    r_env_poke(env, syms.type, r_str_as_character(node_type_str));
-    r_env_poke(env, syms.self_size, r_len(node.self_size));
-    r_env_poke(env, syms.parents, parents_list);
+    sexp* node_env = node.env;
+    r_env_poke(node_env, syms.id, r_str_as_character(node.id));
+    r_env_poke(node_env, syms.type, r_str_as_character(node_type_str));
+    r_env_poke(node_env, syms.self_size, r_len(node.self_size));
+    r_env_poke(node_env, syms.parents, parents_list);
 
     r_chr_poke(id_col, i, node.id);
     r_chr_poke(type_col, i, node_type_str);
-    r_list_poke(node_col, i, env);
+    r_list_poke(node_col, i, node_env);
     r_list_poke(parents_col, i, parents_list);
 
     FREE(2);
@@ -160,7 +163,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   }
 
   // Shelter node objects in the dictionary
-  sexp* node_shelter = KEEP(r_new_list(2));
+  sexp* node_shelter = KEEP(r_new_list(SHELTER_NODE_max));
 
   // Store node location in the stack so we can update the list of
   // parents when the node is reached again
@@ -174,7 +177,11 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     r_dict_put(p_arrow_dict, parent_id, arrow);
   }
 
+  sexp* env = new_node_environment();
+  r_list_poke(node_shelter, SHELTER_NODE_env, env);
+
   struct snapshot_node node = {
+    .env = env,
     .id = id,
     .type = type,
     .self_size = sexp_self_size(x, type),
@@ -204,12 +211,12 @@ enum shelter_snapshot {
   SHELTER_SNAPSHOT_state,
   SHELTER_SNAPSHOT_nodes,
   SHELTER_SNAPSHOT_dict,
-  SHELTER_SNAPSHOT_total_size
+  SHELTER_SNAPSHOT_max
 };
 
 static
 struct snapshot_state* new_snapshot_state() {
-  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_total_size));
+  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_max));
 
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
