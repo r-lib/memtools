@@ -21,29 +21,27 @@ struct {
   sexp* children;
 } syms;
 
+enum snapshot_df_locs {
+  SNAPSHOT_DF_LOCS_id = 0,
+  SNAPSHOT_DF_LOCS_type,
+  SNAPSHOT_DF_LOCS_node,
+  SNAPSHOT_DF_LOCS_parents,
+  SNAPSHOT_DF_SIZE
+};
 static
-const char* snapshot_df_names_c_strings[] = {
+const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "id",
   "type",
   "node",
   "parents",
 };
 static
-const enum r_type snapshot_df_types[] = {
+const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
   r_type_character,
   r_type_character,
   r_type_list,
   r_type_list,
 };
-enum snapshot_df_locs {
-  SNAPSHOT_DF_LOCS_id = 0,
-  SNAPSHOT_DF_LOCS_type,
-  SNAPSHOT_DF_LOCS_node,
-  SNAPSHOT_DF_LOCS_parents,
-};
-
-#define SNAPSHOT_DF_SIZE R_ARR_SIZEOF(snapshot_df_types)
-
 static
 sexp* snapshot_df_names = NULL;
 
@@ -58,7 +56,7 @@ enum shelter_node {
   SHELTER_NODE_location = 0,
   SHELTER_NODE_env,
   SHELTER_NODE_arrow_dict,
-  SHELTER_NODE_max
+  SHELTER_NODE_SIZE
 };
 
 struct snapshot_state {
@@ -163,7 +161,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   }
 
   // Shelter node objects in the dictionary
-  sexp* node_shelter = KEEP(r_new_list(SHELTER_NODE_max));
+  sexp* node_shelter = KEEP(r_new_list(SHELTER_NODE_SIZE));
 
   // Store node location in the stack so we can update the list of
   // parents when the node is reached again
@@ -211,12 +209,12 @@ enum shelter_snapshot {
   SHELTER_SNAPSHOT_state,
   SHELTER_SNAPSHOT_nodes,
   SHELTER_SNAPSHOT_dict,
-  SHELTER_SNAPSHOT_max
+  SHELTER_SNAPSHOT_SIZE
 };
 
 static
 struct snapshot_state* new_snapshot_state() {
-  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_max));
+  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_SIZE));
 
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
@@ -276,8 +274,17 @@ struct r_dict* new_arrow_dict(sexp* x) {
   return r_new_dict(n);
 }
 
+enum arrow_locs {
+  ARROW_LOCS_parent = 0,
+  ARROW_LOCS_child,
+  ARROW_LOCS_depth,
+  ARROW_LOCS_rel,
+  ARROW_LOCS_i,
+  ARROW_LOCS_name,
+  ARROW_SIZE
+};
 static
-const char* v_arrow_names_c_strs[] = {
+const char* v_arrow_names_c_strs[ARROW_SIZE] = {
   "parent",
   "child",
   "depth",
@@ -285,17 +292,6 @@ const char* v_arrow_names_c_strs[] = {
   "i",
   "name"
 };
-#define ARROW_SIZE R_ARR_SIZEOF(v_arrow_names_c_strs)
-
-enum arrow_locs {
-  ARROW_LOCS_parent = 0,
-  ARROW_LOCS_child,
-  ARROW_LOCS_depth,
-  ARROW_LOCS_rel,
-  ARROW_LOCS_i,
-  ARROW_LOCS_name
-};
-
 static
 sexp* arrow_names = NULL;
 
