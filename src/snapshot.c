@@ -117,9 +117,34 @@ sexp* snapshot(sexp* x) {
 }
 
 static
-struct snapshot_node* get_cached_node(struct r_dyn_array* p_arr, sexp* cached) {
-  int i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
-  return r_arr_ptr(p_arr, i);
+struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
+                                      sexp* x) {
+  sexp* cached = r_dict_get0(p_state->p_dict, x);
+  if (cached) {
+    int i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
+    return r_arr_ptr(p_state->p_node_arr, i);
+  } else {
+    return NULL;
+  }
+}
+static
+struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
+                                             sexp* parent) {
+  static sexp* last_sexp = NULL;
+  static struct snapshot_node* p_last_node = NULL;
+
+  if (parent == last_sexp) {
+    return p_last_node;
+  }
+
+  last_sexp = parent;
+  p_last_node = get_cached_node(p_state, parent);
+
+  if (!p_last_node) {
+    r_stop_internal("get_cached_parent_node", "Can't find cached parent node.");
+  }
+
+  return p_last_node;
 }
 
 static
@@ -137,31 +162,38 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     return R_SEXP_ITERATE_next;
   }
 
-  sexp* cached = r_dict_get0(p_state->p_dict, x);
-
-  struct r_dyn_array* p_node_arr = p_state->p_node_arr;
+  sexp* parent_node_env = r_null;
+  if (rel != R_NODE_RELATION_root) {
+    struct snapshot_node* p_parent_node = get_cached_parent_node(p_state, parent);
+    parent_node_env = p_parent_node->env;
+  }
+  struct snapshot_node* p_cached_node = get_cached_node(p_state, x);
 
   sexp* id = KEEP(r_sexp_address(x));
   sexp* parent_id = KEEP(r_sexp_address(parent));
 
-  sexp* arrow = r_null;
-  if (rel != R_NODE_RELATION_root) {
-    arrow = new_arrow(id, depth, parent, rel, i);
-  }
-  KEEP(arrow);
-
-  if (cached) {
-    if (arrow != r_null && dir != R_NODE_DIRECTION_outgoing) {
-      struct snapshot_node* p_node = get_cached_node(p_node_arr, cached);
-      r_dict_put(p_node->p_arrow_dict, parent_id, arrow);
+  if (p_cached_node) {
+    if (dir != R_NODE_DIRECTION_outgoing) {
+      sexp* arrow = KEEP(new_arrow(parent_node_env,
+                                   p_cached_node->env,
+                                   depth,
+                                   rel,
+                                   i));
+      r_dict_put(p_cached_node->p_arrow_dict, parent_id, arrow);
+      FREE(1);
     }
 
-    FREE(3);
+    FREE(2);
     return R_SEXP_ITERATE_skip;
   }
 
+  struct r_dyn_array* p_node_arr = p_state->p_node_arr;
+
   // Shelter node objects in the dictionary
   sexp* node_shelter = KEEP(r_new_list(SHELTER_NODE_SIZE));
+
+  sexp* env = new_node_environment();
+  r_list_poke(node_shelter, SHELTER_NODE_env, env);
 
   // Store node location in the stack so we can update the list of
   // parents when the node is reached again
@@ -170,13 +202,12 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 
   struct r_dict* p_arrow_dict = new_arrow_dict(x);
   r_list_poke(node_shelter, SHELTER_NODE_arrow_dict, p_arrow_dict->shelter);
-
-  if (arrow != r_null) {
+  
+  // Only NULL when parent is root node
+  if (parent_node_env != r_null) {
+    sexp* arrow = new_arrow(parent_node_env, env, depth, rel, i);
     r_dict_put(p_arrow_dict, parent_id, arrow);
   }
-
-  sexp* env = new_node_environment();
-  r_list_poke(node_shelter, SHELTER_NODE_env, env);
 
   struct snapshot_node node = {
     .env = env,
@@ -188,7 +219,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   r_arr_push_back(p_state->p_node_arr, &node);
 
   r_dict_put(p_state->p_dict, x, node_shelter);
-  FREE(4);
+  FREE(3);
 
 
   // Skip bindings of the global environment as they will contain
@@ -296,16 +327,15 @@ static
 sexp* arrow_names = NULL;
 
 static
-sexp* new_arrow(sexp* id,
+sexp* new_arrow(sexp* parent_node,
+                sexp* child_node,
                 int depth,
-                sexp* parent,
                 enum r_node_relation rel,
                 r_ssize i) {
   sexp* arrow = KEEP(r_new_vector(r_type_list, ARROW_SIZE));
-  sexp* addr_parent = KEEP(r_sexp_address(parent));
 
-  r_list_poke(arrow, ARROW_LOCS_parent, r_str_as_character(addr_parent));
-  r_list_poke(arrow, ARROW_LOCS_child, r_str_as_character(id));
+  r_list_poke(arrow, ARROW_LOCS_parent, parent_node);
+  r_list_poke(arrow, ARROW_LOCS_child, child_node);
   r_list_poke(arrow, ARROW_LOCS_depth, r_int(depth));
   r_list_poke(arrow, ARROW_LOCS_rel, r_chr(r_node_relation_as_c_string(rel)));
   r_list_poke(arrow, ARROW_LOCS_i, r_len(i));
@@ -313,7 +343,7 @@ sexp* new_arrow(sexp* id,
 
   r_attrib_poke_names(arrow, arrow_names);
 
-  FREE(2);
+  FREE(1);
   return arrow;
 }
 

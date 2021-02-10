@@ -15,9 +15,9 @@ static
 struct r_dict* new_arrow_dict(sexp* x);
 
 static
-sexp* new_arrow(sexp* id,
+sexp* new_arrow(sexp* parent_node,
+                sexp* child_node,
                 int depth,
-                sexp* parent,
                 enum r_node_relation rel,
                 r_ssize i);
 
