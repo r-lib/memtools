@@ -14,6 +14,7 @@ sexp* init_memtools(sexp* ns, sexp* node_size, sexp* vec_size) {
 sexp* r_sexp_self_size(sexp* addr);
 sexp* addr_deref(sexp* addr);
 sexp* snapshot(sexp* x);
+sexp* c_ptr_node_size(sexp* x);
 
 static
 const R_CallMethodDef r_callables[] = {
@@ -22,6 +23,7 @@ const R_CallMethodDef r_callables[] = {
   {"c_ptr_addr_deref",             (r_void_fn) &addr_deref, 1},
   {"c_ptr_sexp_self_size",         (r_void_fn) &r_sexp_self_size, 1},
   {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
+  {"c_ptr_mem_node_size",          (r_void_fn) &c_ptr_node_size, 1},
   {NULL, NULL, 0}
 };
 
