@@ -48,7 +48,7 @@ const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
 static
 sexp* snapshot_df_names = NULL;
 
-struct snapshot_node {
+struct node {
   sexp* env;
   sexp* id;
   enum r_type type;
@@ -97,10 +97,10 @@ sexp* snapshot(sexp* x) {
   sexp* parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
   sexp* children_col = r_list_get(df, SNAPSHOT_DF_LOCS_children);
 
-  struct snapshot_node* v_nodes = r_arr_ptr_front(p_node_arr);
+  struct node* v_nodes = r_arr_ptr_front(p_node_arr);
 
   for (r_ssize i = 0; i < n_rows; ++i) {
-    struct snapshot_node node = v_nodes[i];
+    struct node node = v_nodes[i];
 
     sexp* node_type_str = KEEP(r_type_as_string(node.type));
     sexp* parents_list = KEEP(r_arr_unwrap(node.p_parents_list));
@@ -142,11 +142,11 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   }
 
   // The parent node is `NULL` if `x` is the root
-  struct snapshot_node* p_parent_node = get_cached_parent_node(p_state, parent);
+  struct node* p_parent_node = get_cached_parent_node(p_state, parent);
   sexp* parent_node_env = p_parent_node ? p_parent_node->env : r_null;
 
   // We might have already visited `x`
-  struct snapshot_node* p_cached_node = get_cached_node(p_state, x);
+  struct node* p_cached_node = get_cached_node(p_state, x);
 
   if (p_cached_node) {
     if (dir != R_NODE_DIRECTION_outgoing) {
@@ -192,7 +192,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     r_arr_push_back(p_parent_node->p_children_list, arrow);
   }
 
-  struct snapshot_node node = {
+  struct node node = {
     .env = env,
     .id = id,
     .type = type,
@@ -218,7 +218,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
 }
 
 static
-struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
+struct node* get_cached_node(struct snapshot_state* p_state,
                                       sexp* x) {
   sexp* cached = r_dict_get0(p_state->p_dict, x);
   if (cached) {
@@ -229,10 +229,10 @@ struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
   }
 }
 static
-struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
+struct node* get_cached_parent_node(struct snapshot_state* p_state,
                                              sexp* parent) {
   static sexp* last_sexp = NULL;
-  static struct snapshot_node* p_last_node = NULL;
+  static struct node* p_last_node = NULL;
 
   if (parent == last_sexp) {
     return p_last_node;
@@ -261,7 +261,7 @@ struct snapshot_state* new_snapshot_state() {
   sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
 
-  struct r_dyn_array* p_node_arr = r_new_dyn_array(sizeof(struct snapshot_node), NODES_INIT_SIZE);
+  struct r_dyn_array* p_node_arr = r_new_dyn_array(sizeof(struct node), NODES_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_nodes, p_node_arr->shelter);
 
   struct r_dict* p_dict = r_new_dict(DICT_INIT_SIZE);

@@ -12,11 +12,11 @@ enum r_sexp_iterate snapshot_iterator(void* data,
                                       enum r_node_direction dir);
 
 static
-struct snapshot_node* get_cached_node(struct snapshot_state* p_state,
-                                      sexp* x);
+struct node* get_cached_node(struct snapshot_state* p_state,
+                             sexp* x);
 static
-struct snapshot_node* get_cached_parent_node(struct snapshot_state* p_state,
-                                             sexp* parent);
+struct node* get_cached_parent_node(struct snapshot_state* p_state,
+                                    sexp* parent);
 
 static
 struct r_dyn_array* new_arrow_list(sexp* x);
