@@ -28,6 +28,9 @@ sexp_self_size <- function(x) {
   .Call(c_ptr_sexp_self_size, x)
 }
 
+#' @export
+rlang::sexp_address
+
 size_node <- function(x) {
   as.integer(utils::object.size(new_node(NULL)))
 }
