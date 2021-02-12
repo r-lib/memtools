@@ -85,7 +85,7 @@ sexp* r_sexp_self_size(sexp* x) {
 }
 
 
-void init_size(sexp* node_size, sexp* vec_size) {
+void init_library_size(sexp* node_size, sexp* vec_size) {
   sizes_node = r_as_int(node_size);
   sizes_vector = r_as_int(vec_size);
 }

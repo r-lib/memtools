@@ -17,16 +17,3 @@ struct node* get_cached_node(struct snapshot_state* p_state,
 static
 struct node* get_cached_parent_node(struct snapshot_state* p_state,
                                     sexp* parent);
-
-static
-struct r_dyn_array* new_arrow_list(sexp* x);
-
-static
-sexp* new_arrow(sexp* parent_node,
-                sexp* child_node,
-                int depth,
-                enum r_node_relation rel,
-                r_ssize i);
-
-static
-sexp* new_node_environment();
