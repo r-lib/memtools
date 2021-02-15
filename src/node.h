@@ -15,7 +15,9 @@ struct node {
   struct r_dyn_array* p_parents_list;
   struct r_dyn_array* p_children_list;
 
-  r_ssize depth_first_loc;
+  // Intrusive index in the containing data structure. This is the
+  // depth-first number.
+  r_ssize loc;
 };
 
 enum shelter_node {
@@ -31,7 +33,7 @@ enum shelter_node {
 void init_node(struct node* p_node,
                sexp* x,
                enum r_type type,
-               r_ssize depth_first_loc);
+               r_ssize loc);
 
 bool is_node_shelter(sexp* x);
 
