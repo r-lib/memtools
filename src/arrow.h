@@ -2,6 +2,9 @@
 #define MEMTOOLS_ARROW_H
 
 
+#define ARROWS_INIT_SIZE 2
+#define ARROWS_GROWTH_FACTOR 2
+
 enum arrow_locs {
   ARROW_LOCS_parent = 0,
   ARROW_LOCS_child,

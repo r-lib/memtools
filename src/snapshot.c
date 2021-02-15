@@ -127,6 +127,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
                                    depth,
                                    rel,
                                    i));
+      r_dbl_push_back(p_cached_node->p_parents_locs, p_parent_node->loc);
       r_arr_push_back(p_cached_node->p_parents_list, arrow);
       r_arr_push_back(p_parent_node->p_children_list, arrow);
       FREE(1);
@@ -143,6 +144,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   // Only NULL when parent is root node
   if (p_parent_node) {
     sexp* arrow = new_arrow(parent_node_env, node.env, depth, rel, i);
+    r_dbl_push_back(node.p_parents_locs, p_parent_node->loc);
     r_arr_push_back(node.p_parents_list, arrow);
     r_arr_push_back(p_parent_node->p_children_list, arrow);
   }

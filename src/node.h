@@ -15,9 +15,10 @@ struct node {
   struct r_dyn_array* p_parents_list;
   struct r_dyn_array* p_children_list;
 
-  // Intrusive index in the containing data structure. This is the
-  // depth-first number.
+  // Intrusive indices in the containing data structure. These are the
+  // depth-first numbers.
   r_ssize loc;
+  struct r_dyn_array* p_parents_locs;
 };
 
 enum shelter_node {
@@ -25,6 +26,7 @@ enum shelter_node {
   SHELTER_NODE_id,
   SHELTER_NODE_env,
   SHELTER_NODE_parents_dict,
+  SHELTER_NODE_parents_locs,
   SHELTER_NODE_children_dict,
   SHELTER_NODE_SIZE
 };

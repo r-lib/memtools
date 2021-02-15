@@ -31,6 +31,9 @@ void init_node(struct node* p_node,
   struct r_dyn_array* p_children_list = new_arrow_list(x);
   r_list_poke(shelter, SHELTER_NODE_children_dict, p_children_list->shelter);
 
+  struct r_dyn_array* p_parents_locs = r_new_dyn_vector(r_type_integer, ARROWS_INIT_SIZE);
+  r_list_poke(shelter, SHELTER_NODE_parents_locs, p_parents_locs->shelter);
+
   *p_node = (struct node) {
     .shelter = shelter,
     .env = env,
@@ -40,7 +43,8 @@ void init_node(struct node* p_node,
     .p_parents_list = p_parents_list,
     .p_children_list = p_children_list,
 
-    .loc = loc
+    .loc = loc,
+    .p_parents_locs = p_parents_locs,
   };
 
   FREE(1);

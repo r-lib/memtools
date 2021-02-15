@@ -1,9 +1,6 @@
 #include <rlang.h>
 #include "arrow.h"
 
-#define ARROWS_INIT_SIZE 2
-#define ARROWS_GROWTH_FACTOR 2
-
 
 static
 sexp* arrow_names = NULL;
