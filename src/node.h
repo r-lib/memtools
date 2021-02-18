@@ -15,10 +15,7 @@ struct node {
   struct r_dyn_array* p_parents_list;
   struct r_dyn_array* p_children_list;
 
-  // Intrusive indices in the containing data structure. These are the
-  // depth-first numbers.
-  r_ssize loc;
-  struct r_dyn_array* p_parents_locs;
+  int depth_first_loc;
 };
 
 enum shelter_node {
@@ -35,7 +32,7 @@ enum shelter_node {
 void init_node(struct node* p_node,
                sexp* x,
                enum r_type type,
-               r_ssize loc);
+               int depth_first_loc);
 
 bool is_node_shelter(sexp* x);
 

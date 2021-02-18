@@ -9,6 +9,8 @@
 #define STACK_INIT_SIZE 1024
 #define STACK_GROWTH_FACTOR 2
 
+#define NODES_PARENTS_INIT_SIZE 4
+
 
 enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_id = 0,
@@ -41,6 +43,7 @@ struct snapshot_state {
   sexp* shelter;
   struct r_dict* p_dict;
   struct r_dyn_array* p_node_arr;
+  struct r_dyn_list_of* p_parents_lof;
 };
 
 #include "decl/snapshot-decl.h"
@@ -120,6 +123,9 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   // We might have already visited `x`
   struct node* p_cached_node = get_cached_node(p_state, x);
 
+  int loc = p_cached_node ? p_cached_node->depth_first_loc : p_state->p_node_arr->count;
+  int parent_loc = p_parent_node ? p_parent_node->depth_first_loc : -1;
+
   if (p_cached_node) {
     if (dir != R_NODE_DIRECTION_outgoing) {
       sexp* arrow = KEEP(new_arrow(parent_node_env,
@@ -127,7 +133,7 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
                                    depth,
                                    rel,
                                    i));
-      r_dbl_push_back(p_cached_node->p_parents_locs, p_parent_node->loc);
+      r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
       r_arr_push_back(p_cached_node->p_parents_list, &arrow);
       r_arr_push_back(p_parent_node->p_children_list, &arrow);
       FREE(1);
@@ -136,15 +142,17 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     return R_SEXP_ITERATE_skip;
   }
 
+  r_lof_push_back(p_state->p_parents_lof);
+
   struct node node;
-  init_node(&node, x, type, p_state->p_node_arr->count);
+  init_node(&node, x, type, loc);
   KEEP_WHILE(node.shelter, r_dict_put(p_state->p_dict, x, node.shelter));
   r_arr_push_back(p_state->p_node_arr, &node);
 
   // Only NULL when parent is root node
   if (p_parent_node) {
     sexp* arrow = new_arrow(parent_node_env, node.env, depth, rel, i);
-    r_dbl_push_back(node.p_parents_locs, p_parent_node->loc);
+    r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
     r_arr_push_back(node.p_parents_list, &arrow);
     r_arr_push_back(p_parent_node->p_children_list, &arrow);
   }
@@ -195,6 +203,7 @@ enum shelter_snapshot {
   SHELTER_SNAPSHOT_state,
   SHELTER_SNAPSHOT_nodes,
   SHELTER_SNAPSHOT_dict,
+  SHELTER_SNAPSHOT_parents,
   SHELTER_SNAPSHOT_SIZE
 };
 
@@ -211,10 +220,18 @@ struct snapshot_state* new_snapshot_state() {
   struct r_dict* p_dict = r_new_dict(DICT_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_dict, p_dict->shelter);
 
-  struct snapshot_state* state = (struct snapshot_state*) r_raw_deref(state_shelter);
-  state->shelter = shelter;
-  state->p_node_arr = p_node_arr;
-  state->p_dict = p_dict;
+  struct r_dyn_list_of* p_parents_lof = r_new_dyn_list_of(r_type_integer,
+                                                          NODES_INIT_SIZE,
+                                                          NODES_PARENTS_INIT_SIZE);
+  r_list_poke(shelter, SHELTER_SNAPSHOT_parents, p_parents_lof->shelter);
+
+  struct snapshot_state* state = r_raw_deref(state_shelter);
+  *state = (struct snapshot_state) {
+    .shelter = shelter,
+    .p_node_arr = p_node_arr,
+    .p_dict = p_dict,
+    .p_parents_lof = p_parents_lof
+  };
 
   FREE(1);
   return state;

@@ -10,7 +10,7 @@
 void init_node(struct node* p_node,
                sexp* x,
                enum r_type type,
-               r_ssize loc) {
+               int depth_first_loc) {
   // Shelter node objects in the dictionary
   sexp* shelter = KEEP(r_new_list(SHELTER_NODE_SIZE));
 
@@ -22,7 +22,7 @@ void init_node(struct node* p_node,
 
   // Store node location in the stack so we can update the list of
   // parents when the node is reached again
-  sexp* node_location = r_int(loc);
+  sexp* node_location = r_int(depth_first_loc);
   r_list_poke(shelter, SHELTER_NODE_location, node_location);
 
   struct r_dyn_array* p_parents_list = new_arrow_list(r_null);
@@ -42,9 +42,7 @@ void init_node(struct node* p_node,
     .self_size = sexp_self_size(x, type),
     .p_parents_list = p_parents_list,
     .p_children_list = p_children_list,
-
-    .loc = loc,
-    .p_parents_locs = p_parents_locs,
+    .depth_first_loc = depth_first_loc
   };
 
   FREE(1);
