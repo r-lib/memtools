@@ -6,6 +6,7 @@ struct {
   sexp* self_size;
   sexp* parents;
   sexp* children;
+  sexp* dominator;
 } syms;
 
 void init_library_memtools() {
@@ -14,4 +15,5 @@ void init_library_memtools() {
   syms.self_size = r_sym("self_size");
   syms.parents = r_sym("parents");
   syms.children = r_sym("children");
+  syms.dominator = r_sym("dominator");
 }

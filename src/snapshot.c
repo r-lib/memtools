@@ -20,6 +20,7 @@ enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_node,
   SNAPSHOT_DF_LOCS_parents,
   SNAPSHOT_DF_LOCS_children,
+  SNAPSHOT_DF_LOCS_dominator,
   SNAPSHOT_DF_SIZE
 };
 static
@@ -29,11 +30,13 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "node",
   "parents",
   "children",
+  "dominator",
 };
 static
 const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
   r_type_character,
   r_type_character,
+  r_type_list,
   r_type_list,
   r_type_list,
   r_type_list,
@@ -57,13 +60,7 @@ sexp* snapshot(sexp* x) {
   KEEP(p_state->shelter);
 
   sexp_iterate(x, &snapshot_iterator, p_state);
-
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
-
-  struct dom_info* v_dom;
-  KEEP(node_dominators(p_state->p_parents_lof->v_data,
-                       p_state->p_parents_lof->count,
-                       &v_dom));
 
   // Transform to data frame
   r_ssize n_rows = p_node_arr->count;
@@ -73,13 +70,20 @@ sexp* snapshot(sexp* x) {
                                   SNAPSHOT_DF_SIZE));
   r_init_tibble(df, n_rows);
 
+  struct dom_info* v_dom;
+  KEEP(node_dominators0(p_state->p_parents_lof->v_data,
+                        p_state->p_parents_lof->count,
+                        &v_dom));
+
   sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
   sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
   sexp* node_col = r_list_get(df, SNAPSHOT_DF_LOCS_node);
   sexp* parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
   sexp* children_col = r_list_get(df, SNAPSHOT_DF_LOCS_children);
+  sexp* dominator_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominator);
 
   struct node* v_nodes = r_arr_ptr_front(p_node_arr);
+  sexp* const * v_node_col = r_list_deref_const(node_col);
 
   for (r_ssize i = 0; i < n_rows; ++i) {
     struct node node = v_nodes[i];
@@ -100,6 +104,7 @@ sexp* snapshot(sexp* x) {
     r_list_poke(node_col, i, node_env);
     r_list_poke(parents_col, i, parents_list);
     r_list_poke(children_col, i, children_list);
+    r_list_poke(dominator_col, i, v_node_col[v_dom[i].idom]);
 
     FREE(3);
   }

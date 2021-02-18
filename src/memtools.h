@@ -8,6 +8,7 @@ extern struct {
   sexp* self_size;
   sexp* parents;
   sexp* children;
+  sexp* dominator;
 } syms;
 
 

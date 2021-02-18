@@ -7,8 +7,11 @@ struct dom_info {
 };
 
 sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
-                      int n_nodes,
-                      struct dom_info** out_v_dom);
+                      int n_nodes);
+
+sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
+                       int n_nodes,
+                       struct dom_info** out_v_dom);
 
 
 #endif

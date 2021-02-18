@@ -35,13 +35,20 @@ size_vector <- function(x) {
 }
 
 node_dominators <- function(parents) {
-  doms <- .Call(ffi_node_dominators, parents)
-  doms <- doms + 1L
-  doms[!doms] <- NA
+  res <- .Call(ffi_node_dominators, parents)
+  idom <- res[[1]]
+  sdom <- res[[2]]
 
-  tibble::tibble(
+  tibble0(
     node = names(parents),
-    dom = names(parents)[doms],
-    dom_i = doms
+    idom = names(parents)[idom],
+    sdom = names(parents)[sdom],
+    idom_i = idom,
+    sdom_i = sdom
   )
+}
+
+tibble0 <- function(...) {
+  df <- vctrs::data_frame(...)
+  tibble::new_tibble(df, nrow = nrow(df))
 }

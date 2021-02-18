@@ -5,53 +5,89 @@
 
 #include "decl/dominance-decl.h"
 
-
-/* Fixed arrays of integers:
- * - buckets
- * - parent
- * - idom
- * - sdom
- * - dsu_ancestor // Ancestor with least sdom
- * - 
+/**
+ * Semi-NCA algorithm for computing dominance tree.
+ *
+ * References:
+ * - Thomas Lengauer and Robert E. Tarjan, 1979, ACM Transactions on
+ *   Programming Languages and Systems 1(1)
+ * - Loukas Georgiadis and Robert E. Tarjan and Renato F. Werneck,
+ *   2006, Finding Dominators in Practice, Journal of Graph Algorithms
+ *   and Applications 10(1)
+ * 
+ * See also
+ * <https://github.com/JuliaLang/julia/blob/master/base/compiler/ssair/domtree.jl>
+ * for a similar implementation
  */
 
-struct dsu_info {
+
+
+// p.77: "The core of the computation is performed by a _link-eval_
+// data structure [which] maintains a forest `F` that is a subgraph of
+// `T`. subject to the following operations: `link(v, x)` and
+// `eval(v)`.". See also
+// <https://en.wikipedia.org/wiki/Disjoint-set_data_structure>. The
+// forest maintains trees whose roots are the semi-dominators.
+struct forest_info {
   int ancestor;
-  int best;
+  int label;
 };
 
-int dsu_find_lowest_sdom(struct dsu_info* v_dsu,
-                         struct dom_info* v_dom,
-                         int v) {
-  return -1;
+// Get root node for `i` in the forest `F`. Initially returns
+// `v`. Once `v` has been added to the forest, returns `sdom(v)`.
+int forest_eval_lowest_sdom(struct forest_info* v_forest,
+                            struct dom_info* v_dom,
+                            int v) {
+  // TODO: Compress paths
+  int u = v;
+  for (; v_forest[v].ancestor != -1; v = v_forest[v].ancestor) {
+    if (v_dom[v].sdom < v_dom[u].sdom) {
+      u = v;
+    }
+  }
+
+  return u;
 }
 
-void dsu_union(struct dsu_info* v_dsu, int v, int w) {
-  // TODO: Balance forest
-  v_dsu[w].ancestor = v;
+void forest_link(struct forest_info* v_forest, int parent, int i) {
+  v_forest[i].ancestor = parent;
 }
 
 sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
-                      int n_nodes,
-                      struct dom_info** out_v_dom) {
+                      int n_nodes) {
+  struct dom_info* v_dom;
+  KEEP(node_dominators0(vv_parents, n_nodes, &v_dom));
+
+  sexp* idom = r_new_integer(n_nodes);
+  int* v_idom = r_int_deref(idom);
+
+  for (int i = 0; i < n_nodes; ++i) {
+    v_idom[i] = v_dom[i].idom + 1;
+  }
+
+  FREE(1);
+  return idom;
+}
+
+sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
+                       int n_nodes,
+                       struct dom_info** out_v_dom) {
   sexp* dom = KEEP(r_new_raw(sizeof(struct dom_info) * n_nodes));
   struct dom_info* v_dom = r_raw_deref(dom);
 
-  sexp* dsu = KEEP(r_new_raw(sizeof(struct dsu_info) * n_nodes));
-  struct dsu_info* v_dsu = r_raw_deref(dsu);
+  sexp* forest = KEEP(r_new_raw(sizeof(struct forest_info) * n_nodes));
+  struct forest_info* v_forest = r_raw_deref(forest);
 
-  struct dom_info dom_init = { .idom = -1, .sdom = -1 };
-  R_MEM_SET(struct dom_info, v_dom, dom_init, n_nodes);
+  for (int i = 0; i < n_nodes; ++i) {
+    v_dom[i] = (struct dom_info) { .idom = i, .sdom = i };
+  }
 
-  struct dsu_info dsu_init = { .ancestor = -1, .best = -1 };
-  R_MEM_SET(struct dsu_info, v_dsu, dsu_init, n_nodes);
+  struct forest_info forest_init = { .ancestor = -1, .label = -1 };
+  R_MEM_SET(struct forest_info, v_forest, forest_init, n_nodes);
 
-  sexp* buckets = KEEP(r_new_integer(n_nodes));
-  r_int_fill_iota(buckets);
-  int* v_buckets = r_int_deref(buckets);
-
+  // Compute semi-dominators
   for (int i = n_nodes - 1; i > 0; --i) {
-    if (i % 100) {
+    if (i % 1000) {
       r_yield_interrupt();
     }
 
@@ -59,48 +95,32 @@ sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
     int n_parents = vv_parents[i].size;
     int parent = v_parents[0];
 
-    // Compute trivial dominators
-    for (int v = v_buckets[i]; v != i; v = v_buckets[v]) {
-      int u = dsu_find_lowest_sdom(v_dsu, v_dom, v);
-      if (v_dom[u].sdom < i) {
-        v_dom[v].idom = u;
-      } else {
-        v_dom[v].idom = i;
-      }
-    }
-
-    // Compute semi-dominators
+    v_dom[i].idom = parent;
     v_dom[i].sdom = parent;
-    for (int j = 1; j < n_parents; ++j) {
-      int u = dsu_find_lowest_sdom(v_dsu, v_dom, v_parents[j]);
-      if (v_dom[u].sdom < v_dom[i].sdom) {
-        v_dom[i].sdom = v_dom[u].sdom;
+    for (int j = 0; j < n_parents; ++j) {
+      int u = forest_eval_lowest_sdom(v_forest, v_dom, v_parents[j]);
+      int u_sdom = v_dom[u].sdom;
+      if (u_sdom < v_dom[i].sdom) {
+        v_dom[i].sdom = u_sdom;
       }
     }
 
-    dsu_union(v_dsu, parent, i);
+    // Maintain a forest of the processed vertices
+    forest_link(v_forest, parent, i);
+  }
 
-    {
-      int sdom = v_dom[i].sdom;
-      if (parent == sdom) {
-        v_dom[i].idom = parent;
-      } else {
-        v_buckets[i] = v_buckets[sdom];
-        v_buckets[sdom] = i;
-      }
+  // Perform NCA step
+  v_dom[0].idom = 0;
+  for (int i = 1; i < n_nodes; ++i) {
+    int idom = v_dom[i].idom;
+    int sdom = v_dom[i].sdom;
+    while (idom > sdom) {
+      idom = v_dom[idom].idom;
     }
+    v_dom[i].idom = idom;
   }
 
-  // Finish dominators
-  for (int v = v_buckets[0]; v != -1; v = v_buckets[v]) {
-    v_dom[v].idom = -1;
-  }
-
-  for (int i = 0; i < n_nodes; ++i) {
-    Rprintf("idom for node %d: %d\n", i, v_dom[i].idom);
-  }
-
-  FREE(3);
+  FREE(2);
   *out_v_dom = v_dom;
   return dom;
 }
@@ -117,14 +137,24 @@ sexp* ffi_node_dominators(sexp* parents) {
   KEEP(r_list_of_as_ptr_ssize(parents, r_type_integer, &v_parents));
 
   struct dom_info* v_dom;
-  KEEP(node_dominators(v_parents, n, &v_dom));
+  KEEP(node_dominators0(v_parents, n, &v_dom));
 
-  sexp* out = r_new_integer(n);
-  int* v_out = r_int_deref(out);
+  sexp* out = KEEP(r_new_list(2));
+
+  sexp* dom = r_new_integer(n);
+  r_list_poke(out, 0, dom);
+
+  sexp* sdom = r_new_integer(n);
+  r_list_poke(out, 1, sdom);
+
+  int* v_dom_out = r_int_deref(dom);
+  int* v_sdom_out = r_int_deref(sdom);
+
   for (r_ssize i = 0; i < n; ++i) {
-    v_out[i] = v_dom[i].idom;
+    v_dom_out[i] = v_dom[i].idom + 1;
+    v_sdom_out[i] = v_dom[i].sdom + 1;
   }
 
-  FREE(2);
+  FREE(3);
   return out;
 }
