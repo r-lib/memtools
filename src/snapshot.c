@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <rlang.h>
+
 #include "arrow.h"
+#include "dominance.h"
 #include "memtools.h"
 #include "node.h"
 
@@ -58,6 +60,11 @@ sexp* snapshot(sexp* x) {
 
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
 
+  struct dom_info* v_dom;
+  KEEP(node_dominators(p_state->p_parents_lof->v_data,
+                       p_state->p_parents_lof->count,
+                       &v_dom));
+
   // Transform to data frame
   r_ssize n_rows = p_node_arr->count;
   sexp* df = KEEP(r_alloc_df_list(n_rows,
@@ -97,7 +104,7 @@ sexp* snapshot(sexp* x) {
     FREE(3);
   }
 
-  FREE(2);
+  FREE(3);
   return df;
 }
 

@@ -33,3 +33,15 @@ size_node <- function(x) {
 size_vector <- function(x) {
   as.integer(utils::object.size(logical()))
 }
+
+node_dominators <- function(parents) {
+  doms <- .Call(ffi_node_dominators, parents)
+  doms <- doms + 1L
+  doms[!doms] <- NA
+
+  tibble::tibble(
+    node = names(parents),
+    dom = names(parents)[doms],
+    dom_i = doms
+  )
+}
