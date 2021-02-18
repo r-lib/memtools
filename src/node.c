@@ -48,7 +48,7 @@ void init_node(struct node* p_node,
   };
 
   FREE(1);
-};
+}
 
 
 static sexp* node_template_env = NULL;

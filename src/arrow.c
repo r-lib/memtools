@@ -5,6 +5,16 @@
 static
 sexp* arrow_names = NULL;
 
+static
+const char* v_arrow_names_c_strs[ARROW_SIZE] = {
+  "parent",
+  "child",
+  "depth",
+  "rel",
+  "i",
+  "name"
+};
+
 sexp* new_arrow(sexp* parent_node,
                 sexp* child_node,
                 int depth,
