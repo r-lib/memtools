@@ -7,6 +7,20 @@ mem_node_size <- function(x) {
 }
 
 #' @export
+mem_node_dominated_ids <- function(x) {
+  stopifnot(inherits(x, "memtools_node"))
+
+  ids <- chr()
+
+  for (node in x$dominated) {
+    ids <- c(ids, node$id, mem_node_dominated_ids(node))
+  }
+
+  ids
+}
+
+
+#' @export
 print.memtools_node <- function(x, ...) {
   writeLines(sprintf("<memtools/node>"))
   writeLines(sprintf("id: \"%s\"", x$id))
