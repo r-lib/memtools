@@ -35,20 +35,36 @@ struct forest_info {
 
 // Get root node for `i` in the forest `F`. Initially returns
 // `v`. Once `v` has been added to the forest, returns `sdom(v)`.
+static
 int forest_eval_lowest_sdom(struct forest_info* v_forest,
                             struct dom_info* v_dom,
-                            int v) {
-  // TODO: Compress paths
-  int u = v;
-  for (; v_forest[v].ancestor != -1; v = v_forest[v].ancestor) {
-    if (v_dom[v].sdom < v_dom[u].sdom) {
-      u = v;
-    }
+                            int x,
+                            int n) {
+  int x_ancestor = v_forest[x].ancestor;
+  if (x_ancestor < 0) {
+    return n ? -1 : x;
   }
 
-  return u;
+  int y = forest_eval_lowest_sdom(v_forest,
+                                  v_dom,
+                                  x_ancestor,
+                                  n + 1);
+  if (y < 0) {
+    return x;
+  }
+
+  int x_new_label = v_forest[v_forest[x].ancestor].label;
+  int x_old_label = v_forest[x].label;
+  if (v_dom[x_new_label].sdom < v_dom[x_old_label].sdom) {
+    v_forest[x].label = x_new_label;
+  }
+
+  v_forest[x].ancestor = y;
+
+  return n ? y : v_forest[x].label;
 }
 
+static
 void forest_link(struct forest_info* v_forest, int parent, int i) {
   v_forest[i].ancestor = parent;
 }
@@ -98,7 +114,7 @@ sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
     v_dom[i].idom = parent;
     v_dom[i].sdom = parent;
     for (int j = 0; j < n_parents; ++j) {
-      int u = forest_eval_lowest_sdom(v_forest, v_dom, v_parents[j]);
+      int u = forest_eval_lowest_sdom(v_forest, v_dom, v_parents[j], 0);
       int u_sdom = v_dom[u].sdom;
       if (u_sdom < v_dom[i].sdom) {
         v_dom[i].sdom = u_sdom;

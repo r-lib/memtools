@@ -63,11 +63,10 @@ test_that("dominance algorithm works", {
   )
   doms <- node_dominators(dfs)
   expect_equal(
-    doms[c("node", "idom", "sdom")],
+    doms[c("node", "idom")],
     tibble::tibble(
       node = c("A", "B", "C", "D", "E", "F", "G", "H"),
-      idom = c("A", "A", "A", "A", "A", "C", "A", "G"),
-      sdom = c("A", "A", "A", "B", "B", "C", "B", "G"),
+      idom = c("A", "A", "A", "A", "A", "C", "A", "G")
     )
   )
 })
