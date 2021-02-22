@@ -21,6 +21,7 @@ enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_parents,
   SNAPSHOT_DF_LOCS_children,
   SNAPSHOT_DF_LOCS_dominator,
+  SNAPSHOT_DF_LOCS_dominated,
   SNAPSHOT_DF_SIZE
 };
 static
@@ -31,11 +32,13 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "parents",
   "children",
   "dominator",
+  "dominated",
 };
 static
 const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
   r_type_character,
   r_type_character,
+  r_type_list,
   r_type_list,
   r_type_list,
   r_type_list,
@@ -81,16 +84,18 @@ sexp* snapshot(sexp* x) {
   sexp* parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
   sexp* children_col = r_list_get(df, SNAPSHOT_DF_LOCS_children);
   sexp* dominator_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominator);
+  sexp* dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominated);
 
   struct node* v_nodes = r_arr_ptr_front(p_node_arr);
   sexp* const * v_node_col = r_list_deref_const(node_col);
 
-  for (r_ssize i = 0; i < n_rows; ++i) {
+  for (int i = 0; i < n_rows; ++i) {
     struct node node = v_nodes[i];
 
     sexp* node_type_str = KEEP(r_type_as_string(node.type));
     sexp* parents_list = KEEP(r_arr_unwrap(node.p_parents_list));
     sexp* children_list = KEEP(r_arr_unwrap(node.p_children_list));
+    sexp* dominator_node = v_node_col[v_dom[i].idom];
 
     sexp* node_env = node.env;
     r_env_poke(node_env, syms.id, r_str_as_character(node.id));
@@ -98,18 +103,49 @@ sexp* snapshot(sexp* x) {
     r_env_poke(node_env, syms.self_size, r_len(node.self_size));
     r_env_poke(node_env, syms.parents, parents_list);
     r_env_poke(node_env, syms.children, children_list);
+    r_env_poke(node_env, syms.dominator, dominator_node);
 
     r_chr_poke(id_col, i, node.id);
     r_chr_poke(type_col, i, node_type_str);
     r_list_poke(node_col, i, node_env);
     r_list_poke(parents_col, i, parents_list);
     r_list_poke(children_col, i, children_list);
-    r_list_poke(dominator_col, i, v_node_col[v_dom[i].idom]);
+    r_list_poke(dominator_col, i, dominator_node);
 
     FREE(3);
   }
 
-  FREE(3);
+
+  struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(r_type_integer, n_rows, 3);
+  KEEP(p_dominated->shelter);
+
+  for (int i = 0; i < n_rows; ++i) {
+    r_lof_push_back(p_dominated);
+  }
+  for (int i = n_rows - 1; i >= 0; --i) {
+    int idom = v_dom[i].idom;
+    r_lof_arr_push_back(p_dominated, idom, &i);
+  }
+
+  struct r_pair_ptr_ssize* vv_dominated = p_dominated->v_data;
+
+  // This must come in a second pass so that `v_node_col` is populated
+  for (int i = 0; i < n_rows; ++i) {
+    int n_dominated = vv_dominated[i].size;
+    int* v_dominated = vv_dominated[i].ptr;
+
+    sexp* dominated = r_new_list(n_dominated);
+    r_list_poke(dominated_col, i, dominated);
+
+    for (int j = 0; j < n_dominated; ++j) {
+      r_list_poke(dominated, j, v_node_col[v_dominated[j]]);
+    }
+
+    sexp* node_env = v_nodes[i].env;
+    r_env_poke(node_env, syms.dominated, dominated);
+  }
+
+  FREE(4);
   return df;
 }
 

@@ -14,6 +14,8 @@ print.memtools_node <- function(x, ...) {
   writeLines(sprintf("self_size: %d", x$self_size))
   writeLines(sprintf("parents: %s", pillar::obj_sum(list(x$parents))))
   writeLines(sprintf("children: %s", pillar::obj_sum(list(x$children))))
+  writeLines(sprintf("dominator: <%s>", pillar::obj_sum(x$dominator)))
+  writeLines(sprintf("dominated: %s", pillar::obj_sum(list(x$dominated))))
 }
 
 addr_deref <- function(x) {
