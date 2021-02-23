@@ -8,3 +8,15 @@ print.memtools_arrow <- function(x, ...) {
   writeLines(sprintf("i: %d", x$i))
   writeLines(sprintf("name: \"%s\"", x$name))
 }
+
+#' @export
+`$.memtools_arrow` <- function(x, i, ...) {
+  i <- as_string(substitute(i))
+  if (!i %in% c("from", "to", "depth", "rel", "i", "name")) {
+    abort(c(
+      "Must subset with a known arrow field.",
+      x = sprintf("Unknown field: `%s`.", i)
+    ))
+  }
+  NextMethod()
+}

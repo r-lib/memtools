@@ -46,3 +46,24 @@ print.memtools_node <- function(x, ...) {
   writeLines(sprintf("dominator: <%s>", pillar::obj_sum(x$dominator)))
   writeLines(sprintf("dominated: %s", pillar::obj_sum(x$dominated)))
 }
+
+#' @export
+`$.memtools_node` <- function(x, i, ...) {
+  i <- as_string(substitute(i))
+  node_fields <- c(
+    "id",
+    "type",
+    "self_size",
+    "parents",
+    "children",
+    "dominator",
+    "dominated"
+  )
+  if (!i %in% node_fields) {
+    abort(c(
+      "Must subset with a known node field.",
+      x = sprintf("Unknown field: `%s`.", i)
+    ))
+  }
+  NextMethod()
+}
