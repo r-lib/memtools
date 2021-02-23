@@ -20,7 +20,7 @@ test_that("dominance algorithm works", {
     doms[c("node", "idom", "sdom")],
     tibble::tibble(
       node = c("R", "A", "D", "L", "H", "E", "K", "I", "B", "C", "F", "G", "J"),
-      idom = c("R", "R", "R", "D", "R", "R", "R", "R", "R", "R", "C", "C", "G"),
+      idom = c( NA, "R", "R", "D", "R", "R", "R", "R", "R", "R", "C", "C", "G"),
       sdom = c("R", "R", "R", "D", "R", "R", "R", "R", "R", "R", "C", "C", "G"),
     )
   )
@@ -46,7 +46,7 @@ test_that("dominance algorithm works", {
     doms[c("node", "idom", "sdom")],
     tibble::tibble(
       node = c("R", "C", "F", "I", "K", "G", "J", "B", "E", "H", "A", "D", "L"),
-      idom = c("R", "R", "C", "R", "R", "C", "G", "R", "R", "R", "R", "R", "D"),
+      idom = c( NA, "R", "C", "R", "R", "C", "G", "R", "R", "R", "R", "R", "D"),
       sdom = c("R", "R", "C", "R", "R", "C", "G", "R", "R", "R", "R", "B", "D"),
     )
   )
@@ -66,7 +66,7 @@ test_that("dominance algorithm works", {
     doms[c("node", "idom")],
     tibble::tibble(
       node = c("A", "B", "C", "D", "E", "F", "G", "H"),
-      idom = c("A", "A", "A", "A", "A", "C", "A", "G")
+      idom = c( NA, "A", "A", "A", "A", "C", "A", "G")
     )
   )
 })

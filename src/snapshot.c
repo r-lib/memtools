@@ -95,7 +95,14 @@ sexp* snapshot(sexp* x) {
     sexp* node_type_str = KEEP(r_type_as_string(node.type));
     sexp* parents_list = KEEP(r_arr_unwrap(node.p_parents_list));
     sexp* children_list = KEEP(r_arr_unwrap(node.p_children_list));
-    sexp* dominator_node = v_node_col[v_dom[i].idom];
+
+    sexp* dominator_node;
+    int idom = v_dom[i].idom;
+    if (idom < 0) {
+      dominator_node = r_null;
+    } else {
+      dominator_node = v_node_col[idom];
+    }
 
     sexp* node_env = node.env;
     r_env_poke(node_env, syms.id, r_str_as_character(node.id));
@@ -124,7 +131,9 @@ sexp* snapshot(sexp* x) {
   }
   for (int i = n_rows - 1; i >= 0; --i) {
     int idom = v_dom[i].idom;
-    r_lof_arr_push_back(p_dominated, idom, &i);
+    if (idom >= 0) {
+      r_lof_arr_push_back(p_dominated, idom, &i);
+    }
   }
 
   struct r_pair_ptr_ssize* vv_dominated = p_dominated->v_data;

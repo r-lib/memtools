@@ -7,7 +7,7 @@ test_that("`dfs()` creates depth-first graph numbered in preorder", {
   expect_equal(
     dfs(x),
     list(
-      l1 = -1,
+      l1 = int(),
       l2 = c(l1 = 0),
       n = c(l2 = 1, l3 = 3, l1 = 0),
       l3 = c(l1 = 0)

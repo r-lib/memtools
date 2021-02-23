@@ -25,6 +25,9 @@ node_dominators <- function(parents) {
   idom <- res[[1]]
   sdom <- res[[2]]
 
+  # Set dominator of root node to `NA`
+  idom[[1]] <- NA
+
   tibble0(
     node = names(parents),
     idom = names(parents)[idom],

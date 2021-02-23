@@ -126,7 +126,7 @@ sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
   }
 
   // Perform NCA step
-  v_dom[0].idom = 0;
+  v_dom[0].idom = -1;
   for (int i = 1; i < n_nodes; ++i) {
     int idom = v_dom[i].idom;
     int sdom = v_dom[i].sdom;
