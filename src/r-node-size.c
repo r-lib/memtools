@@ -37,7 +37,7 @@ r_ssize node_size(sexp* node) {
     sexp* const * v_children = r_list_deref_const(children);
 
     for (r_ssize i = 0; i < n_children; ++i) {
-      sexp* child = r_list_get(v_children[i], ARROW_LOCS_child);
+      sexp* child = r_list_get(v_children[i], ARROW_LOCS_to);
       r_arr_push_back(p_stack, &child);
     }
 

@@ -6,8 +6,8 @@
 #define ARROWS_GROWTH_FACTOR 2
 
 enum arrow_locs {
-  ARROW_LOCS_parent = 0,
-  ARROW_LOCS_child,
+  ARROW_LOCS_from = 0,
+  ARROW_LOCS_to,
   ARROW_LOCS_depth,
   ARROW_LOCS_rel,
   ARROW_LOCS_i,

@@ -7,8 +7,8 @@ sexp* arrow_names = NULL;
 
 static
 const char* v_arrow_names_c_strs[ARROW_SIZE] = {
-  "parent",
-  "child",
+  "from",
+  "to",
   "depth",
   "rel",
   "i",
@@ -22,8 +22,8 @@ sexp* new_arrow(sexp* parent_node,
                 r_ssize i) {
   sexp* arrow = KEEP(r_new_vector(r_type_list, ARROW_SIZE));
 
-  r_list_poke(arrow, ARROW_LOCS_parent, parent_node);
-  r_list_poke(arrow, ARROW_LOCS_child, child_node);
+  r_list_poke(arrow, ARROW_LOCS_from, parent_node);
+  r_list_poke(arrow, ARROW_LOCS_to, child_node);
   r_list_poke(arrow, ARROW_LOCS_depth, r_int(depth));
   r_list_poke(arrow, ARROW_LOCS_rel, r_chr(r_node_relation_as_c_string(rel)));
   r_list_poke(arrow, ARROW_LOCS_i, r_len(i));
