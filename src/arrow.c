@@ -4,6 +4,8 @@
 
 static
 sexp* arrow_names = NULL;
+static
+sexp* arrow_class = NULL;
 
 static
 const char* v_arrow_names_c_strs[ARROW_SIZE] = {
@@ -14,6 +16,7 @@ const char* v_arrow_names_c_strs[ARROW_SIZE] = {
   "i",
   "name"
 };
+
 
 sexp* new_arrow(sexp* parent_node,
                 sexp* child_node,
@@ -30,6 +33,7 @@ sexp* new_arrow(sexp* parent_node,
   r_list_poke(arrow, ARROW_LOCS_name, r_null); // TODO: Fetch name
 
   r_attrib_poke_names(arrow, arrow_names);
+  r_attrib_poke_class(arrow, arrow_class);
 
   FREE(1);
   return arrow;
@@ -58,4 +62,7 @@ struct r_dyn_array* new_arrow_list(sexp* x) {
 void init_library_arrow() {
   arrow_names = r_chr_n(v_arrow_names_c_strs, ARROW_SIZE);
   r_preserve_global(arrow_names);
+
+  arrow_class = r_chr("memtools_arrow");
+  r_preserve_global(arrow_class);
 }

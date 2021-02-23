@@ -31,6 +31,16 @@ print.memtools_node <- function(x, ...) {
   writeLines(sprintf("dominator: <%s>", pillar::obj_sum(x$dominator)))
   writeLines(sprintf("dominated: %s", pillar::obj_sum(list(x$dominated))))
 }
+#' @export
+print.memtools_arrow <- function(x, ...) {
+  writeLines(sprintf("<memtools/arrow>"))
+  writeLines(sprintf("from: <%s>", pillar::obj_sum(x$from)))
+  writeLines(sprintf("to: <%s>", pillar::obj_sum(x$to)))
+  writeLines(sprintf("depth: %d", x$depth))
+  writeLines(sprintf("rel: \"%s\"", x$rel))
+  writeLines(sprintf("i: %d", x$i))
+  writeLines(sprintf("name: \"%s\"", x$name))
+}
 
 addr_deref <- function(x) {
   .Call(c_ptr_addr_deref, x)
