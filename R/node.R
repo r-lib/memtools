@@ -3,6 +3,16 @@ mem_node_size <- function(x) {
 }
 
 #' @export
+mem_node_undominated_parents <- function(x) {
+  check_memtools_node(x)
+
+  dominated <- mem_node_dominated_ids(x)
+  parents_ids <- purrr::map_chr(x$parents, purrr::pluck, "from", "id")
+
+  x$parents[!parents_ids %in% dominated]
+}
+
+#' @export
 mem_node_dominated_ids <- function(x) {
   check_memtools_node(x)
 

@@ -3,6 +3,7 @@
 S3method(print,memtools_arrow)
 S3method(print,memtools_node)
 export(mem_node_dominated_ids)
+export(mem_node_undominated_parents)
 export(mem_snapshot)
 export(sexp_address)
 import(rlang)
