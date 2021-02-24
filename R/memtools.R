@@ -42,3 +42,10 @@ tibble0 <- function(...) {
   df <- vctrs::data_frame(...)
   tibble::new_tibble(df, nrow = nrow(df))
 }
+
+info <- function() {
+  i <- if (is_installed("cli")) cli::symbol$info else "i"
+  cyan(i)
+}
+has_crayon <- function() is_installed("crayon") && crayon::has_color()
+cyan <- function(x) if (has_crayon()) crayon::cyan(x) else x

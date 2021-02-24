@@ -3,11 +3,17 @@ mem_node_size <- function(x) {
 }
 
 #' @export
-mem_node_dominator_fork <- function(node) {
+mem_node_dominator_fork <- function(node, quiet = FALSE) {
   stopifnot(memtools:::is_memtools_node(node))
 
+  i <- 0
   while (length(node$parents) == 1) {
     node <- node$dominator
+    i <- i + 1
+  }
+
+  if (!quiet) {
+    writeLines(sprintf("%s Climbed %d dominator(s)", info(), i))
   }
 
   node
