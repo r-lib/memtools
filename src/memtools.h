@@ -10,6 +10,7 @@ extern struct {
   sexp* children;
   sexp* dominator;
   sexp* dominated;
+  sexp* gc_depth;
 } syms;
 
 

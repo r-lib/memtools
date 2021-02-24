@@ -8,6 +8,7 @@ struct {
   sexp* children;
   sexp* dominator;
   sexp* dominated;
+  sexp* gc_depth;
 } syms;
 
 void init_library_memtools() {
@@ -18,4 +19,5 @@ void init_library_memtools() {
   syms.children = r_sym("children");
   syms.dominator = r_sym("dominator");
   syms.dominated = r_sym("dominated");
+  syms.gc_depth = r_sym("gc_depth");
 }

@@ -22,6 +22,7 @@ enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_children,
   SNAPSHOT_DF_LOCS_dominator,
   SNAPSHOT_DF_LOCS_dominated,
+  SNAPSHOT_DF_LOCS_gc_depth,
   SNAPSHOT_DF_SIZE
 };
 static
@@ -33,6 +34,7 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "children",
   "dominator",
   "dominated",
+  "gc_depth",
 };
 static
 const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
@@ -43,6 +45,7 @@ const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
   r_type_list,
   r_type_list,
   r_type_list,
+  r_type_integer,
 };
 static
 sexp* snapshot_df_names = NULL;
@@ -53,6 +56,12 @@ struct snapshot_state {
   struct r_dyn_array* p_node_arr;
   struct r_dyn_list_of* p_parents_lof;
 };
+
+struct dom_tree_info {
+  int depth;
+  r_ssize retained_size; // TODO
+};
+
 
 #include "decl/snapshot-decl.h"
 
@@ -74,6 +83,7 @@ sexp* snapshot(sexp* x) {
   r_init_tibble(df, n_rows);
 
   struct r_pair_ptr_ssize* vv_parents = p_state->p_parents_lof->v_data;
+  struct node* v_nodes = r_arr_ptr_front(p_node_arr);
 
   // The heap snapshot is a multigraph, it has duplicated edges
   // because there are several ways in which a node can point to
@@ -89,6 +99,26 @@ sexp* snapshot(sexp* x) {
   struct dom_info* v_dom;
   KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
+  
+  struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(r_type_integer, n_rows, 3);
+  KEEP(p_dominated->shelter);
+
+  for (int i = 0; i < n_rows; ++i) {
+    r_lof_push_back(p_dominated);
+  }
+  for (int i = n_rows - 1; i >= 0; --i) {
+    int idom = v_dom[i].idom;
+    if (idom >= 0) {
+      r_lof_arr_push_back(p_dominated, idom, &i);
+    }
+  }
+
+  struct r_pair_ptr_ssize* vv_dominated = p_dominated->v_data;
+
+  struct dom_tree_info* v_dom_tree_info;
+  KEEP(dominance_info(vv_dominated, v_nodes, n_rows, &v_dom_tree_info));
+
+
   sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
   sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
   sexp* node_col = r_list_get(df, SNAPSHOT_DF_LOCS_node);
@@ -96,8 +126,8 @@ sexp* snapshot(sexp* x) {
   sexp* children_col = r_list_get(df, SNAPSHOT_DF_LOCS_children);
   sexp* dominator_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominator);
   sexp* dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominated);
+  sexp* gc_depth_col = r_list_get(df, SNAPSHOT_DF_LOCS_gc_depth);
 
-  struct node* v_nodes = r_arr_ptr_front(p_node_arr);
   sexp* const * v_node_col = r_list_deref_const(node_col);
 
   for (int i = 0; i < n_rows; ++i) {
@@ -122,6 +152,7 @@ sexp* snapshot(sexp* x) {
     r_env_poke(node_env, syms.parents, parents_list);
     r_env_poke(node_env, syms.children, children_list);
     r_env_poke(node_env, syms.dominator, dominator_node);
+    r_env_poke(node_env, syms.gc_depth, r_len(v_dom_tree_info[i].depth));
 
     r_chr_poke(id_col, i, node.id);
     r_chr_poke(type_col, i, node_type_str);
@@ -129,25 +160,11 @@ sexp* snapshot(sexp* x) {
     r_list_poke(parents_col, i, parents_list);
     r_list_poke(children_col, i, children_list);
     r_list_poke(dominator_col, i, dominator_node);
+    r_int_poke(gc_depth_col, i, v_dom_tree_info[i].depth);
 
     FREE(3);
   }
 
-
-  struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(r_type_integer, n_rows, 3);
-  KEEP(p_dominated->shelter);
-
-  for (int i = 0; i < n_rows; ++i) {
-    r_lof_push_back(p_dominated);
-  }
-  for (int i = n_rows - 1; i >= 0; --i) {
-    int idom = v_dom[i].idom;
-    if (idom >= 0) {
-      r_lof_arr_push_back(p_dominated, idom, &i);
-    }
-  }
-
-  struct r_pair_ptr_ssize* vv_dominated = p_dominated->v_data;
 
   // This must come in a second pass so that `v_node_col` is populated
   for (int i = 0; i < n_rows; ++i) {
@@ -165,7 +182,7 @@ sexp* snapshot(sexp* x) {
     r_env_poke(node_env, syms.dominated, dominated);
   }
 
-  FREE(4);
+  FREE(5);
   return df;
 }
 
@@ -303,6 +320,43 @@ struct snapshot_state* new_snapshot_state() {
 
   FREE(1);
   return state;
+}
+
+static
+sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
+                     const struct node* v_nodes,
+                     int n_nodes,
+                     struct dom_tree_info** out_v_info) {
+  sexp* dom_tree = KEEP(r_new_raw(sizeof(struct dom_tree_info) * n_nodes));
+  struct dom_tree_info* v_info = r_raw_deref(dom_tree);
+
+  dominance_info_rec(0, 0, vv_dominated, v_nodes, v_info);
+
+  FREE(1);
+  *out_v_info = v_info;
+  return dom_tree;
+}
+
+static
+void dominance_info_rec(int i,
+                        int depth,
+                        const struct r_pair_ptr_ssize* vv_dominated,
+                        const struct node* v_nodes,
+                        struct dom_tree_info* v_info) {
+  v_info[i] = (struct dom_tree_info) { .depth = depth };
+
+  int* v_dominated = vv_dominated[i].ptr;
+  int n_dominated = vv_dominated[i].size;
+
+  ++depth;
+
+  for (int j = 0; j < n_dominated; ++j) {
+    dominance_info_rec(v_dominated[j],
+                       depth,
+                       vv_dominated,
+                       v_nodes,
+                       v_info);
+  }
 }
 
 

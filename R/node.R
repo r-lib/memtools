@@ -69,6 +69,7 @@ print.memtools_node <- function(x, ...) {
   writeLines(sprintf("children: %s", pillar::obj_sum(x$children)))
   writeLines(sprintf("dominator: <%s>", pillar::obj_sum(x$dominator)))
   writeLines(sprintf("dominated: %s", pillar::obj_sum(x$dominated)))
+  writeLines(sprintf("gc_depth: %d", x$gc_depth))
 }
 
 #' @export
@@ -81,7 +82,8 @@ print.memtools_node <- function(x, ...) {
     "parents",
     "children",
     "dominator",
-    "dominated"
+    "dominated",
+    "gc_depth"
   )
   if (!i %in% node_fields) {
     abort(c(
