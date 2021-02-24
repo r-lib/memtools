@@ -2,6 +2,7 @@
 #' @import rlang
 NULL
 
+#' @export
 addr_deref <- function(x) {
   .Call(c_ptr_addr_deref, x)
 }
