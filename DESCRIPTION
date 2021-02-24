@@ -15,7 +15,9 @@ LazyData: true
 Imports:
     rlang (>= 0.4.10.9000),
     tibble
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
 Suggests: 
     covr
+Remotes:
+    lionel-/rlang@traverse
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
