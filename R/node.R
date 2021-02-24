@@ -65,6 +65,7 @@ print.memtools_node <- function(x, ...) {
   writeLines(sprintf("id: \"%s\"", x$id))
   writeLines(sprintf("type: \"%s\"", x$type))
   writeLines(sprintf("self_size: %d", x$self_size))
+  writeLines(sprintf("retained_size: %d", x$retained_size))
   writeLines(sprintf("parents: %s", pillar::obj_sum(x$parents)))
   writeLines(sprintf("children: %s", pillar::obj_sum(x$children)))
   writeLines(sprintf("dominator: <%s>", pillar::obj_sum(x$dominator)))
@@ -79,6 +80,7 @@ print.memtools_node <- function(x, ...) {
     "id",
     "type",
     "self_size",
+    "retained_size",
     "parents",
     "children",
     "dominator",
