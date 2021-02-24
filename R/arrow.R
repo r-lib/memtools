@@ -1,4 +1,13 @@
 #' @export
+is_mem_arrow <- function(x) {
+  inherits(x, "memtools_arrow")
+}
+#' @export
+is_mem_arrow_list <- function(x) {
+  is_list(x) && purrr::every(x, is_mem_arrow)
+}
+
+#' @export
 print.memtools_arrow <- function(x, ...) {
   writeLines(sprintf("<memtools/arrow>"))
   writeLines(sprintf("from: <%s>", pillar::obj_sum(x$from)))
