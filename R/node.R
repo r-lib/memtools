@@ -54,7 +54,7 @@ check_memtools_node <- function(x, arg = substitute(x)) {
 
 #' @export
 print.memtools_node <- function(x, ...) {
-  writeLines(sprintf("<memtools/node>"))
+  writeLines(sprintf("<memtools:node>"))
   writeLines(sprintf("id: \"%s\"", x$id))
   writeLines(sprintf("type: \"%s\"", x$type))
   writeLines(sprintf("self_size: %d", x$self_size))
