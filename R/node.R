@@ -3,6 +3,17 @@ mem_node_size <- function(x) {
 }
 
 #' @export
+mem_node_dominator_fork <- function(node) {
+  stopifnot(memtools:::is_memtools_node(node))
+
+  while (length(node$parents) == 1) {
+    node <- node$dominator
+  }
+
+  node
+}
+
+#' @export
 mem_node_undominated_parents <- function(x) {
   check_memtools_node(x)
 
