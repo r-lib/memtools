@@ -188,6 +188,8 @@ sexp* snapshot(sexp* x) {
     r_env_poke(node_env, syms.dominated, dominated);
   }
 
+  r_attrib_push(df, syms.mem_dict, p_state->p_dict->shelter);
+
   FREE(5);
   return df;
 }

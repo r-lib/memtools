@@ -10,6 +10,7 @@ struct {
   sexp* dominated;
   sexp* gc_depth;
   sexp* retained_size;
+  sexp* mem_dict;
 } syms;
 
 void init_library_memtools() {
@@ -22,4 +23,5 @@ void init_library_memtools() {
   syms.dominated = r_sym("dominated");
   syms.gc_depth = r_sym("gc_depth");
   syms.retained_size = r_sym("retained_size");
+  syms.mem_dict = r_sym("mem_dict");
 }
