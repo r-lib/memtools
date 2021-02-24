@@ -73,10 +73,21 @@ sexp* snapshot(sexp* x) {
                                   SNAPSHOT_DF_SIZE));
   r_init_tibble(df, n_rows);
 
+  struct r_pair_ptr_ssize* vv_parents = p_state->p_parents_lof->v_data;
+
+  // The heap snapshot is a multigraph, it has duplicated edges
+  // because there are several ways in which a node can point to
+  // another. Remove all duplicated edges before passing the adjacency
+  // list to the dominance algorithm which only works on simple
+  // graphs.
+  for (int i = 0; i < n_rows; ++i) {
+    int* start = vv_parents[i].ptr;
+    int* end = r_int_unique0(start, vv_parents[i].size);
+    vv_parents[i].size = start - end;
+  }
+
   struct dom_info* v_dom;
-  KEEP(node_dominators0(p_state->p_parents_lof->v_data,
-                        p_state->p_parents_lof->count,
-                        &v_dom));
+  KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
   sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
   sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
