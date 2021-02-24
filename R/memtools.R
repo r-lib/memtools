@@ -6,6 +6,17 @@ NULL
 addr_deref <- function(x) {
   .Call(c_ptr_addr_deref, x)
 }
+#' @export
+deref <- function(x) {
+  if (is_memtools_node(x)) {
+    return(addr_deref(x$id))
+  }
+  if (is_string(x)) {
+    return(addr_deref(x))
+  }
+
+  abort("`x` must be a memtools node or a string.")
+}
 
 sexp_self_size <- function(x) {
   .Call(c_ptr_sexp_self_size, x)
