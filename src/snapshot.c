@@ -5,6 +5,7 @@
 #include "dominance.h"
 #include "memtools.h"
 #include "node.h"
+#include "utils.h"
 
 #define DICT_INIT_SIZE 1024
 
@@ -131,6 +132,8 @@ sexp* snapshot(sexp* x) {
   sexp* dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominated);
   sexp* gc_depth_col = r_list_get(df, SNAPSHOT_DF_LOCS_gc_depth);
   sexp* retained_size_col = r_list_get(df, SNAPSHOT_DF_LOCS_retained_size);
+
+  init_attrib_bytes(retained_size_col);
 
   sexp* const * v_node_col = r_list_deref_const(node_col);
 
