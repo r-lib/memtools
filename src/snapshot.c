@@ -56,6 +56,8 @@ struct snapshot_state {
   struct r_dict* p_dict;
   struct r_dyn_array* p_node_arr;
   struct r_dyn_list_of* p_parents_lof;
+  bool verbose;
+  r_ssize i;
 };
 
 struct dom_tree_info {
@@ -71,6 +73,10 @@ struct dom_tree_info {
 sexp* snapshot(sexp* x) {
   struct snapshot_state* p_state = new_snapshot_state();
   KEEP(p_state->shelter);
+
+  if (p_state->verbose) {
+    r_printf("Creating snapshot...\n");
+  }
 
   sexp_iterate(x, &snapshot_iterator, p_state);
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
@@ -97,6 +103,9 @@ sexp* snapshot(sexp* x) {
     vv_parents[i].size = start - end;
   }
 
+  if (p_state->verbose) {
+    r_printf("Computing dominators...\n");
+  }
   struct dom_info* v_dom;
   KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
@@ -235,6 +244,10 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
     return R_SEXP_ITERATE_skip;
   }
 
+  if (p_state->verbose && ++p_state->i % 100000 == 0) {
+    r_printf("Recorded %d nodes\n", p_state->i);
+  }
+
   r_lof_push_back(p_state->p_parents_lof);
 
   struct node node;
@@ -318,16 +331,18 @@ struct snapshot_state* new_snapshot_state() {
                                                           NODES_PARENTS_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_parents, p_parents_lof->shelter);
 
-  struct snapshot_state* state = r_raw_deref(state_shelter);
-  *state = (struct snapshot_state) {
+  struct snapshot_state* p_state = r_raw_deref(state_shelter);
+  *p_state = (struct snapshot_state) {
     .shelter = shelter,
     .p_node_arr = p_node_arr,
     .p_dict = p_dict,
-    .p_parents_lof = p_parents_lof
+    .p_parents_lof = p_parents_lof,
+    .verbose = r_is_true(r_peek_option("memtools_verbose")),
+    .i = 0
   };
 
   FREE(1);
-  return state;
+  return p_state;
 }
 
 static

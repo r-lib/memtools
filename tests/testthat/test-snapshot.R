@@ -1,3 +1,7 @@
+local_options(
+  memtools_verbose = FALSE
+)
+
 test_that("snapshot visits environments and functions", {
   e <- env(
     base_env(),

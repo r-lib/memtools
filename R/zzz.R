@@ -5,4 +5,6 @@
 
   bench::mark()
   tibble::tibble()
+
+  options(memtools_verbose = TRUE)
 }
