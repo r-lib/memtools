@@ -19,12 +19,11 @@ enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_id = 0,
   SNAPSHOT_DF_LOCS_type,
   SNAPSHOT_DF_LOCS_node,
-  SNAPSHOT_DF_LOCS_parents,
-  SNAPSHOT_DF_LOCS_children,
-  SNAPSHOT_DF_LOCS_dominator,
-  SNAPSHOT_DF_LOCS_dominated,
-  SNAPSHOT_DF_LOCS_gc_depth,
+  SNAPSHOT_DF_LOCS_n_parents,
+  SNAPSHOT_DF_LOCS_n_children,
+  SNAPSHOT_DF_LOCS_n_dominated,
   SNAPSHOT_DF_LOCS_retained_size,
+  SNAPSHOT_DF_LOCS_gc_depth,
   SNAPSHOT_DF_SIZE
 };
 static
@@ -32,24 +31,22 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "id",
   "type",
   "node",
-  "parents",
-  "children",
-  "dominator",
-  "dominated",
-  "gc_depth",
+  "n_parents",
+  "n_children",
+  "n_dominated",
   "retained_size",
+  "gc_depth"
 };
 static
 const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
   r_type_character,
   r_type_character,
   r_type_list,
-  r_type_list,
-  r_type_list,
-  r_type_list,
-  r_type_list,
+  r_type_integer,
+  r_type_integer,
   r_type_integer,
   r_type_double,
+  r_type_integer
 };
 static
 sexp* snapshot_df_names = NULL;
@@ -63,7 +60,7 @@ struct snapshot_state {
 
 struct dom_tree_info {
   int depth;
-  r_ssize retained_size; // TODO
+  r_ssize retained_size;
 };
 
 
@@ -126,12 +123,11 @@ sexp* snapshot(sexp* x) {
   sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
   sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
   sexp* node_col = r_list_get(df, SNAPSHOT_DF_LOCS_node);
-  sexp* parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_parents);
-  sexp* children_col = r_list_get(df, SNAPSHOT_DF_LOCS_children);
-  sexp* dominator_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominator);
-  sexp* dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_dominated);
-  sexp* gc_depth_col = r_list_get(df, SNAPSHOT_DF_LOCS_gc_depth);
+  sexp* n_parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_parents);
+  sexp* n_children_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_children);
+  sexp* n_dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_dominated);
   sexp* retained_size_col = r_list_get(df, SNAPSHOT_DF_LOCS_retained_size);
+  sexp* gc_depth_col = r_list_get(df, SNAPSHOT_DF_LOCS_gc_depth);
 
   init_attrib_bytes(retained_size_col);
 
@@ -152,6 +148,8 @@ sexp* snapshot(sexp* x) {
       dominator_node = v_node_col[idom];
     }
 
+    r_ssize retained_size = v_dom_tree_info[i].retained_size;
+
     sexp* node_env = node.env;
     r_env_poke(node_env, syms.id, r_str_as_character(node.id));
     r_env_poke(node_env, syms.type, r_str_as_character(node_type_str));
@@ -160,16 +158,16 @@ sexp* snapshot(sexp* x) {
     r_env_poke(node_env, syms.children, children_list);
     r_env_poke(node_env, syms.dominator, dominator_node);
     r_env_poke(node_env, syms.gc_depth, r_len(v_dom_tree_info[i].depth));
-    r_env_poke(node_env, syms.retained_size, r_len(v_dom_tree_info[i].retained_size));
+    r_env_poke(node_env, syms.retained_size, r_len(retained_size));
 
     r_chr_poke(id_col, i, node.id);
     r_chr_poke(type_col, i, node_type_str);
     r_list_poke(node_col, i, node_env);
-    r_list_poke(parents_col, i, parents_list);
-    r_list_poke(children_col, i, children_list);
-    r_list_poke(dominator_col, i, dominator_node);
+    r_int_poke(n_parents_col, i, r_length(parents_list));
+    r_int_poke(n_children_col, i, r_length(children_list));
+    r_int_poke(n_dominated_col, i, vv_dominated[i].size);
+    r_dbl_poke(retained_size_col, i, retained_size);
     r_int_poke(gc_depth_col, i, v_dom_tree_info[i].depth);
-    r_dbl_poke(retained_size_col, i, v_dom_tree_info[i].retained_size);
 
     FREE(3);
   }
@@ -181,7 +179,6 @@ sexp* snapshot(sexp* x) {
     int* v_dominated = vv_dominated[i].ptr;
 
     sexp* dominated = r_new_list(n_dominated);
-    r_list_poke(dominated_col, i, dominated);
 
     for (int j = 0; j < n_dominated; ++j) {
       r_list_poke(dominated, j, v_node_col[v_dominated[j]]);
