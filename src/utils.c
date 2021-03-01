@@ -25,6 +25,21 @@ void init_attrib_bytes(sexp* x) {
   r_mark_object(x);
 }
 
+// [[ register() ]]
+sexp* ffi_root_cpp11() {
+  sexp* out = r_peek_option("cpp11_preserve_xptr");
+  if (r_typeof(out) != r_type_pointer) {
+    return r_null;
+  }
+
+  void* addr = R_ExternalPtrAddr(out);
+  if (!addr) {
+    return r_null;
+  }
+
+  return (sexp*) addr;
+}
+
 void init_library_utils() {
   const char* v_bytes_class[] = { "bench_bytes", "numeric" };
   sexp* bytes_class = KEEP(r_chr_n(v_bytes_class, R_ARR_SIZEOF(v_bytes_class)));

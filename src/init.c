@@ -24,6 +24,7 @@ sexp* addr_deref(sexp* addr);
 sexp* snapshot(sexp* x);
 sexp* c_ptr_node_size(sexp* x);
 sexp* ffi_node_dominators(sexp* parents);
+sexp* ffi_root_cpp11();
 
 static
 const R_CallMethodDef r_callables[] = {
@@ -34,6 +35,7 @@ const R_CallMethodDef r_callables[] = {
   {"c_ptr_snapshot",               (r_void_fn) &snapshot, 1},
   {"c_ptr_mem_node_size",          (r_void_fn) &c_ptr_node_size, 1},
   {"ffi_node_dominators",          (r_void_fn) &ffi_node_dominators, 1},
+  {"ffi_root_cpp11",               (r_void_fn) &ffi_root_cpp11, 0},
   {NULL, NULL, 0}
 };
 
