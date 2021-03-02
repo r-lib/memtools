@@ -217,6 +217,9 @@ enum r_sexp_iterate snapshot_iterator(void* payload,
   if (type == r_type_null) {
     return R_SEXP_ITERATE_next;
   }
+  if (type == r_type_environment && is_mem_stash(x)) {
+    return R_SEXP_ITERATE_skip;
+  }
 
   // The parent node is `NULL` if `x` is the root
   struct node* p_parent_node = get_cached_parent_node(p_state, parent);

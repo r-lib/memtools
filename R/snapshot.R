@@ -7,3 +7,8 @@
 mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
 }
+
+#' @export
+mem_stash <- function(...) {
+  .Call(ffi_new_stash, env(empty_env(), ...))
+}

@@ -1,5 +1,10 @@
 #include <rlang.h>
 
+
+struct {
+  sexp* stash;
+} attribs;
+
 struct {
   sexp* id;
   sexp* type;
@@ -13,7 +18,19 @@ struct {
   sexp* mem_dict;
 } syms;
 
+
+// [[ register() ]]
+sexp* ffi_new_stash(sexp* stash) {
+  r_poke_attrib(stash, attribs.stash);
+  return stash;
+}
+
+
 void init_library_memtools() {
+  attribs.stash = r_new_node(r_chr("memtools_stash"), r_null);
+  r_preserve_global(attribs.stash);
+  r_node_poke_tag(attribs.stash, r_syms_class);
+
   syms.id = r_sym("id");
   syms.type = r_sym("type");
   syms.self_size = r_sym("self_size");

@@ -21,3 +21,12 @@ test_that("snapshot visits environments and functions", {
   s <- mem_snapshot(e)
   expect_true(all(addrs %in% s$id))
 })
+
+test_that("stashes are not visited", {
+  e1 <- new_environment()
+  e2 <- new_environment()
+  stash <- mem_stash(x = e1)
+  s <- mem_snapshot(list(stash, e2))
+  expect_false(sexp_address(e1) %in% s$id)
+  expect_true(sexp_address(e2) %in% s$id)
+})
