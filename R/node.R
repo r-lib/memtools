@@ -51,22 +51,37 @@ node_fork <- function(node, quiet, climb, what) {
   node
 }
 
+#' Retrieve dominance properties
+#'
+#' @description
+#' * `mem_node_undominated_parents()` returns the list of parent nodes
+#' which are not in the retained subtree.
+#'
+#' * `mem_node_dominated_ids()` returns the ids of all nodes in the
+#'   dominated subtree.
+#'
+#' @param node A memtools node.
 #' @export
-mem_node_undominated_parents <- function(x) {
-  check_memtools_node(x)
+mem_node_undominated_parents <- function(node) {
+  check_memtools_node(node)
 
-  dominated <- mem_node_dominated_ids(x)
-  parents_ids <- purrr::map_chr(x$parents, purrr::pluck, "from", "id")
+  dominated <- mem_node_dominated_ids(node)
+  parents_ids <- purrr::map_chr(
+    node$parents,
+    purrr::pluck,
+    "from",
+    "id"
+  )
 
-  x$parents[!parents_ids %in% dominated]
+  node$parents[!parents_ids %in% dominated]
 }
-
+#' @rdname mem_node_undominated_parents
 #' @export
-mem_node_dominated_ids <- function(x) {
-  check_memtools_node(x)
+mem_node_dominated_ids <- function(node) {
+  check_memtools_node(node)
 
   ids <- chr()
-  for (node in x$dominated) {
+  for (node in node$dominated) {
     ids <- c(ids, node$id, mem_node_dominated_ids(node))
   }
 
