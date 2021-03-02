@@ -354,7 +354,7 @@ sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
                      const struct node* v_nodes,
                      int n_nodes,
                      struct dom_tree_info** out_v_info) {
-  sexp* dom_tree = KEEP(r_new_raw(sizeof(struct dom_tree_info) * n_nodes));
+  sexp* dom_tree = KEEP(r_new_raw0(sizeof(struct dom_tree_info) * n_nodes));
   struct dom_tree_info* v_info = r_raw_deref(dom_tree);
 
   dominance_info_rec(0, -1, 0, vv_dominated, v_nodes, v_info);
@@ -377,20 +377,13 @@ void dominance_info_rec(int i,
 
   ++depth;
 
-  if (n_dominated) {
-    for (int j = 0; j < n_dominated; ++j) {
-      dominance_info_rec(v_dominated[j],
-                         i,
-                         depth,
-                         vv_dominated,
-                         v_nodes,
-                         v_info);
-    }
-  } else {
-    // Initialise recursive quantities when we reach the bottom of the
-    // dominance tree
-    v_info[i].n_retained = 0;
-    v_info[i].retained_size = 0;
+  for (int j = 0; j < n_dominated; ++j) {
+    dominance_info_rec(v_dominated[j],
+                       i,
+                       depth,
+                       vv_dominated,
+                       v_nodes,
+                       v_info);
   }
 
   v_info[i].depth = depth;
@@ -398,8 +391,8 @@ void dominance_info_rec(int i,
   v_info[i].retained_size += self_size;
 
   if (parent != -1) {
-    v_info[parent].n_retained = v_info[i].n_retained;
-    v_info[parent].retained_size = v_info[i].retained_size;
+    v_info[parent].n_retained += v_info[i].n_retained;
+    v_info[parent].retained_size += v_info[i].retained_size;
   }
 }
 

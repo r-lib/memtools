@@ -184,4 +184,24 @@ test_that("snapshot of Tarjan's graph is correct (1979)", {
     dominator = "D",
     dominated = chr()
   )
+
+  n_retained <- set_names(s$n_retained[locs], names(addrs))
+  expect_equal(
+    n_retained,
+    c(
+      R = 12,
+      A = 0,
+      B = 0,
+      C = 3,
+      D = 1,
+      E = 0,
+      F = 0,
+      G = 1,
+      H = 0,
+      I = 0,
+      J = 0,
+      K = 0,
+      L = 0
+    )
+  )
 })
