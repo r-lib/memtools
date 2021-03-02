@@ -15,10 +15,22 @@ mem_node_size <- function(x) {
   .Call(c_ptr_mem_node_size, x)
 }
 
+#' Climb nodes until a fork
+#'
+#' @description
+#' * `mem_node_fork()` climbs nodes from child to parent until a node
+#'   with more than one parent is reached.
+#'
+#' * `mem_node_dominator_fork()` climbs nodes from dominated to
+#'   dominator until a node with more than one parent is reached.
+#'
+#' @param node A memtools node.
+#' @param quiet Whether to report how many nodes were climbed.
 #' @export
 mem_node_fork <- function(node, quiet = FALSE) {
   node_fork(node, quiet, function(x) x$parents[[1]]$from, "parent")
 }
+#' @rdname mem_node_fork
 #' @export
 mem_node_dominator_fork <- function(node, quiet = FALSE) {
   node_fork(node, quiet, function(x) x$dominator, "dominator")
