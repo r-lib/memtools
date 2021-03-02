@@ -64,8 +64,3 @@ info <- function() {
 }
 has_crayon <- function() is_installed("crayon") && crayon::has_color()
 cyan <- function(x) if (has_crayon()) crayon::cyan(x) else x
-
-#' @export
-root_cpp11 <- function() {
-  .Call(ffi_root_cpp11)
-}
