@@ -26,6 +26,7 @@ sexp* c_ptr_node_size(sexp* x);
 sexp* ffi_new_stash(sexp* stash);
 sexp* ffi_node_dominators(sexp* parents);
 sexp* ffi_root_cpp11();
+sexp* ffi_list_poke(sexp* x, sexp* i, sexp* value);
 
 static
 const R_CallMethodDef r_callables[] = {
@@ -38,6 +39,7 @@ const R_CallMethodDef r_callables[] = {
   {"ffi_new_stash",                (r_void_fn) &ffi_new_stash, 1},
   {"ffi_node_dominators",          (r_void_fn) &ffi_node_dominators, 1},
   {"ffi_root_cpp11",               (r_void_fn) &ffi_root_cpp11, 0},
+  {"ffi_list_poke",                (r_void_fn) &ffi_list_poke, 3},
   {NULL, NULL, 0}
 };
 

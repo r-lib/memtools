@@ -101,7 +101,7 @@ sexp* snapshot(sexp* x) {
   for (int i = 0; i < n_rows; ++i) {
     int* start = vv_parents[i].ptr;
     int* end = r_int_unique0(start, vv_parents[i].size);
-    vv_parents[i].size = start - end;
+    vv_parents[i].size = end - start;
   }
 
   if (p_state->verbose) {

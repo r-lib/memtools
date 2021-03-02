@@ -40,6 +40,12 @@ sexp* ffi_root_cpp11() {
   return (sexp*) addr;
 }
 
+// [[ register() ]]
+sexp* ffi_list_poke(sexp* x, sexp* i, sexp* value) {
+  r_list_poke(x, r_as_ssize(i), value);
+  return r_null;
+}
+
 void init_library_utils() {
   const char* v_bytes_class[] = { "bench_bytes", "numeric" };
   sexp* bytes_class = KEEP(r_chr_n(v_bytes_class, R_ARR_SIZEOF(v_bytes_class)));

@@ -32,11 +32,4 @@ test_that("mem_node_dominated_ids() works", {
     leaf$dominated,
     list()
   )
-
-  e2_node <- s$node[[which(s$type == "environment")[[2]]]]
-  e2_dominated_ids <- mem_node_dominated_ids(e2_node)
-  expect_equal(
-    sort(e2_dominated_ids),
-    sort(purrr::map_chr(e2_node$children, purrr::pluck, "to", "id"))
-  )
 })
