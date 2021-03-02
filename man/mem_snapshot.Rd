@@ -17,3 +17,7 @@ and metadata.
 \description{
 Create a memory snapshot
 }
+\seealso{
+\code{\link[=mem_stash]{mem_stash()}} to prevent objects from being recorded in a
+snapshot.
+}
