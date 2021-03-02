@@ -1,10 +1,8 @@
+#' Is an object a memtools arrow?
+#' @param x An R object.
 #' @export
 is_mem_arrow <- function(x) {
   inherits(x, "memtools_arrow")
-}
-#' @export
-is_mem_arrow_list <- function(x) {
-  is_list(x) && purrr::every(x, is_mem_arrow)
 }
 
 #' @export

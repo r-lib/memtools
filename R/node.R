@@ -1,3 +1,16 @@
+#' Is an object a memtools node?
+#' @param x An R object.
+#' @export
+is_memtools_node <- function(x) {
+  inherits(x, "memtools_node")
+}
+check_memtools_node <- function(x, arg = substitute(x)) {
+  if (!is_memtools_node(x)) {
+    msg <- sprintf("`%s` must be a `memtools_node`.", as_string(arg))
+    abort(msg)
+  }
+}
+
 mem_node_size <- function(x) {
   .Call(c_ptr_mem_node_size, x)
 }
@@ -48,16 +61,6 @@ mem_node_dominated_ids <- function(x) {
   ids
 }
 
-
-is_memtools_node <- function(x) {
-  inherits(x, "memtools_node")
-}
-check_memtools_node <- function(x, arg = substitute(x)) {
-  if (!is_memtools_node(x)) {
-    msg <- sprintf("`%s` must be a `memtools_node`.", as_string(arg))
-    abort(msg)
-  }
-}
 
 #' @export
 print.memtools_node <- function(x, ...) {
