@@ -2,11 +2,6 @@
 #' @import rlang
 NULL
 
-#' @export
-mem_snapshot <- function(x) {
-  .Call(c_ptr_snapshot, x)
-}
-
 mem_node_size <- function(x) {
   .Call(c_ptr_mem_node_size, x)
 }
