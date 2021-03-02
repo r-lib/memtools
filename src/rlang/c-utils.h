@@ -1,10 +1,22 @@
 #ifndef RLANG_C_UTILS_H
 #define RLANG_C_UTILS_H
 
+#include <math.h>
 #include <float.h>
 #include "cnd.h"
 
 #define R_ARR_SIZEOF(X) sizeof(X) / sizeof(X[0])
+
+// Like `memset()` with support for multi-byte types
+#define R_MEM_SET(TYPE, PTR, VALUE, N) do {     \
+    TYPE* v = (PTR);                            \
+    TYPE value = (VALUE);                       \
+    size_t n = (N);                             \
+    for (size_t i = 0; i < n; ++i) {            \
+      v[i] = value;                             \
+    }                                           \
+  } while(0)
+
 
 void* r_shelter_deref(sexp* x);
 
