@@ -11,7 +11,7 @@ mem_node_dominator_fork <- function(node, quiet = FALSE) {
   node_fork(node, quiet, function(x) x$dominator, "dominator")
 }
 node_fork <- function(node, quiet, climb, what) {
-  stopifnot(memtools:::is_memtools_node(node))
+  stopifnot(is_memtools_node(node))
 
   i <- 0
   while (length(node$parents) == 1) {
