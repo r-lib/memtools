@@ -21,7 +21,7 @@ enum snapshot_df_locs {
   SNAPSHOT_DF_LOCS_node,
   SNAPSHOT_DF_LOCS_n_parents,
   SNAPSHOT_DF_LOCS_n_children,
-  SNAPSHOT_DF_LOCS_n_dominated,
+  SNAPSHOT_DF_LOCS_n_retained,
   SNAPSHOT_DF_LOCS_retained_size,
   SNAPSHOT_DF_LOCS_gc_depth,
   SNAPSHOT_DF_SIZE
@@ -33,7 +33,7 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
   "node",
   "n_parents",
   "n_children",
-  "n_dominated",
+  "n_retained",
   "retained_size",
   "gc_depth"
 };
@@ -62,6 +62,7 @@ struct snapshot_state {
 
 struct dom_tree_info {
   int depth;
+  int n_retained;
   r_ssize retained_size;
 };
 
@@ -134,7 +135,7 @@ sexp* snapshot(sexp* x) {
   sexp* node_col = r_list_get(df, SNAPSHOT_DF_LOCS_node);
   sexp* n_parents_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_parents);
   sexp* n_children_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_children);
-  sexp* n_dominated_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_dominated);
+  sexp* n_retained_col = r_list_get(df, SNAPSHOT_DF_LOCS_n_retained);
   sexp* retained_size_col = r_list_get(df, SNAPSHOT_DF_LOCS_retained_size);
   sexp* gc_depth_col = r_list_get(df, SNAPSHOT_DF_LOCS_gc_depth);
 
@@ -174,7 +175,7 @@ sexp* snapshot(sexp* x) {
     r_list_poke(node_col, i, node_env);
     r_int_poke(n_parents_col, i, r_length(parents_list));
     r_int_poke(n_children_col, i, r_length(children_list));
-    r_int_poke(n_dominated_col, i, vv_dominated[i].size);
+    r_int_poke(n_retained_col, i, v_dom_tree_info[i].n_retained);
     r_dbl_poke(retained_size_col, i, retained_size);
     r_int_poke(gc_depth_col, i, v_dom_tree_info[i].depth);
 
@@ -356,7 +357,7 @@ sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
   sexp* dom_tree = KEEP(r_new_raw(sizeof(struct dom_tree_info) * n_nodes));
   struct dom_tree_info* v_info = r_raw_deref(dom_tree);
 
-  dominance_info_rec(0, 0, vv_dominated, v_nodes, v_info);
+  dominance_info_rec(0, -1, 0, vv_dominated, v_nodes, v_info);
 
   FREE(1);
   *out_v_info = v_info;
@@ -364,32 +365,42 @@ sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
 }
 
 static
-r_ssize dominance_info_rec(int i,
-                           int depth,
-                           const struct r_pair_ptr_ssize* vv_dominated,
-                           const struct node* v_nodes,
-                           struct dom_tree_info* v_info) {
+void dominance_info_rec(int i,
+                        int parent,
+                        int depth,
+                        const struct r_pair_ptr_ssize* vv_dominated,
+                        const struct node* v_nodes,
+                        struct dom_tree_info* v_info) {
   int* v_dominated = vv_dominated[i].ptr;
   int n_dominated = vv_dominated[i].size;
+  r_ssize self_size = v_nodes[i].self_size;
 
   ++depth;
 
-  r_ssize retained_size = v_nodes[i].self_size;
-
-  for (int j = 0; j < n_dominated; ++j) {
-    retained_size += dominance_info_rec(v_dominated[j],
-                                        depth,
-                                        vv_dominated,
-                                        v_nodes,
-                                        v_info);
+  if (n_dominated) {
+    for (int j = 0; j < n_dominated; ++j) {
+      dominance_info_rec(v_dominated[j],
+                         i,
+                         depth,
+                         vv_dominated,
+                         v_nodes,
+                         v_info);
+    }
+  } else {
+    // Initialise recursive quantities when we reach the bottom of the
+    // dominance tree
+    v_info[i].n_retained = 0;
+    v_info[i].retained_size = 0;
   }
 
-  v_info[i] = (struct dom_tree_info) {
-    .depth = depth,
-    .retained_size = retained_size
-  };
+  v_info[i].depth = depth;
+  v_info[i].n_retained += n_dominated;
+  v_info[i].retained_size += self_size;
 
-  return retained_size;
+  if (parent != -1) {
+    v_info[parent].n_retained = v_info[i].n_retained;
+    v_info[parent].retained_size = v_info[i].retained_size;
+  }
 }
 
 

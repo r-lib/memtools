@@ -24,8 +24,9 @@ sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
                      struct dom_tree_info** out_v_info);
 
 static
-r_ssize dominance_info_rec(int i,
-                           int depth,
-                           const struct r_pair_ptr_ssize* vv_dominated,
-                           const struct node* v_nodes,
-                           struct dom_tree_info* v_info);
+void dominance_info_rec(int i,
+                        int parent,
+                        int depth,
+                        const struct r_pair_ptr_ssize* vv_dominated,
+                        const struct node* v_nodes,
+                        struct dom_tree_info* v_info);

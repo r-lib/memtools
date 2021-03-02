@@ -30,3 +30,17 @@ test_that("stashes are not visited", {
   expect_false(sexp_address(e1) %in% s$id)
   expect_true(sexp_address(e2) %in% s$id)
 })
+
+test_that("numbers of parents, children, and retained nodes are computed", {
+  x <- new_node(NULL, NULL)
+  y <- new_node(NULL, NULL)
+  z <- new_node(NULL, NULL)
+  node_poke_car(x, y)
+  node_poke_car(y, z)
+  node_poke_car(z, x)
+
+  s <- mem_snapshot(x)
+  expect_equal(s$n_parents, rep(1, 3))
+  expect_equal(s$n_children, rep(1, 3))
+  expect_equal(s$n_retained, 2:0)
+})
