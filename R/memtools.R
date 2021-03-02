@@ -2,10 +2,11 @@
 #' @import rlang
 NULL
 
-#' @export
-addr_deref <- function(x) {
-  .Call(c_ptr_addr_deref, x)
-}
+#' Dereference an object address
+#' @param x A string containing a valid memory address of an R object
+#'   in hexadecimal format. Can also be a node whose `id` field
+#'   will be dereferenced.
+#' @return The object at the address pointed to by `x`.
 #' @export
 deref <- function(x) {
   if (is_memtools_node(x)) {
@@ -16,6 +17,9 @@ deref <- function(x) {
   }
 
   abort("`x` must be a memtools node or a string.")
+}
+addr_deref <- function(x) {
+  .Call(c_ptr_addr_deref, x)
 }
 
 sexp_self_size <- function(x) {
