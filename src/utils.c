@@ -39,6 +39,11 @@ sexp* ffi_root_cpp11() {
 
   return (sexp*) addr;
 }
+// [[ register() ]]
+sexp* ffi_root_ns_registry() {
+  return R_NamespaceRegistry;
+}
+
 
 // [[ register() ]]
 sexp* ffi_list_poke(sexp* x, sexp* i, sexp* value) {

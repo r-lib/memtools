@@ -2,13 +2,21 @@
 % Please edit documentation in R/snapshot.R
 \name{root_cpp11}
 \alias{root_cpp11}
+\alias{root_ns_registry}
 \title{Roots of interest}
 \usage{
 root_cpp11()
+
+root_ns_registry()
 }
 \description{
+These functions return useful starting points to supply to
+\code{\link[=mem_snapshot]{mem_snapshot()}}.
 \itemize{
 \item \code{root_cpp11()} returns the precious list of cpp11. This is a
 doubly linked list preserved in R's own precious list.
+\item \code{root_ns_registry()} returns R's namespace registry. This is an
+environment in which all the namespaces loaded in the R
+session are stored.
 }
 }

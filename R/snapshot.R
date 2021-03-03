@@ -24,10 +24,23 @@ mem_stash <- function(...) {
 }
 
 #' Roots of interest
+#'
 #' @description
+#' These functions return useful starting points to supply to
+#' [mem_snapshot()].
+#' 
 #' * `root_cpp11()` returns the precious list of cpp11. This is a
 #'   doubly linked list preserved in R's own precious list.
+#'
+#' * `root_ns_registry()` returns R's namespace registry. This is an
+#'   environment in which all the namespaces loaded in the R
+#'   session are stored.
 #' @export
 root_cpp11 <- function() {
   .Call(ffi_root_cpp11)
+}
+#' @rdname root_cpp11
+#' @export
+root_ns_registry <- function() {
+  .Call(ffi_root_ns_registry)
 }
