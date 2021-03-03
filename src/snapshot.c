@@ -79,7 +79,91 @@ sexp* snapshot(sexp* x) {
     r_printf("Creating snapshot...\n");
   }
 
-  sexp_iterate(x, &snapshot_iterator, p_state);
+  struct r_sexp_iterator* p_it = r_new_sexp_iterator(x);
+  KEEP(p_it->shelter);
+
+  while (r_sexp_next(p_it)) {
+    sexp* x = p_it->x;
+    enum r_type type = p_it->type;
+
+    if (type == r_type_null) {
+      continue;
+    }
+    if (type == r_type_environment && is_mem_stash(x)) {
+      p_it->skip_incoming = true;
+      continue;
+    }
+
+    int depth = p_it->depth;
+    sexp* parent = p_it->parent;
+    enum r_node_relation rel = p_it->rel;
+    r_ssize i = p_it->i;
+    enum r_node_direction dir = p_it->dir;
+
+    // The parent node is `NULL` if `x` is the root
+    struct node* p_parent_node = get_cached_parent_node(p_state, parent);
+    sexp* parent_node_env = p_parent_node ? p_parent_node->env : r_null;
+
+    // We might have already visited `x`
+    struct node* p_cached_node = get_cached_node(p_state, x);
+
+    int loc = p_cached_node ? p_cached_node->depth_first_loc : p_state->p_node_arr->count;
+    int parent_loc = p_parent_node ? p_parent_node->depth_first_loc : -1;
+
+    if (p_cached_node) {
+      if (dir != R_NODE_DIRECTION_outgoing) {
+        sexp* arrow = KEEP(new_arrow(parent_node_env,
+                                     p_cached_node->env,
+                                     depth,
+                                     rel,
+                                     i));
+        r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
+        r_arr_push_back(p_cached_node->p_parents_list, &arrow);
+        r_arr_push_back(p_parent_node->p_children_list, &arrow);
+        FREE(1);
+      }
+
+      p_it->skip_incoming = true;
+      continue;
+    }
+
+    if (p_state->verbose && ++p_state->i % 100000 == 0) {
+      r_printf("Recorded %d nodes\n", p_state->i);
+    }
+
+    r_lof_push_back(p_state->p_parents_lof);
+
+    struct node node;
+    init_node(&node, x, type, loc);
+    KEEP_WHILE(node.shelter, r_dict_put(p_state->p_dict, x, node.shelter));
+    r_arr_push_back(p_state->p_node_arr, &node);
+
+    // Only NULL when parent is root node
+    if (p_parent_node) {
+      sexp* arrow = new_arrow(parent_node_env, node.env, depth, rel, i);
+      r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
+      r_arr_push_back(node.p_parents_list, &arrow);
+      r_arr_push_back(p_parent_node->p_children_list, &arrow);
+    }
+
+
+    // Skip bindings of the global environment as they will contain
+    // objects from the debugging session, including memory snapshots.
+    // TODO: Traverse global env manually to collect hidden symbols
+    // starting with a dot.
+    if (parent == r_global_env && rel != R_NODE_RELATION_environment_enclos) {
+      p_it->skip_incoming = true;
+    }
+  }
+
+  sexp* out = new_snapshot_df(p_state);
+
+  FREE(2);
+  return out;
+}
+
+static
+sexp* new_snapshot_df(struct snapshot_state* p_state) {
   struct r_dyn_array* p_node_arr = p_state->p_node_arr;
 
   // Transform to data frame
@@ -200,83 +284,8 @@ sexp* snapshot(sexp* x) {
 
   r_attrib_push(df, syms.mem_dict, p_state->p_dict->shelter);
 
-  FREE(5);
+  FREE(4);
   return df;
-}
-
-static
-enum r_sexp_iterate snapshot_iterator(void* payload,
-                                      sexp* x,
-                                      enum r_type type,
-                                      int depth,
-                                      sexp* parent,
-                                      enum r_node_relation rel,
-                                      r_ssize i,
-                                      enum r_node_direction dir) {
-  struct snapshot_state* p_state = (struct snapshot_state*) payload;
-
-  if (type == r_type_null) {
-    return R_SEXP_ITERATE_next;
-  }
-  if (type == r_type_environment && is_mem_stash(x)) {
-    return R_SEXP_ITERATE_skip;
-  }
-
-  // The parent node is `NULL` if `x` is the root
-  struct node* p_parent_node = get_cached_parent_node(p_state, parent);
-  sexp* parent_node_env = p_parent_node ? p_parent_node->env : r_null;
-
-  // We might have already visited `x`
-  struct node* p_cached_node = get_cached_node(p_state, x);
-
-  int loc = p_cached_node ? p_cached_node->depth_first_loc : p_state->p_node_arr->count;
-  int parent_loc = p_parent_node ? p_parent_node->depth_first_loc : -1;
-
-  if (p_cached_node) {
-    if (dir != R_NODE_DIRECTION_outgoing) {
-      sexp* arrow = KEEP(new_arrow(parent_node_env,
-                                   p_cached_node->env,
-                                   depth,
-                                   rel,
-                                   i));
-      r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
-      r_arr_push_back(p_cached_node->p_parents_list, &arrow);
-      r_arr_push_back(p_parent_node->p_children_list, &arrow);
-      FREE(1);
-    }
-
-    return R_SEXP_ITERATE_skip;
-  }
-
-  if (p_state->verbose && ++p_state->i % 100000 == 0) {
-    r_printf("Recorded %d nodes\n", p_state->i);
-  }
-
-  r_lof_push_back(p_state->p_parents_lof);
-
-  struct node node;
-  init_node(&node, x, type, loc);
-  KEEP_WHILE(node.shelter, r_dict_put(p_state->p_dict, x, node.shelter));
-  r_arr_push_back(p_state->p_node_arr, &node);
-
-  // Only NULL when parent is root node
-  if (p_parent_node) {
-    sexp* arrow = new_arrow(parent_node_env, node.env, depth, rel, i);
-    r_lof_arr_push_back(p_state->p_parents_lof, loc, &parent_loc);
-    r_arr_push_back(node.p_parents_list, &arrow);
-    r_arr_push_back(p_parent_node->p_children_list, &arrow);
-  }
-
-
-  // Skip bindings of the global environment as they will contain
-  // objects from the debugging session, including memory snapshots.
-  // TODO: Traverse global env manually to collect hidden symbols
-  // starting with a dot.
-  if (parent == r_global_env && rel != R_NODE_RELATION_environment_enclos) {
-    return R_SEXP_ITERATE_skip;
-  }
-
-  return R_SEXP_ITERATE_next;
 }
 
 static
