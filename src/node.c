@@ -31,7 +31,7 @@ void init_node(struct node* p_node,
   struct r_dyn_array* p_children_list = new_arrow_list(x);
   r_list_poke(shelter, SHELTER_NODE_children_dict, p_children_list->shelter);
 
-  struct r_dyn_array* p_parents_locs = r_new_dyn_vector(r_type_integer, ARROWS_INIT_SIZE);
+  struct r_dyn_array* p_parents_locs = r_new_dyn_vector(R_TYPE_integer, ARROWS_INIT_SIZE);
   r_list_poke(shelter, SHELTER_NODE_parents_locs, p_parents_locs->shelter);
 
   *p_node = (struct node) {
@@ -67,7 +67,7 @@ sexp* new_node_environment() {
 
 bool is_node_shelter(sexp* x) {
   return
-    r_typeof(x) == r_type_environment &&
+    r_typeof(x) == R_TYPE_environment &&
     r_inherits(x, "memtools_node");
 }
 

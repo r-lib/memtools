@@ -39,14 +39,14 @@ const char* snapshot_df_names_c_strings[SNAPSHOT_DF_SIZE] = {
 };
 static
 const enum r_type snapshot_df_types[SNAPSHOT_DF_SIZE] = {
-  r_type_character,
-  r_type_character,
-  r_type_list,
-  r_type_integer,
-  r_type_integer,
-  r_type_integer,
-  r_type_double,
-  r_type_integer
+  R_TYPE_character,
+  R_TYPE_character,
+  R_TYPE_list,
+  R_TYPE_integer,
+  R_TYPE_integer,
+  R_TYPE_integer,
+  R_TYPE_double,
+  R_TYPE_integer
 };
 static
 sexp* snapshot_df_names = NULL;
@@ -86,10 +86,10 @@ sexp* snapshot(sexp* x) {
     sexp* x = p_it->x;
     enum r_type type = p_it->type;
 
-    if (type == r_type_null) {
+    if (type == R_TYPE_null) {
       continue;
     }
-    if (type == r_type_environment && is_mem_stash(x)) {
+    if (type == R_TYPE_environment && is_mem_stash(x)) {
       p_it->skip_incoming = true;
       continue;
     }
@@ -195,7 +195,7 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
   KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
   
-  struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(r_type_integer, n_rows, 3);
+  struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(R_TYPE_integer, n_rows, 3);
   KEEP(p_dominated->shelter);
 
   for (int i = 0; i < n_rows; ++i) {
@@ -328,9 +328,9 @@ enum shelter_snapshot {
 
 static
 struct snapshot_state* new_snapshot_state() {
-  sexp* shelter = KEEP(r_new_vector(r_type_list, SHELTER_SNAPSHOT_SIZE));
+  sexp* shelter = KEEP(r_new_vector(R_TYPE_list, SHELTER_SNAPSHOT_SIZE));
 
-  sexp* state_shelter = r_new_vector(r_type_raw, sizeof(struct snapshot_state));
+  sexp* state_shelter = r_new_vector(R_TYPE_raw, sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
 
   struct r_dyn_array* p_node_arr = r_new_dyn_array(sizeof(struct node), NODES_INIT_SIZE);
@@ -339,7 +339,7 @@ struct snapshot_state* new_snapshot_state() {
   struct r_dict* p_dict = r_new_dict(DICT_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_dict, p_dict->shelter);
 
-  struct r_dyn_list_of* p_parents_lof = r_new_dyn_list_of(r_type_integer,
+  struct r_dyn_list_of* p_parents_lof = r_new_dyn_list_of(R_TYPE_integer,
                                                           NODES_INIT_SIZE,
                                                           NODES_PARENTS_INIT_SIZE);
   r_list_poke(shelter, SHELTER_SNAPSHOT_parents, p_parents_lof->shelter);

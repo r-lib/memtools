@@ -16,7 +16,7 @@ sexp* addr_deref(sexp* addr) {
 sexp* attribs_bytes = NULL;
 
 void init_attrib_bytes(sexp* x) {
-  if (r_typeof(x) != r_type_double) {
+  if (r_typeof(x) != R_TYPE_double) {
     r_abort("Can't initialise an object of type `%s` as `rlang_bytes`.",
             r_type_as_c_string(r_typeof(x)));
   }
@@ -28,7 +28,7 @@ void init_attrib_bytes(sexp* x) {
 // [[ register() ]]
 sexp* ffi_root_cpp11() {
   sexp* out = r_peek_option("cpp11_preserve_xptr");
-  if (r_typeof(out) != r_type_pointer) {
+  if (r_typeof(out) != R_TYPE_pointer) {
     return r_null;
   }
 

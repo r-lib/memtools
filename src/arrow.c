@@ -23,7 +23,7 @@ sexp* new_arrow(sexp* parent_node,
                 int depth,
                 enum r_node_relation rel,
                 r_ssize i) {
-  sexp* arrow = KEEP(r_new_vector(r_type_list, ARROW_SIZE));
+  sexp* arrow = KEEP(r_new_vector(R_TYPE_list, ARROW_SIZE));
 
   r_list_poke(arrow, ARROW_LOCS_from, parent_node);
   r_list_poke(arrow, ARROW_LOCS_to, child_node);
@@ -48,14 +48,14 @@ struct r_dyn_array* new_arrow_list(sexp* x) {
   switch (r_typeof(x)) {
   default:
     break;
-  case r_type_character:
-  case r_type_expression:
-  case r_type_list:
+  case R_TYPE_character:
+  case R_TYPE_expression:
+  case R_TYPE_list:
     n += r_length(x);
     break;
   }
 
-  return r_new_dyn_vector(r_type_list, n);
+  return r_new_dyn_vector(R_TYPE_list, n);
 }
 
 

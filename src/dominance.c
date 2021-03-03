@@ -144,13 +144,13 @@ sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
 
 // [[ register() ]]
 sexp* ffi_node_dominators(sexp* parents) {
-  if (r_typeof(parents) != r_type_list) {
+  if (r_typeof(parents) != R_TYPE_list) {
     r_abort("`parents` must be a list.");
   }
   r_ssize n = r_length(parents);
 
   struct r_pair_ptr_ssize* v_parents;
-  KEEP(r_list_of_as_ptr_ssize(parents, r_type_integer, &v_parents));
+  KEEP(r_list_of_as_ptr_ssize(parents, R_TYPE_integer, &v_parents));
 
   struct dom_info* v_dom;
   KEEP(node_dominators0(v_parents, n, &v_dom));
