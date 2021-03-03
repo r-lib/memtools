@@ -290,7 +290,7 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
 
 static
 struct node* get_cached_node(struct snapshot_state* p_state,
-                                      sexp* x) {
+                             sexp* x) {
   sexp* cached = r_dict_get0(p_state->p_dict, x);
   if (cached) {
     int i = r_int_get(r_list_get(cached, SHELTER_NODE_location), 0);
@@ -301,7 +301,7 @@ struct node* get_cached_node(struct snapshot_state* p_state,
 }
 static
 struct node* get_cached_parent_node(struct snapshot_state* p_state,
-                                             sexp* parent) {
+                                    sexp* parent) {
   static sexp* last_sexp = NULL;
   static struct node* p_last_node = NULL;
 
