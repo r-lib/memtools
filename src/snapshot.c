@@ -253,12 +253,12 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
     sexp* node_env = node.env;
     r_env_poke(node_env, syms.id, r_str_as_character(node.id));
     r_env_poke(node_env, syms.type, r_str_as_character(node_type_str));
-    r_env_poke(node_env, syms.self_size, r_len(node.self_size));
+    r_env_poke(node_env, syms.self_size, bytes(node.self_size));
     r_env_poke(node_env, syms.parents, parents_list);
     r_env_poke(node_env, syms.children, children_list);
     r_env_poke(node_env, syms.dominator, dominator_node);
     r_env_poke(node_env, syms.gc_depth, r_len(v_dom_tree_info[i].depth));
-    r_env_poke(node_env, syms.retained_size, r_len(retained_size));
+    r_env_poke(node_env, syms.retained_size, bytes(retained_size));
 
     r_chr_poke(id_col, i, node.id);
     r_chr_poke(type_col, i, node_type_str);

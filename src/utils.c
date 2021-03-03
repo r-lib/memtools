@@ -24,6 +24,12 @@ void init_attrib_bytes(sexp* x) {
   r_poke_attrib(x, attribs_bytes);
   r_mark_object(x);
 }
+sexp* bytes(r_ssize x) {
+  sexp* out = KEEP(r_dbl(x));
+  init_attrib_bytes(out);
+  FREE(1);
+  return out;
+}
 
 // [[ register() ]]
 sexp* ffi_root_cpp11() {
