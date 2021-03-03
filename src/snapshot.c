@@ -194,6 +194,9 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
   struct dom_info* v_dom;
   KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
+  if (p_state->verbose) {
+    r_printf("Computing retainment information...\n");
+  }
   
   struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(R_TYPE_integer, n_rows, 3);
   KEEP(p_dominated->shelter);
@@ -213,6 +216,9 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
   struct dom_tree_info* v_dom_tree_info;
   KEEP(dominance_info(vv_dominated, v_nodes, n_rows, &v_dom_tree_info));
 
+  if (p_state->verbose) {
+    r_printf("Creating data frame...\n");
+  }
 
   sexp* id_col = r_list_get(df, SNAPSHOT_DF_LOCS_id);
   sexp* type_col = r_list_get(df, SNAPSHOT_DF_LOCS_type);
