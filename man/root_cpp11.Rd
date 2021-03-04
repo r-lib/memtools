@@ -15,8 +15,7 @@ These functions return useful starting points to supply to
 \itemize{
 \item \code{root_cpp11()} returns the precious list of cpp11. This is a
 doubly linked list preserved in R's own precious list.
-\item \code{root_ns_registry()} returns R's namespace registry. This is an
-environment in which all the namespaces loaded in the R
-session are stored.
+\item \code{root_ns_registry()} returns R's namespace registry as a list. It
+contains all the namespaces currently loaded in the R session.
 }
 }
