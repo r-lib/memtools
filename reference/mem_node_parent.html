@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Roots of interest — root_cpp11 • memtools</title>
+<title>Climb parents — mem_node_parent • memtools</title>
 
 
 <!-- jquery -->
@@ -39,13 +39,11 @@
 
 
 
-<meta property="og:title" content="Roots of interest — root_cpp11" />
-<meta property="og:description" content="These functions return useful starting points to supply to
-mem_snapshot().
-root_cpp11() returns the precious list of cpp11. This is a
-doubly linked list preserved in R's own precious list.
-root_ns_registry() returns R's namespace registry as a list. It
-contains all the namespaces currently loaded in the R session.
+<meta property="og:title" content="Climb parents — mem_node_parent" />
+<meta property="og:description" content="
+
+mem_node_parent() returns a direct parent of node. It is
+equivalent to node$parents[[i]]$from.
 
 " />
 
@@ -110,24 +108,51 @@ contains all the namespaces currently loaded in the R session.
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Roots of interest</h1>
+    <h1>Climb parents</h1>
     
-    <div class="hidden name"><code>root_cpp11.Rd</code></div>
+    <div class="hidden name"><code>mem_node_parent.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>These functions return useful starting points to supply to
-<code><a href='mem_snapshot.html'>mem_snapshot()</a></code>.</p><ul>
-<li><p><code>root_cpp11()</code> returns the precious list of cpp11. This is a
-doubly linked list preserved in R's own precious list.</p></li>
-<li><p><code>root_ns_registry()</code> returns R's namespace registry as a list. It
-contains all the namespaces currently loaded in the R session.</p></li>
+    
+<ul>
+<li><p><code>mem_node_parent()</code> returns a direct parent of <code>node</code>. It is
+equivalent to <code>node$parents[[i]]$from</code>.</p></li>
 </ul>
 
     </div>
 
-    <pre class="usage"><span class='fu'>root_cpp11</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>mem_node_parent</span><span class='op'>(</span><span class='va'>node</span>, i <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
+<span class='fu'>mem_node_bindings_parent</span><span class='op'>(</span><span class='va'>node</span><span class='op'>)</span>
+
+<span class='fu'>mem_node_parents</span><span class='op'>(</span><span class='va'>node</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>node</th>
+      <td><p>A memtools node.</p></td>
+    </tr>
+    <tr>
+      <th>i</th>
+      <td><p>Which parent to return. If <code>NULL</code>, <code>node</code> must have a
+single parent otherwise this is an error.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    
+<ul>
+<li><p><code>mem_node_parents()</code> returns all the parents. It is equivalent to
+<code>map(node$parents, "from")</code>.</p></li>
+<li><p><code>mem_node_bindings_parent()</code> takes a pairlist as input and
+returns the environment which holds onto that pairlist, either
+through its frame or its hash table. If the pairlist is not part
+of a frame or a hash table, <code>NULL</code> is returned.</p></li>
+</ul>
 
 
   </div>

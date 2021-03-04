@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Roots of interest — root_cpp11 • memtools</title>
+<title>Reach dominator of interest — mem_node_dominator_until • memtools</title>
 
 
 <!-- jquery -->
@@ -39,15 +39,9 @@
 
 
 
-<meta property="og:title" content="Roots of interest — root_cpp11" />
-<meta property="og:description" content="These functions return useful starting points to supply to
-mem_snapshot().
-root_cpp11() returns the precious list of cpp11. This is a
-doubly linked list preserved in R's own precious list.
-root_ns_registry() returns R's namespace registry as a list. It
-contains all the namespaces currently loaded in the R session.
-
-" />
+<meta property="og:title" content="Reach dominator of interest — mem_node_dominator_until" />
+<meta property="og:description" content="mem_node_dominator_ns() climbs nodes from dominated to dominator
+until a namespace is reached." />
 
 
 
@@ -110,25 +104,47 @@ contains all the namespaces currently loaded in the R session.
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Roots of interest</h1>
+    <h1>Reach dominator of interest</h1>
     
-    <div class="hidden name"><code>root_cpp11.Rd</code></div>
+    <div class="hidden name"><code>mem_node_dominator_until.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>These functions return useful starting points to supply to
-<code><a href='mem_snapshot.html'>mem_snapshot()</a></code>.</p><ul>
-<li><p><code>root_cpp11()</code> returns the precious list of cpp11. This is a
-doubly linked list preserved in R's own precious list.</p></li>
-<li><p><code>root_ns_registry()</code> returns R's namespace registry as a list. It
-contains all the namespaces currently loaded in the R session.</p></li>
-</ul>
-
+    <p><code>mem_node_dominator_ns()</code> climbs nodes from dominated to dominator
+until a namespace is reached.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>root_cpp11</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>mem_node_dominator_until</span><span class='op'>(</span><span class='va'>.node</span>, <span class='va'>.p</span>, <span class='va'>...</span>, .quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>.node</th>
+      <td><p>A memtools node.</p></td>
+    </tr>
+    <tr>
+      <th>.p</th>
+      <td><p>A predicate function applied to the objects represented
+by dominator nodes.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Arguments passed to <code>.p</code>.</p></td>
+    </tr>
+    <tr>
+      <th>.quiet</th>
+      <td><p>Whether to report how many nodes were climbed.</p></td>
+    </tr>
+    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>The dominator node for which <code>.p</code> returned true. <code>NULL</code> if
+none were found.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='mem_node_fork.html'>mem_node_fork()</a></code> and <code><a href='mem_node_fork.html'>mem_node_dominator_fork()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
