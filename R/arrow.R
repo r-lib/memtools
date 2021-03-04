@@ -12,8 +12,12 @@ print.memtools_arrow <- function(x, ...) {
   writeLines(sprintf("to: <%s>", pillar::obj_sum(x$to)))
   writeLines(sprintf("depth: %d", x$depth))
   writeLines(sprintf("rel: \"%s\"", x$rel))
-  writeLines(sprintf("i: %d", x$i))
-  writeLines(sprintf("name: \"%s\"", x$name))
+  if (x$i > 0) {
+    writeLines(sprintf("i: %d", x$i))
+  }
+  if (!is_null(x$name)) {
+    writeLines(sprintf("name: \"%s\"", x$name))
+  }
 }
 
 #' @export
