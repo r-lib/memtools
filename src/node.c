@@ -12,7 +12,7 @@ void init_node(struct node* p_node,
                enum r_type type,
                int depth_first_loc) {
   // Shelter node objects in the dictionary
-  sexp* shelter = KEEP(r_new_list(SHELTER_NODE_SIZE));
+  sexp* shelter = KEEP(r_alloc_list(SHELTER_NODE_SIZE));
 
   sexp* id = r_sexp_address(x);
   r_list_poke(shelter, SHELTER_NODE_id, id);
@@ -73,7 +73,7 @@ bool is_node_shelter(sexp* x) {
 
 
 void init_library_node() {
-  node_template_env = r_preserve_global(r_new_environment(r_empty_env, 5));
+  node_template_env = r_preserve_global(r_alloc_environment(r_empty_env, 5));
   const char* classes_node[] = { "memtools_node", "environment" };
   r_attrib_poke_class(node_template_env, r_chr_n(classes_node, R_ARR_SIZEOF(classes_node)));
   r_mark_shared(r_attrib(node_template_env));

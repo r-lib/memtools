@@ -185,41 +185,41 @@ void r_list_poke(sexp* x, r_ssize i, sexp* y) {
 
 
 static inline
-sexp* r_new_vector(enum r_type type, r_ssize n) {
+sexp* r_alloc_vector(enum r_type type, r_ssize n) {
   return Rf_allocVector(type, n);
 }
 static inline
-sexp* r_new_logical(r_ssize n) {
+sexp* r_alloc_logical(r_ssize n) {
   return Rf_allocVector(R_TYPE_logical, n);
 }
 static inline
-sexp* r_new_integer(r_ssize n) {
+sexp* r_alloc_integer(r_ssize n) {
   return Rf_allocVector(R_TYPE_integer, n);
 }
 static inline
-sexp* r_new_double(r_ssize n) {
+sexp* r_alloc_double(r_ssize n) {
   return Rf_allocVector(R_TYPE_double, n);
 }
 static inline
-sexp* r_new_complex(r_ssize n) {
+sexp* r_alloc_complex(r_ssize n) {
   return Rf_allocVector(R_TYPE_complex, n);
 }
 static inline
-sexp* r_new_raw(r_ssize n) {
+sexp* r_alloc_raw(r_ssize n) {
   return Rf_allocVector(R_TYPE_raw, n);
 }
 static inline
-sexp* r_new_character(r_ssize n) {
+sexp* r_alloc_character(r_ssize n) {
   return Rf_allocVector(R_TYPE_character, n);
 }
 static inline
-sexp* r_new_list(r_ssize n) {
+sexp* r_alloc_list(r_ssize n) {
   return Rf_allocVector(R_TYPE_list, n);
 }
 
 static inline
-sexp* r_new_raw0(r_ssize n) {
-  sexp* out = r_new_raw(n);
+sexp* r_alloc_raw0(r_ssize n) {
+  sexp* out = r_alloc_raw(n);
 
   unsigned char* p_out = (unsigned char*) r_raw_deref(out);
   memset(p_out, 0, n);
@@ -249,7 +249,7 @@ sexp* r_chr(const char* c_string) {
 }
 static inline
 sexp* r_list(sexp* x) {
-  sexp* out = r_new_vector(R_TYPE_list, 1);
+  sexp* out = r_alloc_list(1);
   r_list_poke(out, 0, x);
   return out;
 }
@@ -355,7 +355,7 @@ sexp* r_vec_n(enum r_type type, void* v_src, r_ssize n) {
   case R_TYPE_double:
   case R_TYPE_complex:
   case R_TYPE_raw: {
-    sexp* out = r_new_vector(type, n);
+    sexp* out = r_alloc_vector(type, n);
     memcpy(r_vec_deref(out), v_src, n * r_vec_elt_sizeof0(type));
     return out;
   }
@@ -391,7 +391,7 @@ sexp* r_raw_n(int* v_src, r_ssize n) {
 
 static inline
 sexp* r_copy_in_raw(const void* src, size_t size) {
-  sexp* out = r_new_vector(R_TYPE_raw, size);
+  sexp* out = r_alloc_raw(size);
   memcpy(r_raw_deref(out), src, size);
   return out;
 }

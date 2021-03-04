@@ -278,7 +278,7 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
     int n_dominated = vv_dominated[i].size;
     int* v_dominated = vv_dominated[i].ptr;
 
-    sexp* dominated = r_new_list(n_dominated);
+    sexp* dominated = r_alloc_list(n_dominated);
 
     for (int j = 0; j < n_dominated; ++j) {
       r_list_poke(dominated, j, v_node_col[v_dominated[j]]);
@@ -334,9 +334,9 @@ enum shelter_snapshot {
 
 static
 struct snapshot_state* new_snapshot_state() {
-  sexp* shelter = KEEP(r_new_vector(R_TYPE_list, SHELTER_SNAPSHOT_SIZE));
+  sexp* shelter = KEEP(r_alloc_list(SHELTER_SNAPSHOT_SIZE));
 
-  sexp* state_shelter = r_new_vector(R_TYPE_raw, sizeof(struct snapshot_state));
+  sexp* state_shelter = r_alloc_raw(sizeof(struct snapshot_state));
   r_list_poke(shelter, SHELTER_SNAPSHOT_state, state_shelter);
 
   struct r_dyn_array* p_node_arr = r_new_dyn_array(sizeof(struct node), NODES_INIT_SIZE);
@@ -369,7 +369,7 @@ sexp* dominance_info(const struct r_pair_ptr_ssize* vv_dominated,
                      const struct node* v_nodes,
                      int n_nodes,
                      struct dom_tree_info** out_v_info) {
-  sexp* dom_tree = KEEP(r_new_raw0(sizeof(struct dom_tree_info) * n_nodes));
+  sexp* dom_tree = KEEP(r_alloc_raw0(sizeof(struct dom_tree_info) * n_nodes));
   struct dom_tree_info* v_info = r_raw_deref(dom_tree);
 
   dominance_info_rec(0, -1, 0, vv_dominated, v_nodes, v_info);

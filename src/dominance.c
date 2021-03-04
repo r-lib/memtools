@@ -74,7 +74,7 @@ sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
   struct dom_info* v_dom;
   KEEP(node_dominators0(vv_parents, n_nodes, &v_dom));
 
-  sexp* idom = r_new_integer(n_nodes);
+  sexp* idom = r_alloc_integer(n_nodes);
   int* v_idom = r_int_deref(idom);
 
   for (int i = 0; i < n_nodes; ++i) {
@@ -88,10 +88,10 @@ sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
 sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
                        int n_nodes,
                        struct dom_info** out_v_dom) {
-  sexp* dom = KEEP(r_new_raw(sizeof(struct dom_info) * n_nodes));
+  sexp* dom = KEEP(r_alloc_raw(sizeof(struct dom_info) * n_nodes));
   struct dom_info* v_dom = r_raw_deref(dom);
 
-  sexp* forest = KEEP(r_new_raw(sizeof(struct forest_info) * n_nodes));
+  sexp* forest = KEEP(r_alloc_raw(sizeof(struct forest_info) * n_nodes));
   struct forest_info* v_forest = r_raw_deref(forest);
 
   for (int i = 0; i < n_nodes; ++i) {
@@ -155,12 +155,12 @@ sexp* ffi_node_dominators(sexp* parents) {
   struct dom_info* v_dom;
   KEEP(node_dominators0(v_parents, n, &v_dom));
 
-  sexp* out = KEEP(r_new_list(2));
+  sexp* out = KEEP(r_alloc_list(2));
 
-  sexp* dom = r_new_integer(n);
+  sexp* dom = r_alloc_integer(n);
   r_list_poke(out, 0, dom);
 
-  sexp* sdom = r_new_integer(n);
+  sexp* sdom = r_alloc_integer(n);
   r_list_poke(out, 1, sdom);
 
   int* v_dom_out = r_int_deref(dom);

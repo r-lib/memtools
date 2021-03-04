@@ -23,7 +23,7 @@ sexp* new_arrow(sexp* parent_node,
                 int depth,
                 enum r_node_relation rel,
                 r_ssize i) {
-  sexp* arrow = KEEP(r_new_vector(R_TYPE_list, ARROW_SIZE));
+  sexp* arrow = KEEP(r_alloc_list(ARROW_SIZE));
 
   r_list_poke(arrow, ARROW_LOCS_from, parent_node);
   r_list_poke(arrow, ARROW_LOCS_to, child_node);
