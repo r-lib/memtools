@@ -33,40 +33,19 @@ struct forest_info {
   int label;
 };
 
-// Get root node for `i` in the forest `F`. Initially returns
-// `v`. Once `v` has been added to the forest, returns `sdom(v)`.
 static
-int forest_eval_lowest_sdom(struct forest_info* v_forest,
-                            struct dom_info* v_dom,
-                            int x,
-                            int n) {
-  int x_ancestor = v_forest[x].ancestor;
-  if (x_ancestor < 0) {
-    return n ? -1 : x;
+void snca_compress(struct forest_info* v_forest,
+                   int v,
+                   int last_linked) {
+  int u = v_forest[v].ancestor;
+
+  if (u >= last_linked) {
+    snca_compress(v_forest, u, last_linked);
+    if (v_forest[u].label < v_forest[v].label) {
+      v_forest[v].label = v_forest[u].label;
+    }
+    v_forest[v].ancestor = v_forest[u].ancestor;
   }
-
-  int y = forest_eval_lowest_sdom(v_forest,
-                                  v_dom,
-                                  x_ancestor,
-                                  n + 1);
-  if (y < 0) {
-    return x;
-  }
-
-  int x_new_label = v_forest[v_forest[x].ancestor].label;
-  int x_old_label = v_forest[x].label;
-  if (v_dom[x_new_label].sdom < v_dom[x_old_label].sdom) {
-    v_forest[x].label = x_new_label;
-  }
-
-  v_forest[x].ancestor = y;
-
-  return n ? y : v_forest[x].label;
-}
-
-static
-void forest_link(struct forest_info* v_forest, int parent, int i) {
-  v_forest[i].ancestor = parent;
 }
 
 sexp* node_dominators(struct r_pair_ptr_ssize* vv_parents,
@@ -95,11 +74,13 @@ sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
   struct forest_info* v_forest = r_raw_deref(forest);
 
   for (int i = 0; i < n_nodes; ++i) {
-    v_dom[i] = (struct dom_info) { .idom = i, .sdom = i };
   }
-
-  struct forest_info forest_init = { .ancestor = -1, .label = -1 };
-  R_MEM_SET(struct forest_info, v_forest, forest_init, n_nodes);
+  for (int i = 0; i < n_nodes; ++i) {
+    int* v_parents = vv_parents[i].ptr;
+    int parent = v_parents[0];
+    v_dom[i] = (struct dom_info) { .idom = parent, .sdom = INT_MAX };
+    v_forest[i] = (struct forest_info) { .ancestor = parent, .label = i };
+  }
 
   // Compute semi-dominators
   for (int i = n_nodes - 1; i > 0; --i) {
@@ -109,20 +90,22 @@ sexp* node_dominators0(struct r_pair_ptr_ssize* vv_parents,
 
     int* v_parents = vv_parents[i].ptr;
     int n_parents = vv_parents[i].size;
-    int parent = v_parents[0];
 
-    v_dom[i].idom = parent;
-    v_dom[i].sdom = parent;
+    // See notes in Julia's implementation
+    int last_linked = i + 1;
+    int sdom = INT_MAX;
+
     for (int j = 0; j < n_parents; ++j) {
-      int u = forest_eval_lowest_sdom(v_forest, v_dom, v_parents[j], 0);
-      int u_sdom = v_dom[u].sdom;
-      if (u_sdom < v_dom[i].sdom) {
-        v_dom[i].sdom = u_sdom;
+      int v = v_parents[j];
+      if (v >= last_linked) {
+        snca_compress(v_forest, v, last_linked);
       }
+
+      sdom = r_int_min(sdom, v_forest[v].label);
     }
 
-    // Maintain a forest of the processed vertices
-    forest_link(v_forest, parent, i);
+    v_dom[i].sdom = sdom;
+    v_forest[i].label = sdom;
   }
 
   // Perform NCA step
