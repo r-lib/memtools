@@ -83,6 +83,80 @@ mem_node_dominator_until <- function(.node, .p, ..., .quiet = FALSE) {
   NULL
 }
 
+#' Climb parents
+#'
+#' * `mem_node_parent()` returns a direct parent of `node`. It is
+#'   equivalent to `node$parents[[i]]$from`.
+#'
+#' * `mem_node_parents()` returns all the parents. It is equivalent to
+#'   `map(node$parents, "from")`.
+#'
+#' * `mem_node_bindings_parent()` takes a pairlist as input and
+#'   returns the environment which holds onto that pairlist, either
+#'   through its frame or its hash table. If the pairlist is not part
+#'   of a frame or a hash table, `NULL` is returned.
+#'
+#' @param node A memtools node.
+#' @param i Which parent to return. If `NULL`, `node` must have a
+#'   single parent otherwise this is an error.
+#' @export
+mem_node_parent <- function(node, i = NULL) {
+  stopifnot(is_memtools_node(node))
+
+  if (is_null(i)) {
+    n_parents <- length(node$parents)
+    if (n_parents != 1) {
+      abort(sprintf(
+        "Must supply `i` because `node` has %d parents.",
+        n_parents
+      ))
+    }
+
+    i <- 1
+  }
+
+  node$parents[[i]]$from
+}
+#' @rdname mem_node_parent
+#' @export
+mem_node_bindings_parent <- function(node) {
+  stopifnot(is_memtools_node(node))
+
+  if (node$type != "pairlist") {
+    return(NULL)
+  }
+
+  while (node$type == "pairlist") {
+    if (length(node$parents) != 1) {
+      return(NULL)
+    }
+    node <- mem_node_parent(node)
+  }
+
+  # `frame` environment
+  if (node$type == "environment") {
+    return(node)
+  }
+
+  if (node$type != "list") {
+    return(NULL)
+  }
+  node <- mem_node_parent(node)
+
+  # `hashtab` environment
+  if (node$type == "environment") {
+    return(node)
+  }
+
+  NULL
+}
+#' @rdname mem_node_parent
+#' @export
+mem_node_parents <- function(node) {
+  stopifnot(is_memtools_node(node))
+  purrr::map(node$parents, "from")
+}
+
 #' Retrieve dominance properties
 #'
 #' @description
