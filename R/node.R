@@ -26,6 +26,7 @@ mem_node_size <- function(x) {
 #'
 #' @param node A memtools node.
 #' @param quiet Whether to report how many nodes were climbed.
+#' @seealso [mem_node_dominator_until()]
 #' @export
 mem_node_fork <- function(node, quiet = FALSE) {
   node_fork(node, quiet, function(x) x$parents[[1]]$from, "parent")
@@ -49,6 +50,37 @@ node_fork <- function(node, quiet, climb, what) {
   }
 
   node
+}
+
+#' Reach dominator of interest
+#'
+#' `mem_node_dominator_ns()` climbs nodes from dominated to dominator
+#' until a namespace is reached.
+#'
+#' @inheritParams mem_node_fork
+#' @param .p A predicate function applied to the objects represented
+#'   by dominator nodes.
+#' @param ... Arguments passed to `.p`.
+#' @return The dominator node for which `.p` returned true. `NULL` if
+#'   none were found.
+#' @seealso [mem_node_fork()] and [mem_node_dominator_fork()]
+#' @export
+mem_node_dominator_until <- function(.node, .p, ..., .quiet = FALSE) {
+  stopifnot(is_memtools_node(.node))
+
+  i <- 1
+  while (!is_null(.node <- .node$dominator)) {
+    if (.p(deref(.node), ...)) {
+      if (!.quiet) {
+        writeLines(sprintf("%s Climbed %d dominator(s)", info(), i))
+      }
+      return(.node)
+    }
+
+    i <- i + 1
+  }
+
+  NULL
 }
 
 #' Retrieve dominance properties

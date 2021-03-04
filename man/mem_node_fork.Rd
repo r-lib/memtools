@@ -22,3 +22,6 @@ with more than one parent is reached.
 dominator until a node with more than one parent is reached.
 }
 }
+\seealso{
+\code{\link[=mem_node_dominator_until]{mem_node_dominator_until()}}
+}
