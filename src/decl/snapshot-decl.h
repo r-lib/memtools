@@ -23,3 +23,6 @@ void dominance_info_rec(int i,
 
 static
 sexp* new_snapshot_df(struct snapshot_state* p_state);
+
+static inline
+bool is_mem_stash(sexp* x);

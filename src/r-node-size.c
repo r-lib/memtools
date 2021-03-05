@@ -1,6 +1,6 @@
 #include <rlang.h>
-#include "memtools.h"
 #include "arrow.h"
+#include "globals.h"
 #include "node.h"
 
 static

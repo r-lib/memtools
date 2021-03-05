@@ -3,14 +3,14 @@
 // [[ register() ]]
 sexp* init_memtools(sexp* ns, sexp* node_size, sexp* vec_size) {
   void init_library_arrow();
-  void init_library_memtools();
+  void init_library_globals();
   void init_library_node();
   void init_library_size();
   void init_library_snapshot();
   void init_library_utils();
 
   init_library_arrow();
-  init_library_memtools();
+  init_library_globals();
   init_library_node();
   init_library_size(node_size, vec_size);
   init_library_snapshot();

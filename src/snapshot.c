@@ -3,7 +3,7 @@
 
 #include "arrow.h"
 #include "dominance.h"
-#include "memtools.h"
+#include "globals.h"
 #include "node.h"
 #include "utils.h"
 
@@ -405,6 +405,18 @@ void dominance_info_rec(int i,
     v_info[parent].n_retained += v_info[i].n_retained;
     v_info[parent].retained_size += v_info[i].retained_size;
   }
+}
+
+
+// [[ register() ]]
+sexp* ffi_new_stash(sexp* stash) {
+  r_poke_attrib(stash, attribs.stash);
+  return stash;
+}
+
+static inline
+bool is_mem_stash(sexp* x) {
+  return r_attrib(x) == attribs.stash;
 }
 
 
