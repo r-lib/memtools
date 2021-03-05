@@ -189,15 +189,11 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
   }
 
   if (p_state->verbose) {
-    r_printf("Computing dominators...\n");
+    r_printf("Computing dominance and retainment...\n");
   }
   struct dom_info* v_dom;
   KEEP(node_dominators0(vv_parents, n_rows, &v_dom));
 
-  if (p_state->verbose) {
-    r_printf("Computing retainment information...\n");
-  }
-  
   struct r_dyn_list_of* p_dominated = r_new_dyn_list_of(R_TYPE_integer, n_rows, 3);
   KEEP(p_dominated->shelter);
 
