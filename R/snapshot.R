@@ -22,35 +22,34 @@ arg_check_snapshot <- function(x, arg = substitute(x)) {
 
 #' Add and retrieve igraph structure of snapshot
 #'
-#' @description
-#' * `mem_set_igraph()` computes the igraph structure of `snapshot`. It
-#'   is added to the tibble under the `mem_igraph` attribute.
-#'
-#' * `mem_igraph()` retrieves the igraph structure of `snapshot`. If
-#'   it has already been computed with `mem_set_igraph()` the cached
-#'   igraph is returned.
+#' `mem_igraph()` retrieves the igraph structure of `snapshot`. The
+#' igraph structure is cached inside `snapshot` by side effect to
+#' avoid recomputing it multiple times.
 #'
 #' The igraph is ordered according to the original data frame
 #' ordering. Rearranging the rows of `snapshot` does not rearrange the
 #' igraph.
-#' @export
+#'
 #' @param snapshot A memtools snapshot.
+#' @export
 #' @examples
 #' s <- mem_snapshot(list(1, list(2)))
 #'
-#' # Compute and store the igraph in the snapshot
-#' s <- mem_set_igraph(s)
-#'
-#' # Retrieve the igraph
+#' # Retrieve the igraph. It is first computed and then cached inside
+#' # the snapshot so it does not need to be recreated again.
 #' g <- mem_igraph(s)
 #'
 #' # Work with igraph
 #' igraph::gsize(g)
-mem_set_igraph <- function(snapshot) {
+mem_igraph <- function(snapshot) {
+  mem_poke_igraph(snapshot)
+  attr(snapshot, "mem_igraph")$igraph
+}
+mem_poke_igraph <- function(snapshot) {
   arg_check_snapshot(snapshot)
 
-  igraph <- attr(snapshot, "mem_igraph")
-  if (!is_null(igraph)) {
+  igraph_env <- attr(snapshot, "mem_igraph")
+  if (!is_null(igraph_env$igraph)) {
     return(snapshot)
   }
 
@@ -60,18 +59,10 @@ mem_set_igraph <- function(snapshot) {
   if (!is_false(peek_option("memtools_verbose"))) {
     writeLines("Adding igraph structure to snapshot as `mem_igraph` attribute...")
   }
-  g <- igraph::graph_from_adj_list(adj_list)
-  attr(snapshot, "mem_igraph") <- g
+  igraph_env$igraph <- igraph::graph_from_adj_list(adj_list)
 
-  snapshot
+  invisible(NULL)
 }
-#' @rdname mem_set_igraph
-#' @export
-mem_igraph <- function(snapshot) {
-  snapshot <- mem_set_igraph(snapshot)
-  attr(snapshot, "mem_igraph")
-}
-
 
 #' Stash objects
 #'

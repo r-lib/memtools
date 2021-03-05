@@ -12,6 +12,7 @@ struct {
   sexp* id;
   sexp* mem_adj_list;
   sexp* mem_dict;
+  sexp* mem_igraph;
   sexp* parents;
   sexp* retained_size;
   sexp* self_size;
@@ -30,6 +31,7 @@ void init_library_globals() {
   syms.gc_depth = r_sym("gc_depth");
   syms.id = r_sym("id");
   syms.mem_dict = r_sym("mem_dict");
+  syms.mem_igraph = r_sym("mem_igraph");
   syms.mem_adj_list = r_sym("mem_adj_list");
   syms.parents = r_sym("parents");
   syms.retained_size = r_sym("retained_size");
