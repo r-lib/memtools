@@ -216,3 +216,19 @@ test_that("can add igraph structure", {
   g <- attr(s, "mem_igraph")$igraph
   expect_equal(igraph::gsize(g), 3)
 })
+
+test_that("can take shortest paths", {
+  skip_if_not_installed("igraph")
+
+  x <- 1; y <- list(x); z <- list(y)
+  s <- mem_snapshot(z)
+  p <- mem_shortest_paths(s, 3)
+  expect_length(p, 1)
+  expect_equal(purrr::map_chr(p[[1]], "id"), s$id)
+
+  x <- 1; y <- list(x); z <- list(y, x)
+  s <- mem_snapshot(z)
+  p <- mem_shortest_paths(s, sexp_address(x))
+  expect_length(p, 1)
+  expect_equal(purrr::map_chr(p[[1]], "id"), s$id[c(1, 3)])
+})

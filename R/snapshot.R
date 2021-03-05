@@ -19,6 +19,21 @@ arg_check_snapshot <- function(x, arg = substitute(x)) {
     abort(msg)
   }
 }
+arg_as_mem_node <- function(x, snapshot, arg = substitute(x)) {
+  if (is_integerish(x, n = 1, finite = TRUE)) {
+    snapshot$node[[x]]
+  } else if (is_string(x)) {
+    i <- which(x == snapshot$id)
+    if (length(i) != 1) {
+      abort("Can't find node in snapshot.")
+    }
+    snapshot$node[[i]]
+  } else {
+    arg_check_mem_node(x, arg = arg)
+    x
+  }
+}
+
 
 #' Add and retrieve igraph structure of snapshot
 #'
@@ -96,4 +111,36 @@ root_cpp11 <- function() {
 #' @export
 root_ns_registry <- function() {
   as.list(.Call(ffi_root_ns_registry))
+}
+
+#' Find all shortest paths
+#'
+#' Call [mem_set_igraph()] on `snapshot`
+#' @param snapshot A memory snapshot data frame created by
+#'   [mem_snapshot()].
+#' @param to,from Nodes from the `node` column of `snapshot`.  If
+#'   `from` is not supplied, the paths from the root are taken by
+#'   default. Can also be indices into `snapshot$node`.
+mem_shortest_paths <- function(snapshot, to, from = NULL) {
+  check_installed("igraph")
+  arg_check_snapshot(snapshot)
+
+  if (is_null(from)) {
+    from <- snapshot$node[[1]]
+  }
+  to <- arg_as_mem_node(to, snapshot)
+  from <- arg_as_mem_node(from, snapshot)
+
+  i <- match(c(from$id, to$id), snapshot$id)
+  if (anyNA(i)) {
+    abort("Can't find nodes in snapshot.")
+  }
+  if (length(i) != 2) {
+    abort("Unexpected duplicate nodes in snapshot.")
+  }
+
+  graph <- mem_igraph(snapshot)
+  paths <- igraph::all_shortest_paths(graph, i[[1]], i[[2]], mode = "in")
+
+  lapply(paths$res, lapply, function(x) snapshot$node[[x]])
 }
