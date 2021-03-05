@@ -138,10 +138,8 @@ igraph.</p>
 </div><div class='output co'>#&gt; Creating snapshot...
 #&gt; Computing dominance and retainment...
 #&gt; Creating data frame...</div><div class='input'>
-<span class='co'># Compute and store the igraph in the snapshot</span>
-<span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'>mem_set_igraph</span><span class='op'>(</span><span class='va'>s</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in mem_set_igraph(s): could not find function "mem_set_igraph"</span></div><div class='input'>
-<span class='co'># Retrieve the igraph</span>
+<span class='co'># Retrieve the igraph. It is first computed and then cached inside</span>
+<span class='co'># the snapshot so it does not need to be recreated again.</span>
 <span class='va'>g</span> <span class='op'>&lt;-</span> <span class='fu'>mem_igraph</span><span class='op'>(</span><span class='va'>s</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Adding igraph structure to snapshot as `mem_igraph` attribute...</div><div class='input'>
 <span class='co'># Work with igraph</span>
