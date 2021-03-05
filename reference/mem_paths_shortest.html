@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • memtools</title>
+<title>Find all shortest or simple paths — mem_paths_shortest • memtools</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Find all shortest or simple paths — mem_paths_shortest" />
+<meta property="og:description" content="Wrappers around igraph::all_shortest_paths() and
+igraph::all_simple_paths()." />
 
 
 
@@ -58,7 +60,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -100,108 +102,40 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Find all shortest or simple paths</h1>
+    
+    <div class="hidden name"><code>mem_paths_shortest.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Wrappers around <code><a href='https://rdrr.io/pkg/igraph/man/distances.html'>igraph::all_shortest_paths()</a></code> and
+<code><a href='https://rdrr.io/pkg/igraph/man/all_simple_paths.html'>igraph::all_simple_paths()</a></code>.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>mem_paths_shortest</span><span class='op'>(</span><span class='va'>snapshot</span>, <span class='va'>to</span>, from <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="deref.html">deref()</a></code> </p>
-        </td>
-        <td><p>Dereference an object address</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="is_mem_arrow.html">is_mem_arrow()</a></code> </p>
-        </td>
-        <td><p>Is an object a memtools arrow?</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="is_memtools_node.html">is_memtools_node()</a></code> </p>
-        </td>
-        <td><p>Is an object a memtools node?</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_igraph.html">mem_igraph()</a></code> </p>
-        </td>
-        <td><p>Add and retrieve igraph structure of snapshot</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_node_dominator_until.html">mem_node_dominator_until()</a></code> </p>
-        </td>
-        <td><p>Reach dominator of interest</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_node_fork.html">mem_node_fork()</a></code> <code><a href="mem_node_fork.html">mem_node_dominator_fork()</a></code> </p>
-        </td>
-        <td><p>Climb nodes until a fork</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_node_parent.html">mem_node_parent()</a></code> <code><a href="mem_node_parent.html">mem_node_bindings_parent()</a></code> <code><a href="mem_node_parent.html">mem_node_parents()</a></code> </p>
-        </td>
-        <td><p>Climb parents</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_node_undominated_parents.html">mem_node_undominated_parents()</a></code> <code><a href="mem_node_undominated_parents.html">mem_node_dominated_ids()</a></code> </p>
-        </td>
-        <td><p>Retrieve dominance properties</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_paths_shortest.html">mem_paths_shortest()</a></code> <code><a href="mem_paths_shortest.html">mem_paths_simple()</a></code> </p>
-        </td>
-        <td><p>Find all shortest or simple paths</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_snapshot.html">mem_snapshot()</a></code> </p>
-        </td>
-        <td><p>Create a memory snapshot</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="mem_stash.html">mem_stash()</a></code> </p>
-        </td>
-        <td><p>Stash objects</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="root_cpp11.html">root_cpp11()</a></code> <code><a href="root_cpp11.html">root_ns_registry()</a></code> </p>
-        </td>
-        <td><p>Roots of interest</p></td>
-      </tr>
-    </tbody>
+<span class='fu'>mem_paths_simple</span><span class='op'>(</span><span class='va'>snapshot</span>, <span class='va'>to</span>, from <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>snapshot</th>
+      <td><p>A memory snapshot data frame created by
+<code><a href='mem_snapshot.html'>mem_snapshot()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>to, from</th>
+      <td><p>Nodes from the <code>node</code> column of <code>snapshot</code>.  If
+<code>from</code> is not supplied, the paths from the root are taken by
+default. Can also be indices into <code>snapshot$node</code>.</p></td>
+    </tr>
     </table>
-  </div>
 
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
