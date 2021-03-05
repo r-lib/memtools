@@ -113,15 +113,26 @@ root_ns_registry <- function() {
   as.list(.Call(ffi_root_ns_registry))
 }
 
-#' Find all shortest paths
+#' Find all shortest or simple paths
 #'
-#' Call [mem_set_igraph()] on `snapshot`
+#' Wrappers around [igraph::all_shortest_paths()] and
+#' [igraph::all_simple_paths()].
+#'
 #' @param snapshot A memory snapshot data frame created by
 #'   [mem_snapshot()].
 #' @param to,from Nodes from the `node` column of `snapshot`.  If
 #'   `from` is not supplied, the paths from the root are taken by
 #'   default. Can also be indices into `snapshot$node`.
-mem_shortest_paths <- function(snapshot, to, from = NULL) {
+#' @export
+mem_paths_shortest <- function(snapshot, to, from = NULL) {
+  mem_paths(snapshot, to, from, "shortest")
+}
+#' @rdname mem_paths_shortest
+#' @export
+mem_paths_simple <- function(snapshot, to, from = NULL) {
+  mem_paths(snapshot, to, from, "simple")
+}
+mem_paths <- function(snapshot, to, from, op) {
   check_installed("igraph")
   arg_check_snapshot(snapshot)
 
@@ -140,7 +151,12 @@ mem_shortest_paths <- function(snapshot, to, from = NULL) {
   }
 
   graph <- mem_igraph(snapshot)
-  paths <- igraph::all_shortest_paths(graph, i[[1]], i[[2]], mode = "in")
 
-  lapply(paths$res, lapply, function(x) snapshot$node[[x]])
+  paths <- switch(op,
+    shortest = igraph::all_shortest_paths(graph, i[[1]], i[[2]], mode = "in")$res,
+    simple = igraph::all_simple_paths(graph, i[[1]], i[[2]], mode = "in"),
+    stop_internal("mem_paths", "Unexpected operation.")
+  )
+
+  lapply(paths, lapply, function(x) snapshot$node[[x]])
 }

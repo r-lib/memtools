@@ -222,13 +222,13 @@ test_that("can take shortest paths", {
 
   x <- 1; y <- list(x); z <- list(y)
   s <- mem_snapshot(z)
-  p <- mem_shortest_paths(s, 3)
+  p <- mem_paths_shortest(s, 3)
   expect_length(p, 1)
   expect_equal(purrr::map_chr(p[[1]], "id"), s$id)
 
   x <- 1; y <- list(x); z <- list(y, x)
   s <- mem_snapshot(z)
-  p <- mem_shortest_paths(s, sexp_address(x))
+  p <- mem_paths_shortest(s, sexp_address(x))
   expect_length(p, 1)
   expect_equal(purrr::map_chr(p[[1]], "id"), s$id[c(1, 3)])
 })
