@@ -10,6 +10,69 @@ mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
 }
 
+is_snapshot <- function(x) {
+  tibble::is_tibble(x) && !is_null(attr(x, "mem_adj_list"))
+}
+arg_check_snapshot <- function(x, arg = substitute(x)) {
+  if (!is_snapshot(x)) {
+    msg <- sprintf("`%s` must be a memtools snapshot.", as_string(arg))
+    abort(msg)
+  }
+}
+
+#' Add and retrieve igraph structure of snapshot
+#'
+#' @description
+#' * `mem_set_igraph()` computes the igraph structure of `snapshot`. It
+#'   is added to the tibble under the `mem_igraph` attribute.
+#'
+#' * `mem_igraph()` retrieves the igraph structure of `snapshot`. If
+#'   it has already been computed with `mem_set_igraph()` the cached
+#'   igraph is returned.
+#'
+#' The igraph is ordered according to the original data frame
+#' ordering. Rearranging the rows of `snapshot` does not rearrange the
+#' igraph.
+#' @export
+#' @param snapshot A memtools snapshot.
+#' @examples
+#' s <- mem_snapshot(list(1, list(2)))
+#'
+#' # Compute and store the igraph in the snapshot
+#' s <- mem_set_igraph(s)
+#'
+#' # Retrieve the igraph
+#' g <- mem_igraph(s)
+#'
+#' # Work with igraph
+#' igraph::gsize(g)
+mem_set_igraph <- function(snapshot) {
+  arg_check_snapshot(snapshot)
+
+  igraph <- attr(snapshot, "mem_igraph")
+  if (!is_null(igraph)) {
+    return(snapshot)
+  }
+
+  adj_list <- attr(snapshot, "mem_adj_list")
+  adj_list <- lapply(adj_list, `+`, 1L)
+
+  if (!is_false(peek_option("memtools_verbose"))) {
+    writeLines("Adding igraph structure to snapshot as `mem_igraph` attribute...")
+  }
+  g <- igraph::graph_from_adj_list(adj_list)
+  attr(snapshot, "mem_igraph") <- g
+
+  snapshot
+}
+#' @rdname mem_set_igraph
+#' @export
+mem_igraph <- function(snapshot) {
+  snapshot <- mem_set_igraph(snapshot)
+  attr(snapshot, "mem_igraph")
+}
+
+
 #' Stash objects
 #'
 #' Objects contained in a stash are never recorded by

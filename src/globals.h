@@ -12,6 +12,7 @@ extern struct {
   sexp* dominator;
   sexp* gc_depth;
   sexp* id;
+  sexp* mem_adj_list;
   sexp* mem_dict;
   sexp* parents;
   sexp* retained_size;

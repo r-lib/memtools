@@ -22,6 +22,7 @@ Suggests:
     cli,
     covr,
     crayon,
+    igraph,
     testthat (>= 3.0.0)
 Remotes:
     r-lib/rlang

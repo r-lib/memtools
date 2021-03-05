@@ -286,6 +286,12 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
 
   r_attrib_push(df, syms.mem_dict, p_state->p_dict->shelter);
 
+  // Keep snapshoted objects alive through the dict
+  r_attrib_push(df, syms.mem_dict, p_state->p_dict->shelter);
+
+  // The adjacency list is used to create igraph structures
+  r_attrib_push(df, syms.mem_adj_list, r_lof_unwrap(p_state->p_parents_lof));
+
   FREE(4);
   return df;
 }

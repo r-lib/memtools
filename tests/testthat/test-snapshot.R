@@ -205,3 +205,12 @@ test_that("snapshot of Tarjan's graph is correct (1979)", {
     )
   )
 })
+
+test_that("can add igraph structure", {
+  skip_if_not_installed("igraph")
+
+  s <- mem_snapshot(list(1, list(2)))
+  s <- mem_set_igraph(s)
+  g <- mem_igraph(s)
+  expect_equal(igraph::gsize(g), 3)
+})
