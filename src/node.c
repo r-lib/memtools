@@ -73,7 +73,7 @@ bool is_node_shelter(sexp* x) {
 
 
 void init_library_node() {
-  node_template_env = r_preserve_global(r_alloc_environment(r_empty_env, 5));
+  node_template_env = r_preserve_global(r_alloc_environment(5, r_empty_env));
   const char* classes_node[] = { "memtools_node", "environment" };
   r_attrib_poke_class(node_template_env, r_chr_n(classes_node, R_ARR_SIZEOF(classes_node)));
   r_mark_shared(r_attrib(node_template_env));
