@@ -74,7 +74,7 @@ mem_poke_igraph <- function(snapshot) {
   if (!is_false(peek_option("memtools_verbose"))) {
     writeLines("Adding igraph structure to snapshot as `mem_igraph` attribute...")
   }
-  igraph_env$igraph <- igraph::graph_from_adj_list(adj_list)
+  igraph_env$igraph <- igraph::graph_from_adj_list(adj_list, mode = "in")
 
   invisible(NULL)
 }
@@ -153,8 +153,8 @@ mem_paths <- function(snapshot, to, from, op) {
   graph <- mem_igraph(snapshot)
 
   paths <- switch(op,
-    shortest = igraph::all_shortest_paths(graph, i[[1]], i[[2]], mode = "in")$res,
-    simple = igraph::all_simple_paths(graph, i[[1]], i[[2]], mode = "in"),
+    shortest = igraph::all_shortest_paths(graph, i[[1]], i[[2]])$res,
+    simple = igraph::all_simple_paths(graph, i[[1]], i[[2]]),
     stop_internal("mem_paths", "Unexpected operation.")
   )
 
