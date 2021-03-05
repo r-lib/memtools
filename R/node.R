@@ -4,7 +4,7 @@
 is_memtools_node <- function(x) {
   inherits(x, "memtools_node")
 }
-check_memtools_node <- function(x, arg = substitute(x)) {
+arg_check_mem_node <- function(x, arg = substitute(x)) {
   if (!is_memtools_node(x)) {
     msg <- sprintf("`%s` must be a `memtools_node`.", as_string(arg))
     abort(msg)
@@ -37,7 +37,7 @@ mem_node_dominator_fork <- function(node, quiet = FALSE) {
   node_fork(node, quiet, function(x) x$dominator, "dominator")
 }
 node_fork <- function(node, quiet, climb, what) {
-  stopifnot(is_memtools_node(node))
+  arg_check_mem_node(node)
 
   i <- 0
   while (length(node$parents) == 1) {
@@ -66,7 +66,7 @@ node_fork <- function(node, quiet, climb, what) {
 #' @seealso [mem_node_fork()] and [mem_node_dominator_fork()]
 #' @export
 mem_node_dominator_until <- function(.node, .p, ..., .quiet = FALSE) {
-  stopifnot(is_memtools_node(.node))
+  arg_check_mem_node(.node)
 
   i <- 1
   while (!is_null(.node <- .node$dominator)) {
@@ -101,7 +101,7 @@ mem_node_dominator_until <- function(.node, .p, ..., .quiet = FALSE) {
 #'   single parent otherwise this is an error.
 #' @export
 mem_node_parent <- function(node, i = NULL) {
-  stopifnot(is_memtools_node(node))
+  arg_check_mem_node(node)
 
   if (is_null(i)) {
     n_parents <- length(node$parents)
@@ -120,7 +120,7 @@ mem_node_parent <- function(node, i = NULL) {
 #' @rdname mem_node_parent
 #' @export
 mem_node_bindings_parent <- function(node) {
-  stopifnot(is_memtools_node(node))
+  arg_check_mem_node(node)
 
   if (node$type != "pairlist") {
     return(NULL)
@@ -153,7 +153,7 @@ mem_node_bindings_parent <- function(node) {
 #' @rdname mem_node_parent
 #' @export
 mem_node_parents <- function(node) {
-  stopifnot(is_memtools_node(node))
+  arg_check_mem_node(node)
   purrr::map(node$parents, "from")
 }
 
@@ -169,7 +169,7 @@ mem_node_parents <- function(node) {
 #' @param node A memtools node.
 #' @export
 mem_node_undominated_parents <- function(node) {
-  check_memtools_node(node)
+  arg_check_mem_node(node)
 
   dominated <- mem_node_dominated_ids(node)
   parents_ids <- purrr::map_chr(
@@ -184,7 +184,7 @@ mem_node_undominated_parents <- function(node) {
 #' @rdname mem_node_undominated_parents
 #' @export
 mem_node_dominated_ids <- function(node) {
-  check_memtools_node(node)
+  arg_check_mem_node(node)
 
   ids <- chr()
   for (node in node$dominated) {
