@@ -18,7 +18,7 @@ enum arrow_locs {
 sexp* new_arrow(sexp* parent_node,
                 sexp* child_node,
                 int depth,
-                enum r_node_relation rel,
+                enum r_sexp_it_relation rel,
                 r_ssize i);
 
 struct r_dyn_array* new_arrow_list(sexp* x);

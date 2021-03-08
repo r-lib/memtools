@@ -21,14 +21,14 @@ const char* v_arrow_names_c_strs[ARROW_SIZE] = {
 sexp* new_arrow(sexp* parent_node,
                 sexp* child_node,
                 int depth,
-                enum r_node_relation rel,
+                enum r_sexp_it_relation rel,
                 r_ssize i) {
   sexp* arrow = KEEP(r_alloc_list(ARROW_SIZE));
 
   r_list_poke(arrow, ARROW_LOCS_from, parent_node);
   r_list_poke(arrow, ARROW_LOCS_to, child_node);
   r_list_poke(arrow, ARROW_LOCS_depth, r_int(depth));
-  r_list_poke(arrow, ARROW_LOCS_rel, r_chr(r_node_relation_as_c_string(rel)));
+  r_list_poke(arrow, ARROW_LOCS_rel, r_chr(r_sexp_it_relation_as_c_string(rel)));
   r_list_poke(arrow, ARROW_LOCS_i, r_len(i));
   r_list_poke(arrow, ARROW_LOCS_name, r_null); // TODO: Fetch name
 

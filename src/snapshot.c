@@ -96,9 +96,9 @@ sexp* snapshot(sexp* x) {
 
     int depth = p_it->depth;
     sexp* parent = p_it->parent;
-    enum r_node_relation rel = p_it->rel;
+    enum r_sexp_it_relation rel = p_it->rel;
     r_ssize i = p_it->i;
-    enum r_node_direction dir = p_it->dir;
+    enum r_sexp_it_direction dir = p_it->dir;
 
     // The parent node is `NULL` if `x` is the root
     struct node* p_parent_node = get_cached_parent_node(p_state, parent);
@@ -111,7 +111,7 @@ sexp* snapshot(sexp* x) {
     int parent_loc = p_parent_node ? p_parent_node->depth_first_loc : -1;
 
     if (p_cached_node) {
-      if (dir != R_NODE_DIRECTION_outgoing) {
+      if (dir != R_SEXP_IT_DIRECTION_outgoing) {
         sexp* arrow = KEEP(new_arrow(parent_node_env,
                                      p_cached_node->env,
                                      depth,
@@ -151,7 +151,7 @@ sexp* snapshot(sexp* x) {
     // objects from the debugging session, including memory snapshots.
     // TODO: Traverse global env manually to collect hidden symbols
     // starting with a dot.
-    if (parent == r_global_env && rel != R_NODE_RELATION_environment_enclos) {
+    if (parent == r_global_env && rel != R_SEXP_IT_RELATION_environment_enclos) {
       p_it->skip_incoming = true;
     }
   }
