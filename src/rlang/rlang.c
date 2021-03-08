@@ -15,6 +15,7 @@
 #include "export.c"
 #include "fn.c"
 #include "formula.c"
+#include "globals.c"
 #include "node.c"
 #include "parse.c"
 #include "quo.c"
@@ -60,15 +61,14 @@ r_ssize r_as_ssize(sexp* n) {
 void r_init_rlang_ns_env();
 void r_init_library_call();
 void r_init_library_cnd();
-void r_init_library_df();
 void r_init_library_dyn_array();
 void r_init_library_env();
 void r_init_library_fn();
+void r_init_library_globals();
+void r_init_library_globals_syms();
 void r_init_library_session();
 void r_init_library_sexp(sexp*);
 void r_init_library_stack();
-void r_init_library_sym();
-void r_init_library_vec();
 void r_init_library_vendor();
 
 static sexp* shared_x_env;
@@ -87,19 +87,18 @@ sexp* r_init_library(sexp* ns) {
 
   // Need to be first
   r_init_library_vendor(); // Needed for xxh used in `r_preserve()`
+  r_init_library_globals_syms();
   r_init_library_sexp(ns);
-  r_init_library_sym();
+  r_init_library_globals();
 
   r_init_rlang_ns_env();
   r_init_library_call();
   r_init_library_cnd();
-  r_init_library_df();
   r_init_library_dyn_array();
   r_init_library_env();
   r_init_library_fn();
   r_init_library_session();
   r_init_library_stack();
-  r_init_library_vec();
 
   shared_x_env = r_parse_eval("new.env(hash = FALSE, parent = baseenv(), size = 1L)", r_base_env);
   r_preserve(shared_x_env);
