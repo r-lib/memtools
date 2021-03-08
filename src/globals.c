@@ -23,7 +23,7 @@ struct {
 void init_library_globals() {
   attribs.stash = r_new_node(r_chr("memtools_stash"), r_null);
   r_preserve_global(attribs.stash);
-  r_node_poke_tag(attribs.stash, r_syms_class);
+  r_node_poke_tag(attribs.stash, r_syms.class);
 
   syms.children = r_sym("children");
   syms.dominated = r_sym("dominated");

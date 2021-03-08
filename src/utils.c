@@ -62,6 +62,6 @@ void init_library_utils() {
   sexp* bytes_class = KEEP(r_chr_n(v_bytes_class, R_ARR_SIZEOF(v_bytes_class)));
   attribs_bytes = r_pairlist(bytes_class);
   r_preserve_global(attribs_bytes);
-  r_node_poke_tag(attribs_bytes, r_syms_class);
+  r_node_poke_tag(attribs_bytes, r_syms.class);
   FREE(1);
 }
