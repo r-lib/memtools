@@ -1,0 +1,379 @@
+---
+title: "memtools"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{memtools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(memtools)
+```
+
+R is a [garbage-collected](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)) language. This means in practice that the programmer does not need to manage the lifetime of objects. R automatically releases the memory used up by objects that are no longer in use at periodical intervals. In garabage collected languages, memory leaks occur when some object or entity unexpectedly contains or points to an object that is otherwise no longer in use. This is because the garbage collector only reclaims the memory of unreachable objects. Without dedicated tools, detecting the source of object leaks can be very difficult, akin to finding a needle in a haystack.
+
+memtools provides tools to deal with two main tasks:
+
+1. Detecting leaked objects by comparing snapshots of the network of objects in memory.
+2. Detecting which object ultimately keep alive the leaked objects, directly or indirectly.
+
+This vignette explores two case studies to illustrate these tasks.
+
+
+# Taking a memory snapshot
+
+`mem_snapshot()` is the workhorse of memtools. It takes a root object as input, traverses all reachable R objects from that root, and records their relations in a form that can be easily inspected and summarised. The output of `mem_snapshot()` is a data frame that contains the graph of reachable objects, with one row per object, and metadata for that object.
+
+```{r}
+s <- mem_snapshot(list(x = 1, list("foo")))
+
+s
+```
+
+- `id`: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with `deref()`:
+
+   ```{r}
+   s$id[[1]]
+
+   deref(s$id[[1]])
+   ```
+
+- `type`: The `typeof()` the object.
+
+- `node`: This list-column contains the nodes of the object (see below).
+
+- `n_parents`, `n_children`: The parents of an object are the nodes that maintain a reference to that object. For instance a list maintains references to all its elements and a function refers to the environment it was created in, its list of arguments, and the R code it executes (respectively its `environment()`, `formals()`, and `body()`).
+
+  The root object doesn't have any parents recorded in the snapshot but note that it could have parents in the real graph of R objects in memory. The choice of a relevant root is thus crucial.
+
+- `n_retained`, `retained_size`: These provide the number of children that would be released if the object was reclaimed by the GC, and their total size.
+
+- `gc_detph`: This is the number of dominators that must be collected for the object to be reclaimed (see Dominance section).
+
+
+## The graph of reachable objects
+
+The memory snapshot is a flat representation of the memory graph in a rectangular data frame. You can inspect and traverse the graph using the node objects of the `node` column.
+
+```{r}
+n <- s$node[[1]]
+
+n
+```
+
+A node contains a little more information than the snapshot columns:
+
+- `parents`, `children`: Lists of arrow objects for the parents and children of the node.
+
+- `dominator`, `dominated`: The memory node of the dominator and the list of dominated nodes (see Dominance section).
+
+- `self_size`: This is the individual size of the object. Compared to `retained_size`, it doesn't include the size of retained nodes. Most objects have a very small size except for vectors. The size of vectors (including lists) increases with their lengths.
+
+The `parents` and `children` fields are lists of arrow objects:
+
+```{r}
+n$children
+```
+
+The `from` and `to` fields of arrows point to the parent and child respectively:
+
+```{r}
+arrow <- n$children[[1]]
+
+# This is `n` itself
+identical(arrow$from, n)
+
+# This is the first child of `n`
+arrow$to
+```
+
+A noteworthy part of arrow objects is the `rel` field which indicates what kind of relationship unites the two nodes:
+
+```{r}
+arrow$rel
+```
+
+The list is the parent of an attribute field. Why is this the case? Our list is not a classed objects and we haven't explicitly added attributes. Let's dereference the attribute pairlist to find out. `deref()` accepts addresses as inputs as well as node objects:
+
+```{r}
+deref(arrow$to)
+```
+
+Indeed the snapshoted list includes names and these are stored in attributes.
+
+If you're exploring a node with many children or parents (some nodes have 1000s of parents) it can be insightful to summarise the distribution of relationships:
+
+```{r}
+library(purrr)
+map_chr(n$children, "rel") %>% table()
+```
+
+In general, traversing the graph of objects from node to arrow to node can be slow and cumbersome. This is why memtools provides more structured ways of exploring relationships of dependence, like taking the shortest paths between a node and its dominator.
+
+
+## Compatibility with igraph
+
+The memtools snapshots are compatible with the [igraph package](https://igraph.org/r/), an R package that wraps around the C library of the same name. This library offers a large collection of fast algorithms for exploring and summarising the structure of graphs.
+
+You can retrieve the igraph structure of a snapshot using `mem_igraph()`. The structure is created the first time it is run and then saved inside the snapshot.
+
+```{r}
+g <- mem_igraph(s)
+```
+
+Using igraph you can visualise very small snapshots such as `s`. The nodes are labelled according to their row positions in the snapshot:
+
+```{r}
+plot(g, layout = igraph::layout_as_tree(g))
+```
+
+Most snapshots are too large to be visualised this way. igraph is still useful with these large snapshots because many advanced algorithms have near-linear complexity. memtools provides a direct interface for the most useful of these algorithms. It includes its own graph dominance algorithm and exposes igraph's shortest paths algorithm. We'll cover both of these in the vignette.
+
+
+## Know your R internals
+
+You will need some familiarity with the way R objects are structured to make sense of the raw network of relations between objects. An important case is the structure of an environment:
+
+```{r}
+e <- new.env(parent = emptyenv())
+e$x <- 1
+e$y <- 2
+
+s <- mem_snapshot(e)
+
+s
+```
+
+This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.
+
+Also be aware that unlike lists, pairlists consist of multiple objects:
+
+```{r}
+s <- mem_snapshot(pairlist(1, 2, 3))
+
+s
+```
+
+That's because pairlists are structured as [__linked lists__](https://en.wikipedia.org/wiki/Linked_list). This is apparent if we plot the their tree structure using igraph:
+
+```{r}
+g <- mem_igraph(s)
+
+plot(g, layout = igraph::layout_as_tree(g))
+```
+
+
+## The dominance tree
+
+The graph of objects is often too complex to work with. It typically contains hundreds of thousands of objects as soon as the global environment or a namespace (which inherits from the global environment and the search path) is included. It is cyclic because environments may point to themselves (for instance a function bound to the global environment and inheriting from it). Finding leaks and their retainers from a raw snapshot is too difficult.
+
+Enters the [dominance tree](https://en.wikipedia.org/wiki/Dominator_(graph_theory)). This is a transformation of the graph of R objects into a totally ordered tree where parent relationships towards the root can be followed without cycles. This makes it very useful for debugging leaks. The __immediate dominator__ of an object is the closest ancestor through which all paths from the root to the object have to go. If an object has multiple parents, all of them are children or grand-children of its dominator.
+
+In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. However, the source can't be higher up than the dominator. It is an upper bound in the leak search.
+
+See `?igraph::dominator_tree` for a visual representation of the dominance transformation.
+
+
+# Comparing snapshots to detect leaked objects
+
+There are two steps to fixing a memory leak:
+
+1. Detect the unused objects that unexpectedly remain in memory
+2. Find the objects that are keeping references to the persisting objects
+
+Sometimes you know right away which objects are leaking and you can directly start with step 2. In other cases you only know from diagnostic tools like `gc()` that some memory is not being reclaimed and you need first to find out what objects hold that memory. Step 1 consists in taking two memory snapshots before and after running a reprex that causes the leak. The snapshots are then compared to find the new objects in memory.
+
+
+## A tidyr leak
+
+We illustrate step 1 with a real memory leak that affected the tidyr package from August 2020 to March 2021 (https://github.com/tidyverse/tidyr/issues/1059).
+
+```{r, eval = FALSE}
+mem_reprex <- function(n) {
+  library(tidyverse)
+  library(memtools)
+
+  matrix(rep(1, n), ncol = 5) %>%
+    as.data.frame() %>%
+    mutate(group = rep(c("a", "b"), each = n / (2 * 5))) %>%
+    nest(data = -group) %>%
+    spread(group, data) %>%
+    gather(group, data, a, b)
+
+  # Return `NULL` to ensure results are not retained through
+  # `.Last.value`
+  invisible(NULL)
+}
+
+mem_reprex(1e8)
+
+gc()
+#>            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
+#> Ncells  1083632  57.9    2084282  111.4         NA   1232191   65.9
+#> Vcells 51895613 396.0  240310392 1833.5      16384 259081311 1976.7
+```
+
+As you can see, a large amount of memory is retained in the vector cells of the R heap, even after deleting the data frame of results. But what exactly is leaking?
+
+
+## Select a snapshot root
+
+Next, create the first memory snapshot to record the current state of objects in memory. There is a choice to make here, what object are we going to supply to `mem_snapshot()`? Ideally, we would take a snapshot of the __GC roots__, the objects from which R's collector starts tracing. There exists several GC roots which are not made available to the R session.
+
+In practice, there is only one GC root of interest, the __precious list__. This is (as currently implemented) a pairlist of objects protected from garbage collection through an `R_PreserveObject()` API call. Preserved objects remain in the precious list until a corresponding `R_ReleaseObject()` call. Most permanent R objects, such as the namespace registry or the global environment, are protected by the precious list. It is ultimately the most complete starting point to take a memory snapshot from.
+
+However, the precious list is cumbersome to work with:
+
+- It is internal and private. Retrieving the precious list requires some work.
+
+- It is rather unstructured. This is a plain linked list where parent relationships are not meaningful and only the result of the timing of preserve calls.
+
+- It contains large and complex objects, such as the global cache for visited bindings of the global environment and the search path.
+
+Since most leaks are caused by a reference that lives inside a namespace, it is often more practical to start from the namespace registry. This registry is an environment that contains all the namespaces loaded in the R session. memtools exposes it as a list to avoid encumbering the snapshots with the internal environment structures:
+
+```{r}
+str(head(
+  memtools::root_ns_registry()
+))
+```
+
+The namespace registry strikes a good balance between exhaustivity and convenience. It is a good choice of snapshot root to start an investigation.
+
+
+## Compare before and after snapshots
+
+The first thing to do on a fresh session is to create a __dry-run__ of the reprex. This dry-run will load any required namespace and possibly allocate global variables that some packages cache in memory the first time they need them. Initialising as much code as possible before taking the first snapshot is going to reduce the amount of noise when we'll compare it with the second snapshot.
+
+```{r, eval = FALSE}
+mem_reprex(10)
+```
+
+Now that we have performed a dry-run of our reprex, let's record the "before" snapshot, using the namespace registry as a starting point:
+
+```{r, eval = FALSE}
+root <- root_ns_registry()
+before <- mem_snapshot(root)
+#> Creating snapshot...
+#> Recorded 100000 nodes
+#> Recorded 200000 nodes
+#> Recorded 300000 nodes
+#> Recorded 400000 nodes
+#> Computing dominance and retainment...
+#> Creating data frame...
+```
+
+Next, run the R expression that is leaking memory:
+
+```{r, eval = FALSE}
+mem_reprex(1e8)
+```
+
+And finally, the "after" snapshot:
+
+```{r, eval = FALSE}
+after <- mem_snapshot(root)
+#> Creating snapshot...
+#> Recorded 100000 nodes
+#> Recorded 200000 nodes
+#> Recorded 300000 nodes
+#> Recorded 400000 nodes
+#> Computing dominance and retainment...
+#> Creating data frame...
+```
+
+Two things to note:
+
+- Snapshot objects are identified by their address in memory. To make it safe to compare different snapshots taken at different times, the snapshot data frame keeps all the recorded objects alive. There is no risk of R reusing an old memory address with a newly allocated object. There is a strict correspondence between elements with the same `id` as long as you keep the corresponding snapshot data frames alive.
+
+- The `after` snapshot does not contain any of the memory allocated as part of the `before` snapshot. That's because `mem_snapshot()` skips the bindings of the global environment by default. Since they contain the objects created in the debugging session, recording them would be inefficient (snapshot data frames are very heavy) and confusing.
+
+We can now find the nodes that appear in `after` but not in `before` by comparing their `id`.
+
+```{r, eval = FALSE}
+new_id <- !after$id %in% before$id
+
+sum(new_id)
+#> [1] 40
+
+new <- after[new_id, ]
+sort(new$retained_size)
+#>  [1]  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B
+#> [14]  56B  56B  56B  56B  56B  56B  56B  56B 112B 112B 112B 112B 112B
+#> [27] 168B 168B 168B 168B 168B 224B 224B 224B 280B 280B 280B 336B 336B
+#> [40] 448B
+```
+
+There is only 40 new objects remaining in memory. They are all small and do not explain the memory leak.
+
+
+## Snapshotting the precious list
+
+If the leaked objects can't be found via the namespace registry, there is a good chance that they are leaking via the precious list. We need to change our starting point.
+
+The workflow is slightly different with the precious list:
+
+1. It is a private internal object so we will need to find its memory address with a debugger like `gdb` or `lldb`.
+
+2. The objects defined in the global environment, which are normally skipped by `mem_snapshot()`, will this time find their way into snapshots. They are reachable through the global binding cache that is preserved in the precious list. We will need to __stash__ our memory snapshots to prevent them from being recorded by ulterior snapshots.
+
+Let's create a memtools stash to store our debugging objects:
+
+```{r}
+stash <- mem_stash()
+```
+
+See `?roots` for how to retrieve the address of the precious list with a process debugger. Once you have the address, you can dereference it with `addr_deref()`.
+
+```{r, eval = FALSE}
+stash$root <- deref("0x0000000105c06268")
+```
+
+Follow the steps again in a new R session, this time storing the snapshots in the stash:
+
+```{r, eval = FALSE}
+# Dry run
+mem_reprex(10)
+
+# First snapshot
+stash$before <- mem_snapshot(stash$root)
+
+# Leak run
+mem_reprex(1e8)
+
+# Second snapshot
+stash$after <- mem_snapshot(stash$root)
+```
+
+Finally, compare the snapshots. Here are the leaking objects!
+
+```{r, eval = FALSE}
+new_id <- !stash$after$id %in% stash$before$id
+new <- stash$after[new_id, ]
+
+sort(new$retained_size)
+#>  [1]  56B      56B      56B      56B      56B      56B      56B
+#>  [8]  56B      56B      56B      56B      56B      56B      56B
+#> [15]  56B      56B      56B      56B      56B      56B      56B
+#> [22]  56B      56B      64B      64B      80B     112B     112B
+#> [29] 112B     112B     112B     112B     112B     112B     112B
+#> [36] 112B     112B     120B     120B     168B     168B     168B
+#> [43] 168B     168B     168B     176B     176B     224B     224B
+#> [50] 224B     248B     248B     248B     280B     304B     304B
+#> [57] 304B     360B     376B     416B     528B     560B     680B
+#> [64] 696B     736B     856B     904B     984B       1.02KB   1.23KB
+#> [71]  76.29MB  76.29MB  76.29MB  76.29MB  76.29MB 381.47MB 381.47MB
+#> [78] 381.47MB
+```
+
+Once the leaking nodes identified, make sure they are indeed leaking through the precious list. If that is the case (and it was here), it usually means that something was preserved through `R_PreserveObject()` but not released. The snapshot can't help you anymore. The best way forward is to examine the leaked objects to try and find clues about what they are. Use `deref()` to retrieve the R object of a node.
+
+In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of a very old version of the cpp11 package. It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see `?root_cpp11`). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.
