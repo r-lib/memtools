@@ -374,6 +374,99 @@ sort(new$retained_size)
 #> [78] 381.47MB
 ```
 
-Once the leaking nodes identified, make sure they are indeed leaking through the precious list. If that is the case (and it was here), it usually means that something was preserved through `R_PreserveObject()` but not released. The snapshot can't help you anymore. The best way forward is to examine the leaked objects to try and find clues about what they are. Use `deref()` to retrieve the R object of a node.
+Once you've identified the leaking nodes, make sure they are indeed leaking through the precious list. If that is the case (and it was here), it usually means that something was preserved through `R_PreserveObject()` but not released. The snapshot can't help you anymore. The best way forward is to examine the leaked objects to try and find clues about what they are. Use `deref()` to retrieve the R object of a node.
 
-In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of a very old version of the cpp11 package. It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see `?root_cpp11`). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.
+In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of the [cpp11 package](https://cpp11.r-lib.org/). It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see `?root_cpp11`). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.
+
+
+# Identifying the source of a leak
+
+If an object is leaking through the precious list memtools cannot help finding the source. However in many cases leaks occur through unexpected references of live objects. In that case we can find the source of the leak using two graph algorithms: dominance and shortest paths.
+
+In the second case study we'll explore why namespaces [unregistered by pkgload](https://github.com/r-lib/pkgload/pull/133) fail to be collected by R. It was not surprising that old namespaces would be retained after a `load_all()`, but we wanted to understand why that was the case.
+
+In this example we know ahead of time what is the object being leaked and we don't need to compare snapshots. Instead, we'll take its adress with `sexp_address()`.
+
+```{r, eval = FALSE}
+library(memtools)
+
+# Load rlang a first time. This creates a fake namespace that is
+# leaked on reloads.
+pkgload::load_all("rlang")
+
+# Take the address of the fake namespace
+ns_id <- sexp_address(rlang::ns_env("rlang"))
+```
+
+Let's reload rlang and take a memory snapshot of the namespace registry:
+
+```{r, eval = FALSE}
+# Reload rlang and trigger GC
+pkgload::load_all("rlang")
+invisible(gc())
+
+# The previous rlang namespace could now ideally be reclaimed.
+# However it is still there (R would crash or show a different object if it had been collected).
+deref(ns_id)
+#> <environment: namespace:rlang>
+
+s <- mem_snapshot(root_ns_registry())
+#> Creating snapshot...
+#> Recorded 100000 nodes
+#> Recorded 200000 nodes
+#> Recorded 300000 nodes
+#> Recorded 400000 nodes
+#> Computing dominance and retainment...
+#> Creating data frame...
+```
+
+There are two main steps to figuring out how a node is leaking:
+
+1. Find the dominator
+2. Find the shortest paths between the dominator and the node
+
+
+## The dominator of a leaked node
+
+As explained in the Dominance section, each object has a unique dominator which is the closest parent which is guaranteed to allow the object to be reclaimed by the GC if that parent was itself collected. All the paths from the root to the object must go through the dominator. This does not mean that the dominator will give us the full information about the source of the leak, but it's the point from which you should start investigating.
+
+Retrieve the dominator from the node object of the leaking rlang namespace:
+
+```{r}
+# Find the row position of the namespace in the snapshot
+(ns_i <- which(s$id == ns_id))
+#> [1] 122617
+
+# Retrieve the node and its dominator
+(node <- s$node[[ns_i]])
+#> <memtools:node>
+#> id: "0x7fb4cc921040"
+#> type: "environment"
+#> parents: list [972]
+#> children: list [2]
+#> dominator: <mmtls_nd>
+#> dominated: list [2]
+#> self_size: 56B
+#> retained_size: 8.39MB
+#> gc_depth: 2
+
+(dom <- node$dominator)
+#> <memtools:node>
+#> id: "0x7fb4cc088730"
+#> type: "list"
+#> parents: list [0]
+#> children: list [39]
+#> dominator: <NULL>
+#> dominated: list [30,080]
+#> self_size: 352B
+#> retained_size: 33.7MB
+#> gc_depth: 1
+```
+
+You can tell that the dominator is the root node because its own dominator is `NULL`. Only the root node does not have any dominator. We can make sure by dereferencing it:
+
+```{r}
+str(head(deref(dom)))
+```
+
+In this case, we didn't make any progress by taking the dominator. Our starting point is the root node. What this means in practice is that the rlang namespace is leaking through multiple paths, in this case multiple namespaces registered in the R session.
