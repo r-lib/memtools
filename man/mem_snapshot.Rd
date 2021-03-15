@@ -8,7 +8,8 @@ mem_snapshot(x)
 }
 \arguments{
 \item{x}{An R object. This becomes the root of the graph of R
-objects captured in the snapshot.}
+objects captured in the snapshot. A good starting object is the
+namespace registry. See \code{\link[=root_ns_registry]{root_ns_registry()}}.}
 }
 \value{
 A data frame containing nodes, arrows between these nodes,

@@ -1,6 +1,7 @@
 #' Create a memory snapshot
 #' @param x An R object. This becomes the root of the graph of R
-#'   objects captured in the snapshot.
+#'   objects captured in the snapshot. A good starting object is the
+#'   namespace registry. See [root_ns_registry()].
 #' @return A data frame containing nodes, arrows between these nodes,
 #'   and metadata.
 #' @seealso [mem_stash()] to prevent objects from being recorded in a
@@ -98,16 +99,53 @@ mem_stash <- function(...) {
 #' These functions return useful starting points to supply to
 #' [mem_snapshot()].
 #' 
+#' * `root_ns_registry()` returns R's namespace registry as a list. It
+#'   contains all the namespaces currently loaded in the R session.
+#'
 #' * `root_cpp11()` returns the precious list of cpp11. This is a
 #'   doubly linked list preserved in R's own precious list.
 #'
-#' * `root_ns_registry()` returns R's namespace registry as a list. It
-#'   contains all the namespaces currently loaded in the R session.
+#' @section The precious list:
+#' The R precious list is (as currently implemented) a pairlist of
+#' objects currently protected via the C API function
+#' `R_PreserveObject()`. Preserved objects are stored in this pairlist
+#' until a corresponding `R_ReleaseObject()` call is performed. Some
+#' objects are meant to be preserved for the whole duration of the R
+#' session (global caches), others are preserved for a limited
+#' duration. It may happen that `R_ReleaseObject()` is not being
+#' called when it should. This causes a memory leak via the precious
+#' list.
+#'
+#' R currently does not provide an easy way to get the precious list.
+#' So you will need to either patch R to expose it (e.g. remove its
+#' `static` qualifier) or run R though a debugger like `gdb` or
+#' `lldb`. The latter option is simpler. Once in the debugger, use `p`
+#' to print the address of the list:
+#'
+#' ```
+#' p R_PreciousList
+#' #> (SEXP) $0 = 0x000000010107cf58
+#' ```
+#'
+#' Copy that address in an R string and dereference it with
+#' [addr_deref()]:
+#'
+#' ```
+#' prec <- addr_deref("0x000000010107cf58")
+#' ```
+#'
+#' Avoid printing the precious list in the console because it contains
+#' a large amount of data, such as the global cache for the global
+#' environment and attached packages.
+#' @name roots
+NULL
+
+#' @rdname roots
 #' @export
 root_cpp11 <- function() {
   .Call(ffi_root_cpp11)
 }
-#' @rdname root_cpp11
+#' @rdname roots
 #' @export
 root_ns_registry <- function() {
   as.list(.Call(ffi_root_ns_registry))
