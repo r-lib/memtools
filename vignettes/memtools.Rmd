@@ -432,7 +432,7 @@ As explained in the Dominance section, each object has a unique dominator which 
 
 Retrieve the dominator from the node object of the leaking rlang namespace:
 
-```{r}
+```{r, eval = FALSE}
 # Find the row position of the namespace in the snapshot
 (ns_i <- which(s$id == ns_id))
 #> [1] 122617
@@ -465,8 +465,86 @@ Retrieve the dominator from the node object of the leaking rlang namespace:
 
 You can tell that the dominator is the root node because its own dominator is `NULL`. Only the root node does not have any dominator. We can make sure by dereferencing it:
 
-```{r}
+```{r, eval = FALSE}
 str(head(deref(dom)))
+#> List of 6
+#>  $ rstudioapi:<environment: namespace:rstudioapi>
+#>  $ magrittr  :<environment: namespace:magrittr>
+#>  $ grDevices :<environment: namespace:grDevices>
+#>  $ pkgload   :<environment: namespace:pkgload>
+#>  $ debugme   :<environment: namespace:debugme>
+#>  $ R6        :<environment: namespace:R6>
 ```
 
 In this case, we didn't make any progress by taking the dominator. Our starting point is the root node. What this means in practice is that the rlang namespace is leaking through multiple paths, in this case multiple namespaces registered in the R session.
+
+
+# Inspecting shortest paths
+
+We now have two endpoints: our leaked namespace and its dominator, the namespace registry. We are ready to examine the __shortest paths__ between these two objects.
+
+```{r, eval = FALSE}
+paths <- mem_paths_shortest(s, node, from = dom)
+#> Adding igraph structure to snapshot as `mem_igraph` attribute...
+
+length(paths)
+#> [1] 8
+```
+
+There are at least 8 paths through which the rlang namespace is retained. There could be additional, longer paths as well. Let's examine one of these.
+
+
+```{r, eval = FALSE}
+p1 <- paths[[1]]
+
+length(p1)
+#> [1] 8
+
+# This list contains all the nodes of one of the first shortest path between the root ...
+p1[[1]]
+
+# ... and the leaked object
+deref(p1[[8]])
+```
+
+As a first approach let's examine the types of each node on the path:
+
+```{r, eval = FALSE}
+library(purrr)
+
+map_chr(p1, "type")
+#> [1] "list"        "environment" "environment" "list"
+#> [5] "pairlist"    "promise"     "closure"     "environment"
+```
+
+The `environment -> list -> pairlist -> promise` part suggests that the leak occurs through a promise bound in an environment (the sequence of environment, list and pairlists is typical of an environment hashtable).
+
+Dereferencing the first nodes on the path, we see that this first leak occurs through memtools' imports environment.
+
+```{r, eval = FALSE}
+deref(p1[[2]])
+#> <environment: namespace:memtools>
+
+deref(p1[[3]])
+#> <environment: 0x7fa8f19487b0>
+#> attr(,"name")
+#> [1] "imports:memtools"
+```
+
+The dependencies of a package are loaded lazily via the promise mechanism. This is a common cause of promise objects which are otherwise normally created inside execution environments of functions. You can recognise a lazyload promise from the call to `lazyLoadDBfetch()`:
+
+```{r, eval = FALSE}
+rlang:::promise_expr(deref(p1[[6]]))
+#> lazyLoadDBfetch(c(678142L, 422L), datafile, compressed, envhook)
+```
+
+It is now clear what is happening. `memtools` was loaded after the leaked namespace was created and imported objects from that namespace via an `import()` directive. This is one of them:
+
+```{r, eval = FALSE}
+deref(p1[[7]])
+#> function(key, value = NULL, finalizer = NULL, on_quit = FALSE) {
+#>   .Call(rlang_new_weakref, key, value, finalizer, on_quit)
+#> }
+#> <bytecode: 0x7f93a63a2068>
+#> <environment: namespace:rlang>
+```
