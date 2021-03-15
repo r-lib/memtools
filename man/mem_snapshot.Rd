@@ -31,6 +31,18 @@ precious list. In that case, exclude these objects from snapshots
 using \code{\link[=mem_stash]{mem_stash()}}.
 }
 
+\examples{
+# Take a snapshot
+s <- mem_snapshot(list(1, list(2)))
+s
+
+# Inspect nodes
+n <- s$node[[1]]
+n
+
+# Inspect arrows
+n$children
+}
 \seealso{
 The GC \link{roots}. \code{\link[=mem_stash]{mem_stash()}} to prevent objects from
 being recorded in a snapshot.
