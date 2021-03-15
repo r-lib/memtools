@@ -7,7 +7,7 @@
 mem_stash(...)
 }
 \arguments{
-\item{...}{Objects to stash.}
+\item{...}{Named objects to stash.}
 }
 \value{
 An environment containing the stashed objects. You can add
@@ -15,5 +15,16 @@ objects to this environment in the usual fashion.
 }
 \description{
 Objects contained in a stash are never recorded by
-\code{\link[=mem_snapshot]{mem_snapshot()}}.
+\code{\link[=mem_snapshot]{mem_snapshot()}}. Note that objects only bound inside the global
+environments are normally excluded from snapshots. However, if you
+take a snapshot of the precious list (see \code{\link[=roots]{?roots}}),
+global objects are reachable through the global cache. In this case
+you can hide them with \code{mem_stash()}.
+}
+\examples{
+# Supply named objects to stash
+stash <- mem_stash(x = 1:3)
+
+# Access the stash like a regular environment
+stash$x
 }

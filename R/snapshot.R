@@ -1,11 +1,25 @@
 #' Create a memory snapshot
+#'
+#' Record a memory snapshot for all the R objects reachable from `x`.
+#'
 #' @param x An R object. This becomes the root of the graph of R
 #'   objects captured in the snapshot. A good starting object is the
 #'   namespace registry. See [root_ns_registry()].
 #' @return A data frame containing nodes, arrows between these nodes,
 #'   and metadata.
-#' @seealso [mem_stash()] to prevent objects from being recorded in a
-#'   snapshot.
+#' @seealso The GC [roots]. [mem_stash()] to prevent objects from
+#'   being recorded in a snapshot.
+#'
+#' @section Excluding objects from snapshots:
+#' To avoid ulterior snapshots recording previous ones, all objects in
+#' the global environment are excluded from the snapshot, unless
+#' reachable through another path.
+#'
+#' If you record a snapshot of the R precious list (see
+#' [?roots][roots]), objects of the global environments will be
+#' reachable through the global binding cache that lives in the
+#' precious list. In that case, exclude these objects from snapshots
+#' using [mem_stash()].
 #' @export
 mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
@@ -83,11 +97,22 @@ mem_poke_igraph <- function(snapshot) {
 #' Stash objects
 #'
 #' Objects contained in a stash are never recorded by
-#' [mem_snapshot()].
+#' [mem_snapshot()]. Note that objects only bound inside the global
+#' environments are normally excluded from snapshots. However, if you
+#' take a snapshot of the precious list (see [`?roots`][roots]),
+#' global objects are reachable through the global cache. In this case
+#' you can hide them with `mem_stash()`.
 #'
-#' @param ... Objects to stash.
+#' @param ... Named objects to stash.
 #' @return An environment containing the stashed objects. You can add
 #'   objects to this environment in the usual fashion.
+#'
+#' @examples
+#' # Supply named objects to stash
+#' stash <- mem_stash(x = 1:3)
+#'
+#' # Access the stash like a regular environment
+#' stash$x
 #' @export
 mem_stash <- function(...) {
   .Call(ffi_new_stash, env(empty_env(), ...))
@@ -137,6 +162,12 @@ mem_stash <- function(...) {
 #' Avoid printing the precious list in the console because it contains
 #' a large amount of data, such as the global cache for the global
 #' environment and attached packages.
+#'
+#' If you record a snapshot of the precious list, beware that objects
+#' in the global environment will be reachable through the global
+#' cache. These objects are normally excluded from snapshots. You can
+#' exclude an object from the snapshot by stashing it with
+#' [mem_stash()].
 #' @name roots
 NULL
 

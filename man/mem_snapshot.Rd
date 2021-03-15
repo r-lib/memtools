@@ -16,9 +16,22 @@ A data frame containing nodes, arrows between these nodes,
 and metadata.
 }
 \description{
-Create a memory snapshot
+Record a memory snapshot for all the R objects reachable from \code{x}.
 }
+\section{Excluding objects from snapshots}{
+
+To avoid ulterior snapshots recording previous ones, all objects in
+the global environment are excluded from the snapshot, unless
+reachable through another path.
+
+If you record a snapshot of the R precious list (see
+\link[=roots]{?roots}), objects of the global environments will be
+reachable through the global binding cache that lives in the
+precious list. In that case, exclude these objects from snapshots
+using \code{\link[=mem_stash]{mem_stash()}}.
+}
+
 \seealso{
-\code{\link[=mem_stash]{mem_stash()}} to prevent objects from being recorded in a
-snapshot.
+The GC \link{roots}. \code{\link[=mem_stash]{mem_stash()}} to prevent objects from
+being recorded in a snapshot.
 }

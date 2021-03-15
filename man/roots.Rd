@@ -47,5 +47,11 @@ Copy that address in an R string and dereference it with
 Avoid printing the precious list in the console because it contains
 a large amount of data, such as the global cache for the global
 environment and attached packages.
+
+If you record a snapshot of the precious list, beware that objects
+in the global environment will be reachable through the global
+cache. These objects are normally excluded from snapshots. You can
+exclude an object from the snapshot by stashing it with
+\code{\link[=mem_stash]{mem_stash()}}.
 }
 
