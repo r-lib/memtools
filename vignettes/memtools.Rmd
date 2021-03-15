@@ -548,3 +548,40 @@ deref(p1[[7]])
 #> <bytecode: 0x7f93a63a2068>
 #> <environment: namespace:rlang>
 ```
+
+In this case this leak is not a bug but the expected behaviour. If objects were imported from our namespace between the time it was loaded and unregistered, it should continue keep working. Maybe there are other paths that are more problematic?
+
+
+## Lazily registered S3 methods
+
+We fixed the leaks, recorded a new snapshot, took new shortest paths, and found a similar structure. The leak occurs through the pillar namespace:
+
+```{r, eval = FALSE}
+p1 <- paths[[1]]
+
+map_chr(p1, "type")
+#>  [1] "list"        "environment" "list"        "pairlist"
+#>  [5] "environment" "list"        "pairlist"    "list"
+#>  [9] "closure"     "environment"
+
+deref(p1[[2]])
+#> <environment: namespace:pillar>
+
+deref(p1[[9]])
+#> function(x) {
+#>   "quos"
+#> }
+#> <environment: namespace:rlang>
+```
+
+Looking at the TAG fields of the hash table buckets, we see that this time the function inheriting from the rlang namespace leaked through the S3 registration table:
+
+```{r, eval = FALSE}
+rlang::node_tag(deref(p1[[4]]))
+#> .__NAMESPACE__.
+
+rlang::node_tag(deref(p1[[7]]))
+#> S3methods
+```
+
+pkgload normally unregisters the S3 methods that are documented in the NAMESPACE file. However, this misses all the methods that are lazily registered. Here are the [faulty lines](https://github.com/r-lib/rlang/blob/e0a0761df78b327e5807875238f5ff73d8de4e10/R/rlang.R#L34-L35).
