@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Create a memory snapshot — mem_snapshot" />
-<meta property="og:description" content="Create a memory snapshot" />
+<meta property="og:description" content="Record a memory snapshot for all the R objects reachable from x." />
 
 
 
@@ -109,7 +109,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Create a memory snapshot</p>
+    <p>Record a memory snapshot for all the R objects reachable from <code>x</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>mem_snapshot</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
@@ -120,7 +120,8 @@
     <tr>
       <th>x</th>
       <td><p>An R object. This becomes the root of the graph of R
-objects captured in the snapshot.</p></td>
+objects captured in the snapshot. A good starting object is the
+namespace registry. See <code><a href='roots.html'>root_ns_registry()</a></code>.</p></td>
     </tr>
     </table>
 
@@ -128,11 +129,72 @@ objects captured in the snapshot.</p></td>
 
     <p>A data frame containing nodes, arrows between these nodes,
 and metadata.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The snapshot keeps all the captured objects alive to make it easy
+to compare multiple snapshots. The snapshot objects are identified
+by their address in memory but there is no risk of R reusing a
+memory address with a different object between runs.</p>
+    <h2 class="hasAnchor" id="excluding-objects-from-snapshots"><a class="anchor" href="#excluding-objects-from-snapshots"></a>Excluding objects from snapshots</h2>
+
+    
+
+<p>To avoid ulterior snapshots recording previous ones, all objects in
+the global environment are excluded from the snapshot, unless
+reachable through another path.</p>
+<p>If you record a snapshot of the R precious list (see
+<a href='roots.html'>?roots</a>), objects of the global environments will be
+reachable through the global binding cache that lives in the
+precious list. In that case, exclude these objects from snapshots
+using <code><a href='mem_stash.html'>mem_stash()</a></code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='mem_stash.html'>mem_stash()</a></code> to prevent objects from being recorded in a
-snapshot.</p></div>
+    <div class='dont-index'><p>The GC <a href='roots.html'>roots</a>. <code><a href='mem_stash.html'>mem_stash()</a></code> to prevent objects from
+being recorded in a snapshot.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Take a snapshot</span>
+<span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'>mem_snapshot</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; Creating snapshot...
+#&gt; Computing dominance and retainment...
+#&gt; Creating data frame...</div><div class='input'><span class='va'>s</span>
+</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 4 x 8</span><span>
+#&gt;   id        type  node    n_parents n_children n_retained retained_size gc_depth
+#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;list&gt;</span><span>      </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>      </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>      </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;bch:byt&gt;</span><span>    </span><span style='color: #949494;font-style: italic;'>&lt;int&gt;</span><span>
+#&gt; </span><span style='color: #BCBCBC;'>1</span><span> 0x7fd105… list  </span><span style='color: #949494;'>&lt;mmtls</span><span>…         0          2          3          232B        1
+#&gt; </span><span style='color: #BCBCBC;'>2</span><span> 0x7fd104… doub… </span><span style='color: #949494;'>&lt;mmtls</span><span>…         1          0          0           56B        2
+#&gt; </span><span style='color: #BCBCBC;'>3</span><span> 0x7fd102… list  </span><span style='color: #949494;'>&lt;mmtls</span><span>…         1          1          1          112B        2
+#&gt; </span><span style='color: #BCBCBC;'>4</span><span> 0x7fd104… doub… </span><span style='color: #949494;'>&lt;mmtls</span><span>…         1          0          0           56B        3</div><div class='input'>
+<span class='co'># Inspect nodes</span>
+<span class='va'>n</span> <span class='op'>&lt;-</span> <span class='va'>s</span><span class='op'>$</span><span class='va'>node</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>
+<span class='va'>n</span>
+</div><div class='output co'>#&gt; &lt;memtools:node&gt;
+#&gt; id: "0x7fd10546e208"
+#&gt; type: "list"
+#&gt; parents: list [0]
+#&gt; children: list [2]
+#&gt; dominator: &lt;NULL&gt;
+#&gt; dominated: list [2]
+#&gt; self_size: 64B
+#&gt; retained_size: 232B
+#&gt; gc_depth: 1</div><div class='input'>
+<span class='co'># Inspect arrows</span>
+<span class='va'>n</span><span class='op'>$</span><span class='va'>children</span>
+</div><div class='output co'>#&gt; [[1]]
+#&gt; &lt;memtools:arrow&gt;
+#&gt; from: &lt;mmtls_nd&gt;
+#&gt; to: &lt;mmtls_nd&gt;
+#&gt; depth: 1
+#&gt; rel: "list_elt"
+#&gt; 
+#&gt; [[2]]
+#&gt; &lt;memtools:arrow&gt;
+#&gt; from: &lt;mmtls_nd&gt;
+#&gt; to: &lt;mmtls_nd&gt;
+#&gt; depth: 1
+#&gt; rel: "list_elt"
+#&gt; i: 1
+#&gt; </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

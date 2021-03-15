@@ -159,6 +159,11 @@ to print the address of the list:</p><pre>p R_PreciousList
 <p>Avoid printing the precious list in the console because it contains
 a large amount of data, such as the global cache for the global
 environment and attached packages.</p>
+<p>If you record a snapshot of the precious list, beware that objects
+in the global environment will be reachable through the global
+cache. These objects are normally excluded from snapshots. You can
+exclude an object from the snapshot by stashing it with
+<code><a href='mem_stash.html'>mem_stash()</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

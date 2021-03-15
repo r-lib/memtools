@@ -41,7 +41,11 @@
 
 <meta property="og:title" content="Stash objects — mem_stash" />
 <meta property="og:description" content="Objects contained in a stash are never recorded by
-mem_snapshot()." />
+mem_snapshot(). Note that objects only bound inside the global
+environments are normally excluded from snapshots. However, if you
+take a snapshot of the precious list (see ?roots),
+global objects are reachable through the global cache. In this case
+you can hide them with mem_stash()." />
 
 
 
@@ -111,7 +115,11 @@ mem_snapshot()." />
 
     <div class="ref-description">
     <p>Objects contained in a stash are never recorded by
-<code><a href='mem_snapshot.html'>mem_snapshot()</a></code>.</p>
+<code><a href='mem_snapshot.html'>mem_snapshot()</a></code>. Note that objects only bound inside the global
+environments are normally excluded from snapshots. However, if you
+take a snapshot of the precious list (see <code><a href='roots.html'>?roots</a></code>),
+global objects are reachable through the global cache. In this case
+you can hide them with <code>mem_stash()</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>mem_stash</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
@@ -121,7 +129,7 @@ mem_snapshot()." />
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>Objects to stash.</p></td>
+      <td><p>Named objects to stash.</p></td>
     </tr>
     </table>
 
@@ -130,6 +138,13 @@ mem_snapshot()." />
     <p>An environment containing the stashed objects. You can add
 objects to this environment in the usual fashion.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Supply named objects to stash</span>
+<span class='va'>stash</span> <span class='op'>&lt;-</span> <span class='fu'>mem_stash</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span>
+
+<span class='co'># Access the stash like a regular environment</span>
+<span class='va'>stash</span><span class='op'>$</span><span class='va'>x</span>
+</div><div class='output co'>#&gt; [1] 1 2 3</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
