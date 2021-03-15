@@ -21,6 +21,12 @@
 #' precious list. In that case, exclude these objects from snapshots
 #' using [mem_stash()].
 #'
+#' @details
+#' The snapshot keeps all the captured objects alive to make it easy
+#' to compare multiple snapshots. The snapshot objects are identified
+#' by their address in memory but there is no risk of R reusing a
+#' memory address with a different object between runs.
+#'
 #' @examples
 #' # Take a snapshot
 #' s <- mem_snapshot(list(1, list(2)))

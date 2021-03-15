@@ -18,6 +18,12 @@ and metadata.
 \description{
 Record a memory snapshot for all the R objects reachable from \code{x}.
 }
+\details{
+The snapshot keeps all the captured objects alive to make it easy
+to compare multiple snapshots. The snapshot objects are identified
+by their address in memory but there is no risk of R reusing a
+memory address with a different object between runs.
+}
 \section{Excluding objects from snapshots}{
 
 To avoid ulterior snapshots recording previous ones, all objects in
