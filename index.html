@@ -67,6 +67,28 @@
 <a href="#memtools" class="anchor"></a>memtools</h1></div>
 <!-- badges: start -->
 
+<div id="overview" class="section level2">
+<h2 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h2>
+<p>memtools provides debugging tools to detect and solve memory leaks in R:</p>
+<ul>
+<li>Record <strong>memory snapshots</strong> of the R heap.</li>
+<li>Compare snapshots to detect leaked objects with a large retained size.</li>
+<li>Inspect the <strong>shortest paths</strong> between a leaked node and its <strong>dominator</strong>.</li>
+</ul>
+<p>See <code><a href="articles/memtools.html">vignette("memtools")</a></code> for a tutorial.</p>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>Install memtools from github with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span>
+  <span class="st">"r-lib/memtools"</span>,
+  build_manual <span class="op">=</span> <span class="cn">TRUE</span>,
+  build_vignettes <span class="op">=</span> <span class="cn">TRUE</span>
+<span class="op">)</span></code></pre></div>
+</div>
 </div>
   </div>
 
