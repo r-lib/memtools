@@ -41,7 +41,7 @@ to print the address of the list:\preformatted{p R_PreciousList
 }
 
 Copy that address in an R string and dereference it with
-\code{\link[=addr_deref]{addr_deref()}}:\preformatted{prec <- addr_deref("0x000000010107cf58")
+\code{\link[=deref]{deref()}}:\preformatted{prec <- deref("0x000000010107cf58")
 }
 
 Avoid printing the precious list in the console because it contains
