@@ -296,15 +296,14 @@ Two things to note:
 
 - The `after` snapshot does not contain any of the memory allocated as part of the `before` snapshot. That's because `mem_snapshot()` skips the bindings of the global environment by default. Since they contain the objects created in the debugging session, recording them would be inefficient (snapshot data frames are very heavy) and confusing.
 
-We can now find the nodes that appear in `after` but not in `before` by comparing their `id`.
+We can now find the nodes that appear in `after` but not in `before` with `mem_diff()` (internally, this helper simply compares the `id` columns).
 
 ```{r, eval = FALSE}
-new_id <- !after$id %in% before$id
+new <- mem_diff(before, after)
 
-sum(new_id)
+nrow(new)
 #> [1] 40
 
-new <- after[new_id, ]
 sort(new$retained_size)
 #>  [1]  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B
 #> [14]  56B  56B  56B  56B  56B  56B  56B  56B 112B 112B 112B 112B 112B
@@ -356,8 +355,7 @@ stash$after <- mem_snapshot(stash$root)
 Finally, compare the snapshots. Here are the leaking objects!
 
 ```{r, eval = FALSE}
-new_id <- !stash$after$id %in% stash$before$id
-new <- stash$after[new_id, ]
+new <- mem_diff(stash$$before, stash$$after)
 
 sort(new$retained_size)
 #>  [1]  56B      56B      56B      56B      56B      56B      56B

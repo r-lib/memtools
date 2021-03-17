@@ -51,5 +51,6 @@ n$children
 }
 \seealso{
 The GC \link{roots}. \code{\link[=mem_stash]{mem_stash()}} to prevent objects from
-being recorded in a snapshot.
+being recorded in a snapshot. \code{\link[=mem_diff]{mem_diff()}} to take the difference
+between a "before" and "after" snapshot.
 }

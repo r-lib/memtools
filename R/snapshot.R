@@ -8,7 +8,8 @@
 #' @return A data frame containing nodes, arrows between these nodes,
 #'   and metadata.
 #' @seealso The GC [roots]. [mem_stash()] to prevent objects from
-#'   being recorded in a snapshot.
+#'   being recorded in a snapshot. [mem_diff()] to take the difference
+#'   between a "before" and "after" snapshot.
 #'
 #' @section Excluding objects from snapshots:
 #' To avoid ulterior snapshots recording previous ones, all objects in
@@ -67,6 +68,30 @@ arg_as_mem_node <- function(x, snapshot, arg = substitute(x)) {
   }
 }
 
+#' Diff before and after snapshots
+#' @param before,after Snapshots created by [mem_snapshot()] before
+#'   and after an expression that causes a leak.
+#' @return `after` without the rows that exist in `before`. Note that
+#'   the nodes in the `node` list-column still refer to nodes in
+#'   `before` via `parents`, `children`, etc.
+#' @examples
+#' e <- new.env(parent = emptyenv())
+#'
+#' e$x <- 1
+#' before <- mem_snapshot(e)
+#'
+#' e$y <- 2
+#' after <- mem_snapshot(e)
+#'
+#' # The snapshot diff only contains the bucket pairlist node where
+#' # `y` is stored, the symbol `y`, and the double value `2` which is
+#' # bound to `y`
+#' mem_diff(before, after)
+#' @export
+mem_diff <- function(before, after) {
+  new <- !after$id %in% before$id
+  after[new, ]
+}
 
 #' Add and retrieve igraph structure of snapshot
 #'

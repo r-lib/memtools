@@ -232,3 +232,14 @@ test_that("can take shortest paths", {
   expect_length(p, 1)
   expect_equal(purrr::map_chr(p[[1]], "id"), s$id[c(1, 3)])
 })
+
+test_that("can diff snapshots", {
+  x <- new_node(1, NULL)
+  before <- mem_snapshot(x)
+
+  y <- new_node(2, x)
+  after <- mem_snapshot(y)
+
+  diff <- mem_diff(before, after)
+  expect_equal(diff$type, c("pairlist", "double"))
+})
