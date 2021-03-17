@@ -96,22 +96,22 @@
 <span class="co">#&gt; # A tibble: 10 x 8</span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt;  1 0x7fc31… list   &lt;mmtl…         0          3          9          576B        1</span>
-<span class="co">#&gt;  2 0x7fc32… pairl… &lt;mmtl…         1          2          4          288B        2</span>
-<span class="co">#&gt;  3 0x7fc31… symbol &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt;  4 0x7fc31… chara… &lt;mmtl…         1          2          2          176B        3</span>
-<span class="co">#&gt;  5 0x7fc31… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  6 0x7fc31… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  7 0x7fc32… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt;  8 0x7fc32… list   &lt;mmtl…         1          1          2          168B        2</span>
-<span class="co">#&gt;  9 0x7fc32… chara… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 10 0x7fc31… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt;  1 0x7ff5a… list   &lt;mmtl…         0          3          9          576B        1</span>
+<span class="co">#&gt;  2 0x7ff5a… pairl… &lt;mmtl…         1          2          4          288B        2</span>
+<span class="co">#&gt;  3 0x7ff5a… symbol &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt;  4 0x7ff5a… chara… &lt;mmtl…         1          2          2          176B        3</span>
+<span class="co">#&gt;  5 0x7ff5a… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  6 0x7ff5a… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  7 0x7ff5a… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt;  8 0x7ff5a… list   &lt;mmtl…         1          1          2          168B        2</span>
+<span class="co">#&gt;  9 0x7ff5a… chara… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 10 0x7ff5a… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x7fc31e1bd448"</span>
+<span class="co">#&gt; [1] "0x7ff5a7d38a08"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -139,7 +139,7 @@
 
 <span class="va">n</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7fc31e1bd448"</span>
+<span class="co">#&gt; id: "0x7ff5a7d38a08"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -189,7 +189,7 @@
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7fc324111e40"</span>
+<span class="co">#&gt; id: "0x7ff5a8c88ae0"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -249,15 +249,15 @@
 <span class="co">#&gt; # A tibble: 9 x 8</span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fc31… enviro… &lt;mmtl…         0          2          8          728B        1</span>
-<span class="co">#&gt; 2 0x7fc32… list    &lt;mmtl…         1          2          6          616B        2</span>
-<span class="co">#&gt; 3 0x7fc31… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 4 0x7fc31… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 5 0x7fc32… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 6 0x7fc31… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 7 0x7fc31… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 8 0x7fc32… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 9 0x7fc31… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt; 1 0x7ff5a… enviro… &lt;mmtl…         0          2          8          728B        1</span>
+<span class="co">#&gt; 2 0x7ff5a… list    &lt;mmtl…         1          2          6          616B        2</span>
+<span class="co">#&gt; 3 0x7ff5a… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 4 0x7ff5a… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 5 0x7ff5a… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 6 0x7ff5a… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 7 0x7ff5a… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 8 0x7ff5a… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 9 0x7ff5a… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -270,12 +270,12 @@
 <span class="co">#&gt; # A tibble: 6 x 8</span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fc323… pairl… &lt;mmtl…         0          2          5          336B        1</span>
-<span class="co">#&gt; 2 0x7fc324… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt; 3 0x7fc323… pairl… &lt;mmtl…         1          2          3          224B        2</span>
-<span class="co">#&gt; 4 0x7fc324… double &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt; 5 0x7fc323… pairl… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 6 0x7fc324… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; 1 0x7ff5ab… pairl… &lt;mmtl…         0          2          5          336B        1</span>
+<span class="co">#&gt; 2 0x7ff5a8… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt; 3 0x7ff5ab… pairl… &lt;mmtl…         1          2          3          224B        2</span>
+<span class="co">#&gt; 4 0x7ff5a8… double &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt; 5 0x7ff5ab… pairl… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 6 0x7ff5a8… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
@@ -341,6 +341,7 @@
 <li><p>It is internal and private. Retrieving the precious list requires some work.</p></li>
 <li><p>It is rather unstructured. This is a plain linked list where parent relationships are not meaningful and only the result of the timing of preserve calls.</p></li>
 <li><p>It contains large and complex objects, such as the global cache for visited bindings of the global environment and the search path.</p></li>
+<li><p>If you have captured the precious list at R level and new objects have been preserved or released in the mean time, the new state of the list will not be reflected in the R-level pairlist. The precious list needs to be recaptured from the C-level global variable before each snapshot.</p></li>
 </ul>
 <p>Since most leaks are caused by a reference that lives inside a namespace, it is often more practical to start from the namespace registry. This registry is an environment that contains all the namespaces loaded in the R session. memtools exposes it as a list to avoid encumbering the snapshots with the internal environment structures:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -413,42 +414,41 @@
 <ol style="list-style-type: decimal">
 <li><p>It is a private internal object so we will need to find its memory address with a debugger like <code>gdb</code> or <code>lldb</code>.</p></li>
 <li><p>The objects defined in the global environment, which are normally skipped by <code><a href="../reference/mem_snapshot.html">mem_snapshot()</a></code>, will this time find their way into snapshots. They are reachable through the global binding cache that is preserved in the precious list. We will need to <strong>stash</strong> our memory snapshots to prevent them from being recorded by ulterior snapshots.</p></li>
+<li><p>We need to recapture the precious list before taking each snapshot. As currently implemented, it is a stack of pairlist cells. If you don’t refresh the precious list pointer before taking the “after” snapshot, you will miss all the preserved objects added on top of the stack.</p></li>
 </ol>
 <p>Let’s create a memtools stash to store our debugging objects:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">stash</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_stash.html">mem_stash</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>See <code><a href="../reference/roots.html">?roots</a></code> for how to retrieve the address of the precious list with a process debugger. Once you have the address, you can dereference it with <code>addr_deref()</code>.</p>
+<p>Follow the steps again in a new R session, this time storing the snapshots in the stash and dereferencing the precious list from its address (see <code><a href="../reference/roots.html">?roots</a></code> for more information):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">stash</span><span class="op">$</span><span class="va">root</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="st">"0x0000000105c06268"</span><span class="op">)</span></code></pre></div>
-<p>Follow the steps again in a new R session, this time storing the snapshots in the stash:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Dry run</span>
 <span class="fu">mem_reprex</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>
 
 <span class="co"># First snapshot</span>
-<span class="va">stash</span><span class="op">$</span><span class="va">before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="va">stash</span><span class="op">$</span><span class="va">root</span><span class="op">)</span>
+<span class="va">stash</span><span class="op">$</span><span class="va">before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="st">"0x0000000105c06268"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Leak run</span>
 <span class="fu">mem_reprex</span><span class="op">(</span><span class="fl">1e8</span><span class="op">)</span>
 
-<span class="co"># Second snapshot</span>
-<span class="va">stash</span><span class="op">$</span><span class="va">after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="va">stash</span><span class="op">$</span><span class="va">root</span><span class="op">)</span></code></pre></div>
+<span class="co"># Second snapshot - Make sure you have the current address of the</span>
+<span class="co"># precious list</span>
+<span class="va">stash</span><span class="op">$</span><span class="va">after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="st">"0x00007fc604ea3910"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Finally, compare the snapshots. Here are the leaking objects!</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>new &lt;-<span class="st"> </span><span class="kw">mem_diff</span>(stash<span class="op">$</span><span class="er">$</span>before, stash<span class="op">$</span><span class="er">$</span>after)</span>
-<span id="cb25-2"><a href="#cb25-2"></a></span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">sort</span>(new<span class="op">$</span>retained_size)</span>
-<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt;  [1]  56B      56B      56B      56B      56B      56B      56B</span></span>
-<span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt;  [8]  56B      56B      56B      56B      56B      56B      56B</span></span>
-<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; [15]  56B      56B      56B      56B      56B      56B      56B</span></span>
-<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; [22]  56B      56B      64B      64B      80B     112B     112B</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; [29] 112B     112B     112B     112B     112B     112B     112B</span></span>
-<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; [36] 112B     112B     120B     120B     168B     168B     168B</span></span>
-<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; [43] 168B     168B     168B     176B     176B     224B     224B</span></span>
-<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; [50] 224B     248B     248B     248B     280B     304B     304B</span></span>
-<span id="cb25-12"><a href="#cb25-12"></a><span class="co">#&gt; [57] 304B     360B     376B     416B     528B     560B     680B</span></span>
-<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt; [64] 696B     736B     856B     904B     984B       1.02KB   1.23KB</span></span>
-<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt; [71]  76.29MB  76.29MB  76.29MB  76.29MB  76.29MB 381.47MB 381.47MB</span></span>
-<span id="cb25-15"><a href="#cb25-15"></a><span class="co">#&gt; [78] 381.47MB</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>new &lt;-<span class="st"> </span><span class="kw">mem_diff</span>(stash<span class="op">$</span><span class="er">$</span>before, stash<span class="op">$</span><span class="er">$</span>after)</span>
+<span id="cb24-2"><a href="#cb24-2"></a></span>
+<span id="cb24-3"><a href="#cb24-3"></a><span class="kw">sort</span>(new<span class="op">$</span>retained_size)</span>
+<span id="cb24-4"><a href="#cb24-4"></a><span class="co">#&gt;  [1]  56B      56B      56B      56B      56B      56B      56B</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a><span class="co">#&gt;  [8]  56B      56B      56B      56B      56B      56B      56B</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a><span class="co">#&gt; [15]  56B      56B      56B      56B      56B      56B      56B</span></span>
+<span id="cb24-7"><a href="#cb24-7"></a><span class="co">#&gt; [22]  56B      56B      64B      64B      80B     112B     112B</span></span>
+<span id="cb24-8"><a href="#cb24-8"></a><span class="co">#&gt; [29] 112B     112B     112B     112B     112B     112B     112B</span></span>
+<span id="cb24-9"><a href="#cb24-9"></a><span class="co">#&gt; [36] 112B     112B     120B     120B     168B     168B     168B</span></span>
+<span id="cb24-10"><a href="#cb24-10"></a><span class="co">#&gt; [43] 168B     168B     168B     176B     176B     224B     224B</span></span>
+<span id="cb24-11"><a href="#cb24-11"></a><span class="co">#&gt; [50] 224B     248B     248B     248B     280B     304B     304B</span></span>
+<span id="cb24-12"><a href="#cb24-12"></a><span class="co">#&gt; [57] 304B     360B     376B     416B     528B     560B     680B</span></span>
+<span id="cb24-13"><a href="#cb24-13"></a><span class="co">#&gt; [64] 696B     736B     856B     904B     984B       1.02KB   1.23KB</span></span>
+<span id="cb24-14"><a href="#cb24-14"></a><span class="co">#&gt; [71]  76.29MB  76.29MB  76.29MB  76.29MB  76.29MB 381.47MB 381.47MB</span></span>
+<span id="cb24-15"><a href="#cb24-15"></a><span class="co">#&gt; [78] 381.47MB</span></span></code></pre></div>
 <p>Once you’ve identified the leaking nodes, make sure they are indeed leaking through the precious list. If that is the case (and it was here), it usually means that something was preserved through <code>R_PreserveObject()</code> but not released. The snapshot can’t help you anymore. The best way forward is to examine the leaked objects to try and find clues about what they are. Use <code><a href="../reference/deref.html">deref()</a></code> to retrieve the R object of a node.</p>
 <p>In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of the <a href="https://cpp11.r-lib.org/">cpp11 package</a>. It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see <code><a href="../reference/roots.html">?root_cpp11</a></code>). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.</p>
 </div>
@@ -459,7 +459,7 @@
 <p>If an object is leaking through the precious list memtools cannot help finding the source. However in many cases leaks occur through unexpected references of live objects. In that case we can find the source of the leak using two graph algorithms: dominance and shortest paths.</p>
 <p>In the second case study we’ll explore why namespaces <a href="https://github.com/r-lib/pkgload/pull/133">unregistered by pkgload</a> fail to be collected by R. It was not surprising that old namespaces would be retained after a <code>load_all()</code>, but we wanted to understand why that was the case.</p>
 <p>In this example we know ahead of time what is the object being leaked and we don’t need to compare snapshots. Instead, we’ll take its adress with <code><a href="https://rlang.r-lib.org/reference/sexp_address.html">sexp_address()</a></code>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
 
 <span class="co"># Load rlang a first time. This creates a fake namespace that is</span>
@@ -469,7 +469,7 @@
 <span class="co"># Take the address of the fake namespace</span>
 <span class="va">ns_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rlang.r-lib.org/reference/sexp_address.html">sexp_address</a></span><span class="op">(</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/ns_env.html">ns_env</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Let’s reload rlang and take a memory snapshot of the namespace registry:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Reload rlang and trigger GC</span>
 <span class="fu">pkgload</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pkgload/man/load_all.html">load_all</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/gc.html">gc</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -497,7 +497,7 @@
 <a href="#the-dominator-of-a-leaked-node" class="anchor"></a>The dominator of a leaked node</h2>
 <p>As explained in the Dominance section, each object has a unique dominator which is the closest parent which is guaranteed to allow the object to be reclaimed by the GC if that parent was itself collected. All the paths from the root to the object must go through the dominator. This does not mean that the dominator will give us the full information about the source of the leak, but it’s the point from which you should start investigating.</p>
 <p>Retrieve the dominator from the node object of the leaking rlang namespace:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Find the row position of the namespace in the snapshot</span>
 <span class="op">(</span><span class="va">ns_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="va">ns_id</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [1] 122617</span>
@@ -527,7 +527,7 @@
 <span class="co">#&gt; retained_size: 33.7MB</span>
 <span class="co">#&gt; gc_depth: 1</span></code></pre></div>
 <p>You can tell that the dominator is the root node because its own dominator is <code>NULL</code>. Only the root node does not have any dominator. We can make sure by dereferencing it:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">dom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; List of 6</span>
 <span class="co">#&gt;  $ rstudioapi:&lt;environment: namespace:rstudioapi&gt;</span>
@@ -543,14 +543,14 @@
 <h1 class="hasAnchor">
 <a href="#inspecting-shortest-paths" class="anchor"></a>Inspecting shortest paths</h1>
 <p>We now have two endpoints: our leaked namespace and its dominator, the namespace registry. We are ready to examine the <strong>shortest paths</strong> between these two objects.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_paths_shortest.html">mem_paths_shortest</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">node</span>, from <span class="op">=</span> <span class="va">dom</span><span class="op">)</span>
 <span class="co">#&gt; Adding igraph structure to snapshot as `mem_igraph` attribute...</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">paths</span><span class="op">)</span>
 <span class="co">#&gt; [1] 8</span></code></pre></div>
 <p>There are at least 8 paths through which the rlang namespace is retained. There could be additional, longer paths as well. Let’s examine one of these.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">paths</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">p1</span><span class="op">)</span>
@@ -562,7 +562,7 @@
 <span class="co"># ... and the leaked object</span>
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">8</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p>As a first approach let’s examine the types of each node on the path:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org">purrr</a></span><span class="op">)</span>
 
 <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
@@ -570,7 +570,7 @@
 <span class="co">#&gt; [5] "pairlist"    "promise"     "closure"     "environment"</span></code></pre></div>
 <p>The <code>environment -&gt; list -&gt; pairlist -&gt; promise</code> part suggests that the leak occurs through a promise bound in an environment (the sequence of environment, list and pairlists is typical of an environment hashtable).</p>
 <p>Dereferencing the first nodes on the path, we see that this first leak occurs through memtools’ imports environment.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; &lt;environment: namespace:memtools&gt;</span>
 
@@ -579,11 +579,11 @@
 <span class="co">#&gt; attr(,"name")</span>
 <span class="co">#&gt; [1] "imports:memtools"</span></code></pre></div>
 <p>The dependencies of a package are loaded lazily via the promise mechanism. This is a common cause of promise objects which are otherwise normally created inside execution environments of functions. You can recognise a lazyload promise from the call to <code><a href="https://rdrr.io/r/base/base-internal.html">lazyLoadDBfetch()</a></code>:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">rlang</span><span class="fu">:::</span><span class="fu">promise_expr</span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; lazyLoadDBfetch(c(678142L, 422L), datafile, compressed, envhook)</span></code></pre></div>
 <p>It is now clear what is happening. <code>memtools</code> was loaded after the leaked namespace was created and imported objects from that namespace via an <code>import()</code> directive. This is one of them:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; function(key, value = NULL, finalizer = NULL, on_quit = FALSE) {</span>
 <span class="co">#&gt;   .Call(rlang_new_weakref, key, value, finalizer, on_quit)</span>
@@ -595,7 +595,7 @@
 <h2 class="hasAnchor">
 <a href="#lazily-registered-s3-methods" class="anchor"></a>Lazily registered S3 methods</h2>
 <p>We fixed the leaks, recorded a new snapshot, took new shortest paths, and found a similar structure. The leak occurs through the pillar namespace:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">paths</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
 <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
@@ -612,7 +612,7 @@
 <span class="co">#&gt; }</span>
 <span class="co">#&gt; &lt;environment: namespace:rlang&gt;</span></code></pre></div>
 <p>Looking at the TAG fields of the hash table buckets, we see that this time the function inheriting from the rlang namespace leaked through the S3 registration table:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/new_node.html">node_tag</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; .__NAMESPACE__.</span>
 
