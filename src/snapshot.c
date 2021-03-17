@@ -292,6 +292,12 @@ sexp* new_snapshot_df(struct snapshot_state* p_state) {
   // The adjacency list is used to create igraph structures
   r_attrib_push(df, syms.mem_adj_list, r_lof_unwrap(p_state->p_parents_lof));
 
+  // Store the id and node columns in attribute so we can match them
+  // to the igraph structure even when the snapshot is rearranged or
+  // filtered
+  r_attrib_push(df, syms.mem_id, id_col);
+  r_attrib_push(df, syms.mem_node, node_col);
+
   // The igraph structure is added to the snapshot by side effect via
   // an environment
   r_attrib_push(df, syms.mem_igraph, r_alloc_environment(1, r_empty_env));

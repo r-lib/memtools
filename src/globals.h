@@ -14,7 +14,9 @@ extern struct {
   sexp* id;
   sexp* mem_adj_list;
   sexp* mem_dict;
+  sexp* mem_id;
   sexp* mem_igraph;
+  sexp* mem_node;
   sexp* parents;
   sexp* retained_size;
   sexp* self_size;

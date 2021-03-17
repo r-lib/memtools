@@ -243,3 +243,13 @@ test_that("can diff snapshots", {
   diff <- mem_diff(before, after)
   expect_equal(diff$type, c("pairlist", "double"))
 })
+
+test_that("can take shortest paths of rearranged or filtered snapshots", {
+  s1 <- mem_snapshot(pairlist(1, 2, 3, 4))
+  s2 <- s1[c(1, 8), ]
+
+  expect_equal(
+    mem_paths_shortest(s1, s1$node[[8]]),
+    mem_paths_shortest(s2, s2$node[[2]])
+  )
+})

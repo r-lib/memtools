@@ -44,6 +44,13 @@ mem_snapshot <- function(x) {
   .Call(c_ptr_snapshot, x)
 }
 
+mem_id <- function(x) {
+  attr(x, "mem_id")
+}
+mem_node <- function(x) {
+  attr(x, "mem_node")
+}
+
 is_snapshot <- function(x) {
   tibble::is_tibble(x) && !is_null(attr(x, "mem_adj_list"))
 }
@@ -57,7 +64,7 @@ arg_as_mem_node <- function(x, snapshot, arg = substitute(x)) {
   if (is_integerish(x, n = 1, finite = TRUE)) {
     snapshot$node[[x]]
   } else if (is_string(x)) {
-    i <- which(x == snapshot$id)
+    i <- which(x == mem_id(snapshot))
     if (length(i) != 1) {
       abort("Can't find node in snapshot.")
     }
@@ -254,7 +261,7 @@ mem_paths <- function(snapshot, to, from, op) {
   to <- arg_as_mem_node(to, snapshot)
   from <- arg_as_mem_node(from, snapshot)
 
-  i <- match(c(from$id, to$id), snapshot$id)
+  i <- match(c(from$id, to$id), mem_id(snapshot))
   if (anyNA(i)) {
     abort("Can't find nodes in snapshot.")
   }
@@ -270,5 +277,6 @@ mem_paths <- function(snapshot, to, from, op) {
     stop_internal("mem_paths", "Unexpected operation.")
   )
 
-  lapply(paths, lapply, function(x) snapshot$node[[x]])
+  node <- mem_node(snapshot)
+  lapply(paths, lapply, function(x) node[[x]])
 }
