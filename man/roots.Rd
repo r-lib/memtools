@@ -48,10 +48,18 @@ Avoid printing the precious list in the console because it contains
 a large amount of data, such as the global cache for the global
 environment and attached packages.
 
-If you record a snapshot of the precious list, beware that objects
-in the global environment will be reachable through the global
-cache. These objects are normally excluded from snapshots. You can
-exclude an object from the snapshot by stashing it with
-\code{\link[=mem_stash]{mem_stash()}}.
+Some things to consider while working with the precious list:
+\itemize{
+\item If you record a snapshot of the precious list, beware that
+objects in the global environment will be reachable through the
+global cache. These objects are normally excluded from
+snapshots. You can exclude an object from the snapshot by
+stashing it with \code{\link[=mem_stash]{mem_stash()}}.
+\item If you take before and after snapshots, make sure to capture the
+\code{R_PreciousList} address each time. The precious list is
+currently implemented as a stack of pairlist nodes. If you don't
+refresh the pointer you will miss all new elements added on the
+top of the stack.
+}
 }
 

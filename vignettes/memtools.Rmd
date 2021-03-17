@@ -238,6 +238,8 @@ However, the precious list is cumbersome to work with:
 
 - It contains large and complex objects, such as the global cache for visited bindings of the global environment and the search path.
 
+- If you have captured the precious list at R level and new objects have been preserved or released in the mean time, the new state of the list will not be reflected in the R-level pairlist. The precious list needs to be recaptured from the C-level global variable before each snapshot.
+
 Since most leaks are caused by a reference that lives inside a namespace, it is often more practical to start from the namespace registry. This registry is an environment that contains all the namespaces loaded in the R session. memtools exposes it as a list to avoid encumbering the snapshots with the internal environment structures:
 
 ```{r}
@@ -324,32 +326,29 @@ The workflow is slightly different with the precious list:
 
 2. The objects defined in the global environment, which are normally skipped by `mem_snapshot()`, will this time find their way into snapshots. They are reachable through the global binding cache that is preserved in the precious list. We will need to __stash__ our memory snapshots to prevent them from being recorded by ulterior snapshots.
 
+3. We need to recapture the precious list before taking each snapshot. As currently implemented, it is a stack of pairlist cells. If you don't refresh the precious list pointer before taking the "after" snapshot, you will miss all the preserved objects added on top of the stack.
+
 Let's create a memtools stash to store our debugging objects:
 
 ```{r}
 stash <- mem_stash()
 ```
 
-See `?roots` for how to retrieve the address of the precious list with a process debugger. Once you have the address, you can dereference it with `addr_deref()`.
-
-```{r, eval = FALSE}
-stash$root <- deref("0x0000000105c06268")
-```
-
-Follow the steps again in a new R session, this time storing the snapshots in the stash:
+Follow the steps again in a new R session, this time storing the snapshots in the stash and dereferencing the precious list from its address (see `?roots` for more information):
 
 ```{r, eval = FALSE}
 # Dry run
 mem_reprex(10)
 
 # First snapshot
-stash$before <- mem_snapshot(stash$root)
+stash$before <- mem_snapshot(deref("0x0000000105c06268"))
 
 # Leak run
 mem_reprex(1e8)
 
-# Second snapshot
-stash$after <- mem_snapshot(stash$root)
+# Second snapshot - Make sure you have the current address of the
+# precious list
+stash$after <- mem_snapshot(deref("0x00007fc604ea3910"))
 ```
 
 Finally, compare the snapshots. Here are the leaking objects!
