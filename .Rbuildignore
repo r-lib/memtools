@@ -2,3 +2,6 @@
 ^\.github$
 ^LICENSE\.md$
 ^TAGS$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
