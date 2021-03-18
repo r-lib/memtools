@@ -2,7 +2,7 @@
 #define MEMTOOLS_GLOBALS_H
 
 
-struct {
+extern struct {
   sexp* stash;
 } attribs;
 
