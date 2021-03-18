@@ -245,6 +245,8 @@ test_that("can diff snapshots", {
 })
 
 test_that("can take shortest paths of rearranged or filtered snapshots", {
+  skip_if_not_installed("igraph")
+
   s1 <- mem_snapshot(pairlist(1, 2, 3, 4))
   s2 <- s1[c(1, 8), ]
 
