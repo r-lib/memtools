@@ -14,7 +14,7 @@ memtools provides debugging tools to detect and solve memory leaks in R:
 - Compare snapshots to detect leaked objects with a large retained size.
 - Inspect the __shortest paths__ between nodes (e.g. between a leaked node and its __dominator__).
 
-See `vignette("memtools")` for a tutorial.
+See [`vignette("memtools")`](https://memtools.r-lib.org/articles/memtools.html) for a tutorial.
 
 
 ## Installation
