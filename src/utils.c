@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <rlang.h>
+#include <errno.h>
+
 
 // [[ register() ]]
 sexp* addr_deref(sexp* addr) {
@@ -8,7 +10,14 @@ sexp* addr_deref(sexp* addr) {
   }
 
   const char* addr_c_str = r_chr_get_c_string(addr, 0);
-  sexp* obj = (sexp*) strtoul(addr_c_str, NULL, 0);
+
+  errno = 0;
+  unsigned long long addr_ull = strtoull(addr_c_str, NULL, 16);
+  if (errno || !addr_ull) {
+    r_abort("Can't convert address to pointer.");
+  }
+  
+  sexp* obj = (sexp*) addr_ull;
 
   return obj;
 }
