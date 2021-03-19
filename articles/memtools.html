@@ -96,22 +96,22 @@
 <span class="co">#&gt; # A tibble: 10 x 8</span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt;  1 0x7fa7e… list   &lt;mmtl…         0          3          9          576B        1</span>
-<span class="co">#&gt;  2 0x7fa7e… pairl… &lt;mmtl…         1          2          4          288B        2</span>
-<span class="co">#&gt;  3 0x7fa7e… symbol &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt;  4 0x7fa7e… chara… &lt;mmtl…         1          2          2          176B        3</span>
-<span class="co">#&gt;  5 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  6 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  7 0x7fa7e… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt;  8 0x7fa7e… list   &lt;mmtl…         1          1          2          168B        2</span>
-<span class="co">#&gt;  9 0x7fa7e… chara… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 10 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt;  1 0x7f7fa… list   &lt;mmtl…         0          3          9          576B        1</span>
+<span class="co">#&gt;  2 0x7f7fa… pairl… &lt;mmtl…         1          2          4          288B        2</span>
+<span class="co">#&gt;  3 0x7f7f9… symbol &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt;  4 0x7f7fa… chara… &lt;mmtl…         1          2          2          176B        3</span>
+<span class="co">#&gt;  5 0x7f7f9… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  6 0x7f7f9… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  7 0x7f7fa… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt;  8 0x7f7fa… list   &lt;mmtl…         1          1          2          168B        2</span>
+<span class="co">#&gt;  9 0x7f7fa… chara… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 10 0x7f7fa… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x7fa7e8403f88"</span>
+<span class="co">#&gt; [1] "0x7f7fa1e0c588"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -139,7 +139,7 @@
 
 <span class="va">n</span>
 <span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
-<span class="co">#&gt; id: "0x7fa7e8403f88"</span>
+<span class="co">#&gt; id: "0x7f7fa1e0c588"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -189,7 +189,7 @@
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7fa7eabd9288"</span>
+<span class="co">#&gt; id: "0x7f7fa5d10688"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -249,15 +249,15 @@
 <span class="co">#&gt; # A tibble: 9 x 8</span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fa7e… enviro… &lt;mmtl…         0          2          8          728B        1</span>
-<span class="co">#&gt; 2 0x7fa7e… list    &lt;mmtl…         1          2          6          616B        2</span>
-<span class="co">#&gt; 3 0x7fa7e… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 4 0x7fa7e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 5 0x7fa7e… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 6 0x7fa7e… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 7 0x7fa7e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 8 0x7fa7e… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 9 0x7fa7e… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt; 1 0x7f7fa… enviro… &lt;mmtl…         0          2          8          728B        1</span>
+<span class="co">#&gt; 2 0x7f7fa… list    &lt;mmtl…         1          2          6          616B        2</span>
+<span class="co">#&gt; 3 0x7f7fa… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 4 0x7f7f9… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 5 0x7f7fa… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 6 0x7f7fa… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 7 0x7f7f9… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 8 0x7f7fa… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 9 0x7f7f9… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -270,12 +270,12 @@
 <span class="co">#&gt; # A tibble: 6 x 8</span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fa7eb… pairl… &lt;mmtl…         0          2          5          336B        1</span>
-<span class="co">#&gt; 2 0x7fa7ea… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt; 3 0x7fa7eb… pairl… &lt;mmtl…         1          2          3          224B        2</span>
-<span class="co">#&gt; 4 0x7fa7ea… double &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt; 5 0x7fa7eb… pairl… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 6 0x7fa7ed… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; 1 0x7f7fa4… pairl… &lt;mmtl…         0          2          5          336B        1</span>
+<span class="co">#&gt; 2 0x7f7fa7… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt; 3 0x7f7fa4… pairl… &lt;mmtl…         1          2          3          224B        2</span>
+<span class="co">#&gt; 4 0x7f7fa7… double &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt; 5 0x7f7fa4… pairl… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 6 0x7f7fa7… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
@@ -289,7 +289,7 @@
 <a href="#the-dominance-tree" class="anchor"></a>The dominance tree</h2>
 <p>The graph of objects is often too complex to work with. It typically contains hundreds of thousands of objects as soon as the global environment or a namespace (which inherits from the global environment and the search path) is included. It is cyclic because environments may point to themselves (for instance a function bound to the global environment and inheriting from it). Finding leaks and their retainers from a raw snapshot is too difficult.</p>
 <p>Enters the <a href="https://en.wikipedia.org/wiki/Dominator_(graph_theory)">dominance tree</a>. This is a transformation of the graph of R objects into a totally ordered tree where parent relationships towards the root can be followed without cycles. This makes it very useful for debugging leaks. The <strong>immediate dominator</strong> of an object is the closest ancestor through which all paths from the root to the object have to go. If an object has multiple parents, all of them are children or grand-children of its dominator.</p>
-<p>In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. However, the source can’t be higher up than the dominator. It is an upper bound in the leak search.</p>
+<p>In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. The source could be higher or lower in the hierarchy. However, the dominator is a useful starting point in leak investigations.</p>
 <p>See <code><a href="https://rdrr.io/pkg/igraph/man/dominator_tree.html">?igraph::dominator_tree</a></code> for a visual representation of the dominance transformation.</p>
 </div>
 </div>
