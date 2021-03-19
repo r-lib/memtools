@@ -1,13 +1,13 @@
 Package: memtools
-Title: What the Package Does (One Line, Title Case)
+Title: Tools for debugging memory leaks
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Lionel", "Henry", ,"lionel@rstudio.com", c("aut", "cre")),
+    person("RStudio", role = "cph")
+    )
+Description: Provides snapshots of the R heap. These snapshots can be
+    compared to detect leaked objects. Graph algorithms like dominance
+    and shortest paths are provided to detect the source of the leaks.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
