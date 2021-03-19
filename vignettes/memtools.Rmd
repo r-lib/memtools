@@ -273,7 +273,7 @@ before <- mem_snapshot(root)
 #> Creating data frame...
 ```
 
-Next, run the R expression that is leaking memory:
+Next, run the R expression that is leaking memory. There are two strategies here. The simplest is to create large objects that will be easily recognisable from their retained sizes. If that is not possible because the leak only occurs through small objects, you can instead cause a large number of leaks, e.g. 100 or 1000 times, and recognise the leaked objects from the distribution of new nodes. In this example we are using the first strategy by creating large objects.
 
 ```{r, eval = FALSE}
 mem_reprex(1e8)
@@ -582,3 +582,245 @@ rlang::node_tag(deref(p1[[7]]))
 ```
 
 pkgload normally unregisters the S3 methods that are documented in the NAMESPACE file. However, this misses all the methods that are lazily registered. Here are the [faulty lines](https://github.com/r-lib/rlang/blob/e0a0761df78b327e5807875238f5ff73d8de4e10/R/rlang.R#L34-L35).
+
+
+# Case study - Small leaks in the precious list
+
+In this example we explore a leak that involved asynchronous programming with Shiny https://github.com/rstudio/pool/issues/114.
+
+Here is a reprex that reproduces the leak. It fires up an async promise with the `later` package and cancels it immediately with an ad hoc mechanism.
+
+```{r, eval = FALSE}
+do_later <- function(f, t = 3, verbose = FALSE) {
+  force(f)
+
+  later::later(
+    function() {
+      if (is.null(f)) {
+        if (verbose) {
+          message("f was cancelled")
+        }
+        return()
+      }
+      f()
+    },
+    delay = t
+  )
+
+  invisible(function() {
+    f <<- NULL
+  })
+}
+
+reprex <- function(t = 120, verbose = FALSE) {
+  cancel <- do_later(
+    function() message("This callback has executed"),
+    t,
+    verbose
+  )
+  cancel()
+  invisible(NULL)
+}
+```
+
+In the tidyr example, the reprex was leaking large objects. Here we know from preliminary observations that the reprex only causes small leaks. This will make it harder to detect the leaked objects in the snapshot diff because the leaked objects will be indistinguishable from the small objects that are allocated as part of normal R operations. We need another approach: we are going to run the reprex a 100 times and look for leaked objects that appear in multiples of 100. As usual, we'll start with the namespace registry.
+
+```{r, eval = FALSE}
+library(memtools)
+
+# Dry run
+reprex(0)
+
+root <- root_ns_registry()
+before <- mem_snapshot(root)
+
+# Cause 100 leaks in between snapshots
+for (x in 1:100) reprex(120)
+
+after <- mem_snapshot(root)
+```
+
+Only 84 new objects, it doesn't look like the leak takes place within the namespace registry.
+
+```{r, eval = FALSE}
+new <- mem_diff(before, after)
+
+nrow(new)
+#> [1] 84
+```
+
+Let's look at the type distribution of these objects
+
+```{r, eval = FALSE}
+library(purrr)
+
+types <- map_chr(new$node, "type")
+table(types)
+#> types
+#>  bytecode      char character   closure    double   integer
+#>        13         1         2        13        15         1
+#>   logical  pairlist    symbol
+#>         1        37         1
+
+```
+
+We see bytecode objects, closures, and pairlists. All of the closures inherit from the compiler namespace:
+
+```{r, eval = FALSE}
+clos <- which(types == "closure")
+
+# All the closures are related to JIT compilation
+unique(map(new$node[clos], ~ environment(deref(.x))))
+#> [[1]]
+#> <environment: namespace:compiler>
+```
+
+And looking at the pairlists, they are formal argument lists for these closures. The 84 new objects have been left behind after JIT compilation. This confirms that we have failed to capture the leak and we need to start over from higher up.
+
+Let's try again with the precious list:
+
+```{r, eval = FALSE}
+# Stash all our debugging files
+stash <- mem_stash()
+
+# Dry run
+reprex(0)
+
+(lldb) p R_PreciousList
+#> (SEXP) $0 = 0x00007fc63212f180
+
+stash$before <- mem_snapshot(deref("0x00007fc63212f180"))
+
+for (x in 1:100) reprex(120)
+
+(lldb) p R_PreciousList
+#> (SEXP) $0 = 0x00007fc5ff4a1288
+
+stash$after <- mem_snapshot(deref("0x00007fc5ff4a1288"))
+```
+
+We now see a lot more objects in the snapshot diff.
+
+```{r, eval = FALSE}
+new <- mem_diff(stash$before, stash$after)
+
+nrow(new)
+#> [1] 1710
+
+
+types <- purrr::map_chr(new$node, "type")
+table(types)
+#> types
+#>    bytecode        char   character     closure      double
+#>          17           1           3         213          16
+#> environment     integer     logical    pairlist     promise
+#>         203           2           1         951         300
+#>      symbol
+#>           3
+```
+
+There are a little more than 200 closures. Let's take a closer look.
+
+```{r, eval = FALSE}
+clos_locs <- which(types == "closure")
+clos <- map(new$node[clos_locs], deref)
+clos_envs <- unique(map(clos, environment))
+
+# We now have the compiler namespace and 100 unique envs
+length(clos_envs)
+#> [1] 101
+
+str(tail(clos_envs))
+#> List of 6
+#>  $ :<environment: 0x7fc604eb7158>
+#>  $ :<environment: 0x7fc604eb0940>
+#>  $ :<environment: 0x7fc604eaa128>
+#>  $ :<environment: 0x7fc604ea3910>
+#>  $ :<environment: 0x7fc604c28518>
+#>  $ :<environment: namespace:compiler>
+```
+
+We find 100 unique closure environments, a number that matches the number of times we ran the reprex. What do these closures look like?
+
+```{r, eval = FALSE}
+head(clos)
+#> [[1]]
+#> function() {
+#>     if (is.null(f)) {
+#>       if (verbose) {
+#>         message("f was cancelled")
+#>       }
+#>       return()
+#>     }
+#>     f()
+#>   }
+#> <bytecode: 0x7fc604e12518>
+#> <environment: 0x7fc5ff49d3b0>
+#>
+#> [[2]]
+#> function() {
+#>     f <<- NULL
+#>   }
+#> <bytecode: 0x7fc604e98940>
+#> <environment: 0x7fc5ff49d3b0>
+#>
+#> [[3]]
+#> function() {
+#>     if (is.null(f)) {
+#>       if (verbose) {
+#>         message("f was cancelled")
+#>       }
+#>       return()
+#>     }
+#>     f()
+#>   }
+#> <bytecode: 0x7fc604e12518>
+#> <environment: 0x7fc5ff494d98>
+#>
+#> [[4]]
+#> function() {
+#>     f <<- NULL
+#>   }
+#> <bytecode: 0x7fc604e98940>
+#> <environment: 0x7fc5ff494d98>
+#>
+#> [[5]]
+#> function() {
+#>     if (is.null(f)) {
+#>       if (verbose) {
+#>         message("f was cancelled")
+#>       }
+#>       return()
+#>     }
+#>     f()
+#>   }
+#> <bytecode: 0x7fc604e12518>
+#> <environment: 0x7fc5ff48d180>
+#>
+#> [[6]]
+#> function() {
+#>     f <<- NULL
+#>   }
+#> <bytecode: 0x7fc604e98940>
+#> <environment: 0x7fc5ff48d180>
+```
+
+The same two closures are repeated for each reprex: the promise registered by our reprex and the cancelling closure. Let's examine the promise closure.
+
+```{r, eval = FALSE}
+clo1 <- new$node[[clos_locs[[1]]]]
+
+clo1$dominator
+#> <memtools:node> (root)
+#> id: "0x7fc5ff4a1288"
+#> type: "pairlist"
+#> parents: list [0]
+#> children: list [2]
+#> dominator: <NULL>
+#> dominated: list [13,317]
+#> self_size: 56B
+#> retained_size: 13.9MB
+#> gc_depth: 1
+```
+
+It is dominated by the root. Since the root is the top of the precious list, we now know that this promise is the last thing that was preserved with `R_PreserveObject()`. Indeed the promise is not being released even though it has been cancelled. The solution to fix this leak was to communicate the cancellation to the later event loop instead of just assigning the underlying closure to `NULL`.
