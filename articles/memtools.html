@@ -96,22 +96,22 @@
 <span class="co">#&gt; # A tibble: 10 x 8</span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt;  1 0x7ff30… list   &lt;mmtl…         0          3          9          576B        1</span>
-<span class="co">#&gt;  2 0x7ff30… pairl… &lt;mmtl…         1          2          4          288B        2</span>
-<span class="co">#&gt;  3 0x7ff30… symbol &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt;  4 0x7ff30… chara… &lt;mmtl…         1          2          2          176B        3</span>
-<span class="co">#&gt;  5 0x7ff30… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  6 0x7ff30… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  7 0x7ff30… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt;  8 0x7ff30… list   &lt;mmtl…         1          1          2          168B        2</span>
-<span class="co">#&gt;  9 0x7ff30… chara… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 10 0x7ff30… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt;  1 0x7fa7e… list   &lt;mmtl…         0          3          9          576B        1</span>
+<span class="co">#&gt;  2 0x7fa7e… pairl… &lt;mmtl…         1          2          4          288B        2</span>
+<span class="co">#&gt;  3 0x7fa7e… symbol &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt;  4 0x7fa7e… chara… &lt;mmtl…         1          2          2          176B        3</span>
+<span class="co">#&gt;  5 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  6 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  7 0x7fa7e… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt;  8 0x7fa7e… list   &lt;mmtl…         1          1          2          168B        2</span>
+<span class="co">#&gt;  9 0x7fa7e… chara… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 10 0x7fa7e… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x7ff3047d6288"</span>
+<span class="co">#&gt; [1] "0x7fa7e8403f88"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -138,8 +138,8 @@
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="va">s</span><span class="op">$</span><span class="va">node</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
 <span class="va">n</span>
-<span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7ff3047d6288"</span>
+<span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
+<span class="co">#&gt; id: "0x7fa7e8403f88"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -189,7 +189,7 @@
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7ff30892bd48"</span>
+<span class="co">#&gt; id: "0x7fa7eabd9288"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -249,15 +249,15 @@
 <span class="co">#&gt; # A tibble: 9 x 8</span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7ff30… enviro… &lt;mmtl…         0          2          8          728B        1</span>
-<span class="co">#&gt; 2 0x7ff30… list    &lt;mmtl…         1          2          6          616B        2</span>
-<span class="co">#&gt; 3 0x7ff30… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 4 0x7ff30… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 5 0x7ff30… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 6 0x7ff30… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 7 0x7ff30… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 8 0x7ff30… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 9 0x7ff30… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt; 1 0x7fa7e… enviro… &lt;mmtl…         0          2          8          728B        1</span>
+<span class="co">#&gt; 2 0x7fa7e… list    &lt;mmtl…         1          2          6          616B        2</span>
+<span class="co">#&gt; 3 0x7fa7e… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 4 0x7fa7e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 5 0x7fa7e… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 6 0x7fa7e… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 7 0x7fa7e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 8 0x7fa7e… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 9 0x7fa7e… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -270,12 +270,12 @@
 <span class="co">#&gt; # A tibble: 6 x 8</span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7ff305… pairl… &lt;mmtl…         0          2          5          336B        1</span>
-<span class="co">#&gt; 2 0x7ff308… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt; 3 0x7ff305… pairl… &lt;mmtl…         1          2          3          224B        2</span>
-<span class="co">#&gt; 4 0x7ff308… double &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt; 5 0x7ff305… pairl… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 6 0x7ff308… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; 1 0x7fa7eb… pairl… &lt;mmtl…         0          2          5          336B        1</span>
+<span class="co">#&gt; 2 0x7fa7ea… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt; 3 0x7fa7eb… pairl… &lt;mmtl…         1          2          3          224B        2</span>
+<span class="co">#&gt; 4 0x7fa7ea… double &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt; 5 0x7fa7eb… pairl… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 6 0x7fa7ed… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
@@ -516,7 +516,7 @@
 <span class="co">#&gt; gc_depth: 2</span>
 
 <span class="op">(</span><span class="va">dom</span> <span class="op">&lt;-</span> <span class="va">node</span><span class="op">$</span><span class="va">dominator</span><span class="op">)</span>
-<span class="co">#&gt; &lt;memtools:node&gt;</span>
+<span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
 <span class="co">#&gt; id: "0x7fb4cc088730"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
@@ -526,7 +526,7 @@
 <span class="co">#&gt; self_size: 352B</span>
 <span class="co">#&gt; retained_size: 33.7MB</span>
 <span class="co">#&gt; gc_depth: 1</span></code></pre></div>
-<p>You can tell that the dominator is the root node because its own dominator is <code>NULL</code>. Only the root node does not have any dominator. We can make sure by dereferencing it:</p>
+<p>You can tell that the dominator is the root node because it has a special header. Also, it doesn’t have any parents and its own dominator is <code>NULL</code>. Only the root node does not have any dominator. We can make sure by dereferencing it:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">dom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; List of 6</span>
