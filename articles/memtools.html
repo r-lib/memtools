@@ -96,22 +96,22 @@
 <span class="co">#&gt; # A tibble: 10 x 8</span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt;  1 0x7fadf… list   &lt;mmtl…         0          3          9          576B        1</span>
-<span class="co">#&gt;  2 0x7fae0… pairl… &lt;mmtl…         1          2          4          288B        2</span>
-<span class="co">#&gt;  3 0x7fadf… symbol &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt;  4 0x7fadf… chara… &lt;mmtl…         1          2          2          176B        3</span>
-<span class="co">#&gt;  5 0x7fadf… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  6 0x7fadf… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  7 0x7fadf… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt;  8 0x7fae0… list   &lt;mmtl…         1          1          2          168B        2</span>
-<span class="co">#&gt;  9 0x7fadf… chara… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 10 0x7fadf… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt;  1 0x7fa4f… list   &lt;mmtl…         0          3          9          576B        1</span>
+<span class="co">#&gt;  2 0x7fa4f… pairl… &lt;mmtl…         1          2          4          288B        2</span>
+<span class="co">#&gt;  3 0x7fa4e… symbol &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt;  4 0x7fa4f… chara… &lt;mmtl…         1          2          2          176B        3</span>
+<span class="co">#&gt;  5 0x7fa4e… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  6 0x7fa4e… char   &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt;  7 0x7fa4f… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt;  8 0x7fa4f… list   &lt;mmtl…         1          1          2          168B        2</span>
+<span class="co">#&gt;  9 0x7fa4f… chara… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 10 0x7fa4e… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x7fadfbb0ac88"</span>
+<span class="co">#&gt; [1] "0x7fa4f23c9648"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -139,7 +139,7 @@
 
 <span class="va">n</span>
 <span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
-<span class="co">#&gt; id: "0x7fadfbb0ac88"</span>
+<span class="co">#&gt; id: "0x7fa4f23c9648"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -189,7 +189,7 @@
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7fae0001b078"</span>
+<span class="co">#&gt; id: "0x7fa4f24095f8"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -249,15 +249,15 @@
 <span class="co">#&gt; # A tibble: 9 x 8</span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fadf… enviro… &lt;mmtl…         0          2          8          728B        1</span>
-<span class="co">#&gt; 2 0x7fadf… list    &lt;mmtl…         1          2          6          616B        2</span>
-<span class="co">#&gt; 3 0x7fadf… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 4 0x7fadf… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 5 0x7fadf… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 6 0x7fadf… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 7 0x7fadf… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 8 0x7fadf… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 9 0x7fadf… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt; 1 0x7fa4f… enviro… &lt;mmtl…         0          2          8          728B        1</span>
+<span class="co">#&gt; 2 0x7fa4f… list    &lt;mmtl…         1          2          6          616B        2</span>
+<span class="co">#&gt; 3 0x7fa4f… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 4 0x7fa4e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 5 0x7fa4f… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 6 0x7fa4f… pairli… &lt;mmtl…         1          2          2          168B        3</span>
+<span class="co">#&gt; 7 0x7fa4e… symbol  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 8 0x7fa4f… double  &lt;mmtl…         1          0          0           56B        4</span>
+<span class="co">#&gt; 9 0x7fa4e… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -270,12 +270,12 @@
 <span class="co">#&gt; # A tibble: 6 x 8</span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fadff… pairl… &lt;mmtl…         0          2          5          336B        1</span>
-<span class="co">#&gt; 2 0x7fadff… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt; 3 0x7fadff… pairl… &lt;mmtl…         1          2          3          224B        2</span>
-<span class="co">#&gt; 4 0x7fadff… double &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt; 5 0x7fadff… pairl… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 6 0x7fadff… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; 1 0x7fa4f0… pairl… &lt;mmtl…         0          2          5          336B        1</span>
+<span class="co">#&gt; 2 0x7fa4ef… double &lt;mmtl…         1          0          0           56B        2</span>
+<span class="co">#&gt; 3 0x7fa4f0… pairl… &lt;mmtl…         1          2          3          224B        2</span>
+<span class="co">#&gt; 4 0x7fa4ef… double &lt;mmtl…         1          0          0           56B        3</span>
+<span class="co">#&gt; 5 0x7fa4f0… pairl… &lt;mmtl…         1          1          1          112B        3</span>
+<span class="co">#&gt; 6 0x7fa4ef… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
 <p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
@@ -374,7 +374,7 @@
 <span class="co">#&gt; Recorded 400000 nodes</span>
 <span class="co">#&gt; Computing dominance and retainment...</span>
 <span class="co">#&gt; Creating data frame...</span></code></pre></div>
-<p>Next, run the R expression that is leaking memory:</p>
+<p>Next, run the R expression that is leaking memory. There are two strategies here. The simplest is to create large objects that will be easily recognisable from their retained sizes. If that is not possible because the leak only occurs through small objects, you can instead cause a large number of leaks, e.g. 100 or 1000 times, and recognise the leaked objects from the distribution of new nodes. In this example we are using the first strategy by creating large objects.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">mem_reprex</span><span class="op">(</span><span class="fl">1e8</span><span class="op">)</span></code></pre></div>
 <p>And finally, the “after” snapshot:</p>
@@ -620,6 +620,214 @@
 <span class="co">#&gt; S3methods</span></code></pre></div>
 <p>pkgload normally unregisters the S3 methods that are documented in the NAMESPACE file. However, this misses all the methods that are lazily registered. Here are the <a href="https://github.com/r-lib/rlang/blob/e0a0761df78b327e5807875238f5ff73d8de4e10/R/rlang.R#L34-L35">faulty lines</a>.</p>
 </div>
+</div>
+<div id="case-study---small-leaks-in-the-precious-list" class="section level1">
+<h1 class="hasAnchor">
+<a href="#case-study---small-leaks-in-the-precious-list" class="anchor"></a>Case study - Small leaks in the precious list</h1>
+<p>In this example we explore a leak that involved asynchronous programming with Shiny <a href="https://github.com/rstudio/pool/issues/114" class="uri">https://github.com/rstudio/pool/issues/114</a>.</p>
+<p>Here is a reprex that reproduces the leak. It schedules a callback function with the <code>later</code> package and cancels it immediately with an ad hoc mechanism.</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">do_later</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span>, <span class="va">t</span> <span class="op">=</span> <span class="fl">3</span>, <span class="va">verbose</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/force.html">force</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+
+  <span class="fu">later</span><span class="fu">::</span><span class="fu">later</span><span class="op">(</span>
+    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+        <span class="kw">if</span> <span class="op">(</span><span class="va">verbose</span><span class="op">)</span> <span class="op">{</span>
+          <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"f was cancelled"</span><span class="op">)</span>
+        <span class="op">}</span>
+        <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">)</span>
+      <span class="op">}</span>
+      <span class="fu">f</span><span class="op">(</span><span class="op">)</span>
+    <span class="op">}</span>,
+    delay <span class="op">=</span> <span class="va">t</span>
+  <span class="op">)</span>
+
+  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+    <span class="va">f</span> <span class="op">&lt;&lt;-</span> <span class="cn">NULL</span>
+  <span class="op">}</span><span class="op">)</span>
+<span class="op">}</span>
+
+<span class="va">reprex</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span> <span class="op">=</span> <span class="fl">120</span>, <span class="va">verbose</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">cancel</span> <span class="op">&lt;-</span> <span class="fu">do_later</span><span class="op">(</span>
+    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"This callback has executed"</span><span class="op">)</span>,
+    <span class="va">t</span>,
+    <span class="va">verbose</span>
+  <span class="op">)</span>
+  <span class="fu">cancel</span><span class="op">(</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
+<p>In the tidyr example, the reprex was leaking large objects. Here we know from preliminary observations that the reprex only causes small leaks. This will make it harder to detect the leaked objects in the snapshot diff because the leaked objects will be indistinguishable from the small objects that are allocated as part of normal R operations. We need another approach: we are going to run the reprex a 100 times and look for leaked objects that appear in multiples of 100. As usual, we’ll start with the namespace registry.</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
+
+<span class="co"># Dry run</span>
+<span class="fu">reprex</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>
+
+<span class="va">root</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/roots.html">root_ns_registry</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">before</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="va">root</span><span class="op">)</span>
+
+<span class="co"># Cause 100 leaks in between snapshots</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">x</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span> <span class="fu">reprex</span><span class="op">(</span><span class="fl">120</span><span class="op">)</span>
+
+<span class="va">after</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="va">root</span><span class="op">)</span></code></pre></div>
+<p>Only 84 new objects, it doesn’t look like the leak takes place within the namespace registry.</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_diff.html">mem_diff</a></span><span class="op">(</span><span class="va">before</span>, <span class="va">after</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
+<span class="co">#&gt; [1] 84</span></code></pre></div>
+<p>Let’s look at the type distribution of these objects</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org">purrr</a></span><span class="op">)</span>
+
+<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
+<span class="co">#&gt; types</span>
+<span class="co">#&gt;  bytecode      char character   closure    double   integer</span>
+<span class="co">#&gt;        13         1         2        13        15         1</span>
+<span class="co">#&gt;   logical  pairlist    symbol</span>
+<span class="co">#&gt;         1        37         1</span></code></pre></div>
+<p>We see bytecode objects, closures, and pairlists. All of the closures inherit from the compiler namespace:</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
+
+<span class="co"># All the closures are related to JIT compilation</span>
+<span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos</span><span class="op">]</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [[1]]</span>
+<span class="co">#&gt; &lt;environment: namespace:compiler&gt;</span></code></pre></div>
+<p>And looking at the pairlists, they are formal argument lists for these closures. The 84 new objects have been left behind after JIT compilation. This confirms that we have failed to capture the leak and we need to start over from higher up.</p>
+<p>Let’s try again with the precious list:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="co"># Stash all our debugging files</span></span>
+<span id="cb42-2"><a href="#cb42-2"></a>stash &lt;-<span class="st"> </span><span class="kw">mem_stash</span>()</span>
+<span id="cb42-3"><a href="#cb42-3"></a></span>
+<span id="cb42-4"><a href="#cb42-4"></a><span class="co"># Dry run</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a><span class="kw">reprex</span>(<span class="dv">0</span>)</span>
+<span id="cb42-6"><a href="#cb42-6"></a></span>
+<span id="cb42-7"><a href="#cb42-7"></a>(lldb) p R_PreciousList</span>
+<span id="cb42-8"><a href="#cb42-8"></a><span class="co">#&gt; (SEXP) $0 = 0x00007fc63212f180</span></span>
+<span id="cb42-9"><a href="#cb42-9"></a></span>
+<span id="cb42-10"><a href="#cb42-10"></a>stash<span class="op">$</span>before &lt;-<span class="st"> </span><span class="kw">mem_snapshot</span>(<span class="kw">deref</span>(<span class="st">"0x00007fc63212f180"</span>))</span>
+<span id="cb42-11"><a href="#cb42-11"></a></span>
+<span id="cb42-12"><a href="#cb42-12"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>) <span class="kw">reprex</span>(<span class="dv">120</span>)</span>
+<span id="cb42-13"><a href="#cb42-13"></a></span>
+<span id="cb42-14"><a href="#cb42-14"></a>(lldb) p R_PreciousList</span>
+<span id="cb42-15"><a href="#cb42-15"></a><span class="co">#&gt; (SEXP) $0 = 0x00007fc5ff4a1288</span></span>
+<span id="cb42-16"><a href="#cb42-16"></a></span>
+<span id="cb42-17"><a href="#cb42-17"></a>stash<span class="op">$</span>after &lt;-<span class="st"> </span><span class="kw">mem_snapshot</span>(<span class="kw">deref</span>(<span class="st">"0x00007fc5ff4a1288"</span>))</span></code></pre></div>
+<p>We now see a lot more objects in the snapshot diff.</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_diff.html">mem_diff</a></span><span class="op">(</span><span class="va">stash</span><span class="op">$</span><span class="va">before</span>, <span class="va">stash</span><span class="op">$</span><span class="va">after</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
+<span class="co">#&gt; [1] 1710</span>
+
+
+<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
+<span class="co">#&gt; types</span>
+<span class="co">#&gt;    bytecode        char   character     closure      double</span>
+<span class="co">#&gt;          17           1           3         213          16</span>
+<span class="co">#&gt; environment     integer     logical    pairlist     promise</span>
+<span class="co">#&gt;         203           2           1         951         300</span>
+<span class="co">#&gt;      symbol</span>
+<span class="co">#&gt;           3</span></code></pre></div>
+<p>There are a little more than 200 closures. Let’s take a closer look.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">clos_locs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
+<span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos_locs</span><span class="op">]</span>, <span class="va">deref</span><span class="op">)</span>
+<span class="va">clos_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">clos</span>, <span class="va">environment</span><span class="op">)</span><span class="op">)</span>
+
+<span class="co"># We now have the compiler namespace and 100 unique envs</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span>
+<span class="co">#&gt; [1] 101</span>
+
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; List of 6</span>
+<span class="co">#&gt;  $ :&lt;environment: 0x7fc604eb7158&gt;</span>
+<span class="co">#&gt;  $ :&lt;environment: 0x7fc604eb0940&gt;</span>
+<span class="co">#&gt;  $ :&lt;environment: 0x7fc604eaa128&gt;</span>
+<span class="co">#&gt;  $ :&lt;environment: 0x7fc604ea3910&gt;</span>
+<span class="co">#&gt;  $ :&lt;environment: 0x7fc604c28518&gt;</span>
+<span class="co">#&gt;  $ :&lt;environment: namespace:compiler&gt;</span></code></pre></div>
+<p>We find 100 unique closure environments, a number that matches the number of times we ran the reprex. What do these closures look like?</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">clos</span><span class="op">)</span>
+<span class="co">#&gt; [[1]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     if (is.null(f)) {</span>
+<span class="co">#&gt;       if (verbose) {</span>
+<span class="co">#&gt;         message("f was cancelled")</span>
+<span class="co">#&gt;       }</span>
+<span class="co">#&gt;       return()</span>
+<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     f()</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e12518&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff49d3b0&gt;</span>
+<span class="co">#&gt;</span>
+<span class="co">#&gt; [[2]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     f &lt;&lt;- NULL</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e98940&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff49d3b0&gt;</span>
+<span class="co">#&gt;</span>
+<span class="co">#&gt; [[3]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     if (is.null(f)) {</span>
+<span class="co">#&gt;       if (verbose) {</span>
+<span class="co">#&gt;         message("f was cancelled")</span>
+<span class="co">#&gt;       }</span>
+<span class="co">#&gt;       return()</span>
+<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     f()</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e12518&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff494d98&gt;</span>
+<span class="co">#&gt;</span>
+<span class="co">#&gt; [[4]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     f &lt;&lt;- NULL</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e98940&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff494d98&gt;</span>
+<span class="co">#&gt;</span>
+<span class="co">#&gt; [[5]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     if (is.null(f)) {</span>
+<span class="co">#&gt;       if (verbose) {</span>
+<span class="co">#&gt;         message("f was cancelled")</span>
+<span class="co">#&gt;       }</span>
+<span class="co">#&gt;       return()</span>
+<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     f()</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e12518&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff48d180&gt;</span>
+<span class="co">#&gt;</span>
+<span class="co">#&gt; [[6]]</span>
+<span class="co">#&gt; function() {</span>
+<span class="co">#&gt;     f &lt;&lt;- NULL</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;bytecode: 0x7fc604e98940&gt;</span>
+<span class="co">#&gt; &lt;environment: 0x7fc5ff48d180&gt;</span></code></pre></div>
+<p>The same two closures are repeated for each reprex: the promise registered by our reprex and the cancelling closure. Let’s examine the promise closure.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">clo1</span> <span class="op">&lt;-</span> <span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[[</span><span class="va">clos_locs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>
+
+<span class="va">clo1</span><span class="op">$</span><span class="va">dominator</span>
+<span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
+<span class="co">#&gt; id: "0x7fc5ff4a1288"</span>
+<span class="co">#&gt; type: "pairlist"</span>
+<span class="co">#&gt; parents: list [0]</span>
+<span class="co">#&gt; children: list [2]</span>
+<span class="co">#&gt; dominator: &lt;NULL&gt;</span>
+<span class="co">#&gt; dominated: list [13,317]</span>
+<span class="co">#&gt; self_size: 56B</span>
+<span class="co">#&gt; retained_size: 13.9MB</span>
+<span class="co">#&gt; gc_depth: 1</span></code></pre></div>
+<p>It is dominated by the root. Since the root is the top of the precious list, we now know that this promise is the last thing that was preserved with <code>R_PreserveObject()</code>. Indeed the promise is not being released even though it has been cancelled. The solution to fix this leak was to communicate the cancellation to the later event loop instead of just assigning the underlying closure to <code>NULL</code>.</p>
 </div>
   </div>
 
