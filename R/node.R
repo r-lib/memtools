@@ -197,7 +197,11 @@ mem_node_dominated_ids <- function(node) {
 
 #' @export
 print.memtools_node <- function(x, ...) {
-  writeLines(sprintf("<memtools:node>"))
+  if (length(x$parents)) {
+    writeLines(sprintf("<memtools:node>"))
+  } else {
+    writeLines(sprintf("<memtools:node> (root)"))
+  }
   writeLines(sprintf("id: \"%s\"", x$id))
   writeLines(sprintf("type: \"%s\"", x$type))
   writeLines(sprintf("parents: %s", pillar::obj_sum(x$parents)))

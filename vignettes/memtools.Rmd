@@ -448,7 +448,7 @@ Retrieve the dominator from the node object of the leaking rlang namespace:
 #> gc_depth: 2
 
 (dom <- node$dominator)
-#> <memtools:node>
+#> <memtools:node> (root)
 #> id: "0x7fb4cc088730"
 #> type: "list"
 #> parents: list [0]
@@ -460,7 +460,7 @@ Retrieve the dominator from the node object of the leaking rlang namespace:
 #> gc_depth: 1
 ```
 
-You can tell that the dominator is the root node because its own dominator is `NULL`. Only the root node does not have any dominator. We can make sure by dereferencing it:
+You can tell that the dominator is the root node because it has a special header. Also, it doesn't have any parents and its own dominator is `NULL`. Only the root node does not have any dominator. We can make sure by dereferencing it:
 
 ```{r, eval = FALSE}
 str(head(deref(dom)))
