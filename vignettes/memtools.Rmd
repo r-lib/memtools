@@ -177,7 +177,7 @@ The graph of objects is often too complex to work with. It typically contains hu
 
 Enters the [dominance tree](https://en.wikipedia.org/wiki/Dominator_(graph_theory)). This is a transformation of the graph of R objects into a totally ordered tree where parent relationships towards the root can be followed without cycles. This makes it very useful for debugging leaks. The __immediate dominator__ of an object is the closest ancestor through which all paths from the root to the object have to go. If an object has multiple parents, all of them are children or grand-children of its dominator.
 
-In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. However, the source can't be higher up than the dominator. It is an upper bound in the leak search.
+In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. The source could be higher or lower in the hierarchy. However, the dominator is a useful starting point in leak investigations.
 
 See `?igraph::dominator_tree` for a visual representation of the dominance transformation.
 
