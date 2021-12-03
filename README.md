@@ -2,7 +2,7 @@
 # memtools
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/lionel-/memtools/workflows/R-CMD-check/badge.svg)](https://github.com/lionel-/memtools/actions)
+[![R-CMD-check](https://github.com/r-lib/memtools/workflows/R-CMD-check/badge.svg)](https://github.com/r-lib/memtools/actions)
 <!-- badges: end -->
 
 
