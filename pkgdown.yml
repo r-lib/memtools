@@ -1,10 +1,10 @@
 pandoc: 2.7.3
-pkgdown: 1.6.1
+pkgdown: 2.0.0
 pkgdown_sha: ~
 articles:
   memtools: memtools.html
-last_built: 2021-03-31T17:16Z
+last_built: 2021-12-03T08:18Z
 urls:
-  reference: https://memtools.r-lib.org//reference
-  article: https://memtools.r-lib.org//articles
+  reference: https://memtools.r-lib.org/reference
+  article: https://memtools.r-lib.org/articles
 

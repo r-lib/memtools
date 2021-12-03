@@ -1,51 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://memtools.r-lib.org//index.html</loc>
+    <loc>https://memtools.r-lib.org/404.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/deref.html</loc>
+    <loc>https://memtools.r-lib.org/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/is_mem_arrow.html</loc>
+    <loc>https://memtools.r-lib.org/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/is_memtools_node.html</loc>
+    <loc>https://memtools.r-lib.org/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_diff.html</loc>
+    <loc>https://memtools.r-lib.org/articles/memtools.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_igraph.html</loc>
+    <loc>https://memtools.r-lib.org/authors.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_node_dominator_until.html</loc>
+    <loc>https://memtools.r-lib.org/index.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_node_fork.html</loc>
+    <loc>https://memtools.r-lib.org/reference/deref.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_node_parent.html</loc>
+    <loc>https://memtools.r-lib.org/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_node_undominated_parents.html</loc>
+    <loc>https://memtools.r-lib.org/reference/is_mem_arrow.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_paths_shortest.html</loc>
+    <loc>https://memtools.r-lib.org/reference/is_memtools_node.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_snapshot.html</loc>
+    <loc>https://memtools.r-lib.org/reference/mem_diff.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/mem_stash.html</loc>
+    <loc>https://memtools.r-lib.org/reference/mem_igraph.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/reexports.html</loc>
+    <loc>https://memtools.r-lib.org/reference/mem_node_dominator_until.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//reference/roots.html</loc>
+    <loc>https://memtools.r-lib.org/reference/mem_node_fork.html</loc>
   </url>
   <url>
-    <loc>https://memtools.r-lib.org//articles/memtools.html</loc>
+    <loc>https://memtools.r-lib.org/reference/mem_node_parent.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/mem_node_undominated_parents.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/mem_paths_shortest.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/mem_snapshot.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/mem_stash.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/reexports.html</loc>
+  </url>
+  <url>
+    <loc>https://memtools.r-lib.org/reference/roots.html</loc>
   </url>
 </urlset>

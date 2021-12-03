@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">memtools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/memtools.html">Get started</a>
 </li>
@@ -74,44 +70,44 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span></code></pre></div>
-<p>R is a <a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)">garbage-collected</a> language. This means in practice that the programmer does not need to manage the lifetime of objects. R automatically releases the memory used up by objects that are no longer in use at periodical intervals. In garabage collected languages, memory leaks occur when some object or entity unexpectedly contains or points to an object that is otherwise no longer in use. This is because the garbage collector only reclaims the memory of unreachable objects. Without dedicated tools, detecting the source of object leaks can be very difficult, akin to finding a needle in a haystack.</p>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span></code></pre></div>
+<p>R is a <a href="https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)" class="external-link">garbage-collected</a> language. This means in practice that the programmer does not need to manage the lifetime of objects. R automatically releases the memory used up by objects that are no longer in use at periodical intervals. In garabage collected languages, memory leaks occur when some object or entity unexpectedly contains or points to an object that is otherwise no longer in use. This is because the garbage collector only reclaims the memory of unreachable objects. Without dedicated tools, detecting the source of object leaks can be very difficult, akin to finding a needle in a haystack.</p>
 <p>memtools provides tools to deal with two main tasks:</p>
 <ol style="list-style-type: decimal">
 <li>Detecting leaked objects by comparing snapshots of the network of objects in memory.</li>
 <li>Detecting which object ultimately keep alive the leaked objects, directly or indirectly.</li>
 </ol>
 <p>This vignette explores two case studies to illustrate these tasks.</p>
-<div id="taking-a-memory-snapshot" class="section level1">
-<h1 class="hasAnchor">
-<a href="#taking-a-memory-snapshot" class="anchor"></a>Taking a memory snapshot</h1>
+<div class="section level1">
+<h1 id="taking-a-memory-snapshot">Taking a memory snapshot<a class="anchor" aria-label="anchor" href="#taking-a-memory-snapshot"></a>
+</h1>
 <p><code><a href="../reference/mem_snapshot.html">mem_snapshot()</a></code> is the workhorse of memtools. It takes a root object as input, traverses all reachable R objects from that root, and records their relations in a form that can be easily inspected and summarised. The output of <code><a href="../reference/mem_snapshot.html">mem_snapshot()</a></code> is a data frame that contains the graph of reachable objects, with one row per object, and metadata for that object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; Creating snapshot...</span>
 <span class="co">#&gt; Computing dominance and retainment...</span>
 <span class="co">#&gt; Creating data frame...</span>
 
 <span class="va">s</span>
-<span class="co">#&gt; # A tibble: 10 x 8</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 8</span></span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
-<span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt;  1 0x7fe6a… list   &lt;mmtl…         0          3          9          576B        1</span>
-<span class="co">#&gt;  2 0x7fe6a… pairl… &lt;mmtl…         1          2          4          288B        2</span>
-<span class="co">#&gt;  3 0x7fe6a… symbol &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt;  4 0x7fe6a… chara… &lt;mmtl…         1          2          2          176B        3</span>
-<span class="co">#&gt;  5 0x7fe6a… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  6 0x7fe6a… char   &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt;  7 0x7fe6a… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt;  8 0x7fe6a… list   &lt;mmtl…         1          1          2          168B        2</span>
-<span class="co">#&gt;  9 0x7fe6a… chara… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 10 0x7fe6a… char   &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0x56231… list   <span style="color: #949494;">&lt;mmtl</span>…         0          3          9          576B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0x56231… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          4          288B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0x56231… symbol <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0x56231… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          176B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0x56231… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0x56231… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0x56231… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0x56231… list   <span style="color: #949494;">&lt;mmtl</span>…         1          1          2          168B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0x56231… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0x56231… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x7fe6a1ce3d48"</span>
+<span class="co">#&gt; [1] "0x5623172598b8"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -121,25 +117,25 @@
 <span class="co">#&gt; [[2]][[1]]</span>
 <span class="co">#&gt; [1] "foo"</span></code></pre></div>
 </li>
-<li><p><code>type</code>: The <code><a href="https://rdrr.io/r/base/typeof.html">typeof()</a></code> the object.</p></li>
+<li><p><code>type</code>: The <code><a href="https://rdrr.io/r/base/typeof.html" class="external-link">typeof()</a></code> the object.</p></li>
 <li><p><code>node</code>: This list-column contains the nodes of the object (see below).</p></li>
 <li>
-<p><code>n_parents</code>, <code>n_children</code>: The parents of an object are the nodes that maintain a reference to that object. For instance a list maintains references to all its elements and a function refers to the environment it was created in, its list of arguments, and the R code it executes (respectively its <code><a href="https://rdrr.io/r/base/environment.html">environment()</a></code>, <code><a href="https://rdrr.io/r/base/formals.html">formals()</a></code>, and <code><a href="https://rdrr.io/r/base/body.html">body()</a></code>).</p>
+<p><code>n_parents</code>, <code>n_children</code>: The parents of an object are the nodes that maintain a reference to that object. For instance a list maintains references to all its elements and a function refers to the environment it was created in, its list of arguments, and the R code it executes (respectively its <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment()</a></code>, <code><a href="https://rdrr.io/r/base/formals.html" class="external-link">formals()</a></code>, and <code><a href="https://rdrr.io/r/base/body.html" class="external-link">body()</a></code>).</p>
 <p>The root object doesn’t have any parents recorded in the snapshot but note that it could have parents in the real graph of R objects in memory. The choice of a relevant root is thus crucial.</p>
 </li>
 <li><p><code>n_retained</code>, <code>retained_size</code>: These provide the number of children that would be released if the object was reclaimed by the GC, and their total size.</p></li>
 <li><p><code>gc_detph</code>: This is the number of dominators that must be collected for the object to be reclaimed (see Dominance section).</p></li>
 </ul>
-<div id="the-graph-of-reachable-objects" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-graph-of-reachable-objects" class="anchor"></a>The graph of reachable objects</h2>
+<div class="section level2">
+<h2 id="the-graph-of-reachable-objects">The graph of reachable objects<a class="anchor" aria-label="anchor" href="#the-graph-of-reachable-objects"></a>
+</h2>
 <p>The memory snapshot is a flat representation of the memory graph in a rectangular data frame. You can inspect and traverse the graph using the node objects of the <code>node</code> column.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="va">s</span><span class="op">$</span><span class="va">node</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
 <span class="va">n</span>
 <span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
-<span class="co">#&gt; id: "0x7fe6a1ce3d48"</span>
+<span class="co">#&gt; id: "0x5623172598b8"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -183,13 +179,13 @@
 <code class="sourceCode R"><span class="va">arrow</span> <span class="op">&lt;-</span> <span class="va">n</span><span class="op">$</span><span class="va">children</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
 <span class="co"># This is `n` itself</span>
-<span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="va">arrow</span><span class="op">$</span><span class="va">from</span>, <span class="va">n</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">arrow</span><span class="op">$</span><span class="va">from</span>, <span class="va">n</span><span class="op">)</span>
 <span class="co">#&gt; [1] TRUE</span>
 
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x7fe6a77a77b0"</span>
+<span class="co">#&gt; id: "0x5623172832b8"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -210,33 +206,33 @@
 <p>Indeed the snapshoted list includes names and these are stored in attributes.</p>
 <p>If you’re exploring a node with many children or parents (some nodes have 1000s of parents) it can be insightful to summarise the distribution of relationships:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org">purrr</a></span><span class="op">)</span>
-<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">n</span><span class="op">$</span><span class="va">children</span>, <span class="st">"rel"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org" class="external-link">purrr</a></span><span class="op">)</span>
+<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">n</span><span class="op">$</span><span class="va">children</span>, <span class="st">"rel"</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; .</span>
 <span class="co">#&gt;   attrib list_elt </span>
 <span class="co">#&gt;        1        2</span></code></pre></div>
 <p>In general, traversing the graph of objects from node to arrow to node can be slow and cumbersome. This is why memtools provides more structured ways of exploring relationships of dependence, like taking the shortest paths between a node and its dominator.</p>
 </div>
-<div id="compatibility-with-igraph" class="section level2">
-<h2 class="hasAnchor">
-<a href="#compatibility-with-igraph" class="anchor"></a>Compatibility with igraph</h2>
-<p>The memtools snapshots are compatible with the <a href="https://igraph.org/r/">igraph package</a>, an R package that wraps around the C library of the same name. This library offers a large collection of fast algorithms for exploring and summarising the structure of graphs.</p>
+<div class="section level2">
+<h2 id="compatibility-with-igraph">Compatibility with igraph<a class="anchor" aria-label="anchor" href="#compatibility-with-igraph"></a>
+</h2>
+<p>The memtools snapshots are compatible with the <a href="https://igraph.org/r/" class="external-link">igraph package</a>, an R package that wraps around the C library of the same name. This library offers a large collection of fast algorithms for exploring and summarising the structure of graphs.</p>
 <p>You can retrieve the igraph structure of a snapshot using <code><a href="../reference/mem_igraph.html">mem_igraph()</a></code>. The structure is created the first time it is run and then saved inside the snapshot.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
 <span class="co">#&gt; Adding igraph structure to snapshot as `mem_igraph` attribute...</span></code></pre></div>
 <p>Using igraph you can visualise very small snapshots such as <code>s</code>. The nodes are labelled according to their row positions in the snapshot:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">g</span>, layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/layout_as_tree.html">layout_as_tree</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">g</span>, layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/layout_as_tree.html" class="external-link">layout_as_tree</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="memtools_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 <p>Most snapshots are too large to be visualised this way. igraph is still useful with these large snapshots because many advanced algorithms have near-linear complexity. memtools provides a direct interface for the most useful of these algorithms. It includes its own graph dominance algorithm and exposes igraph’s shortest paths algorithm. We’ll cover both of these in the vignette.</p>
 </div>
-<div id="know-your-r-internals" class="section level2">
-<h2 class="hasAnchor">
-<a href="#know-your-r-internals" class="anchor"></a>Know your R internals</h2>
+<div class="section level2">
+<h2 id="know-your-r-internals">Know your R internals<a class="anchor" aria-label="anchor" href="#know-your-r-internals"></a>
+</h2>
 <p>You will need some familiarity with the way R objects are structured to make sense of the raw network of relations between objects. An important case is the structure of an environment:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">e</span><span class="op">$</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="va">e</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">2</span>
 
@@ -246,94 +242,94 @@
 <span class="co">#&gt; Creating data frame...</span>
 
 <span class="va">s</span>
-<span class="co">#&gt; # A tibble: 9 x 8</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 8</span></span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fe6a… enviro… &lt;mmtl…         0          2          8          728B        1</span>
-<span class="co">#&gt; 2 0x7fe6a… list    &lt;mmtl…         1          2          6          616B        2</span>
-<span class="co">#&gt; 3 0x7fe6a… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 4 0x7fe6a… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 5 0x7fe6a… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 6 0x7fe6a… pairli… &lt;mmtl…         1          2          2          168B        3</span>
-<span class="co">#&gt; 7 0x7fe6a… symbol  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 8 0x7fe6a… double  &lt;mmtl…         1          0          0           56B        4</span>
-<span class="co">#&gt; 9 0x7fe6a… enviro… &lt;mmtl…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x56231… enviro… <span style="color: #949494;">&lt;mmtl</span>…         0          2          8          728B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x56231… list    <span style="color: #949494;">&lt;mmtl</span>…         1          2          6          616B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x56231… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x56231… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x56231… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x56231… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0x56231… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0x56231… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">9</span> 0x56231… enviro… <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">pairlist</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_snapshot.html">mem_snapshot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">pairlist</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; Creating snapshot...</span>
 <span class="co">#&gt; Computing dominance and retainment...</span>
 <span class="co">#&gt; Creating data frame...</span>
 
 <span class="va">s</span>
-<span class="co">#&gt; # A tibble: 6 x 8</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;  &lt;list&gt;     &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;bch:byt&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 0x7fe6a7… pairl… &lt;mmtl…         0          2          5          336B        1</span>
-<span class="co">#&gt; 2 0x7fe6a7… double &lt;mmtl…         1          0          0           56B        2</span>
-<span class="co">#&gt; 3 0x7fe6a7… pairl… &lt;mmtl…         1          2          3          224B        2</span>
-<span class="co">#&gt; 4 0x7fe6a7… double &lt;mmtl…         1          0          0           56B        3</span>
-<span class="co">#&gt; 5 0x7fe6a7… pairl… &lt;mmtl…         1          1          1          112B        3</span>
-<span class="co">#&gt; 6 0x7fe6a7… double &lt;mmtl…         1          0          0           56B        4</span></code></pre></div>
-<p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
+<span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x562318… pairl… <span style="color: #949494;">&lt;mmtl</span>…         0          2          5          336B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x562319… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x562318… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          3          224B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x562319… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x562318… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x562319… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
+<p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list" class="external-link"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
 <span class="co">#&gt; Adding igraph structure to snapshot as `mem_igraph` attribute...</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">g</span>, layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/layout_as_tree.html">layout_as_tree</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">g</span>, layout <span class="op">=</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/igraph/man/layout_as_tree.html" class="external-link">layout_as_tree</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="memtools_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
 </div>
-<div id="the-dominance-tree" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-dominance-tree" class="anchor"></a>The dominance tree</h2>
+<div class="section level2">
+<h2 id="the-dominance-tree">The dominance tree<a class="anchor" aria-label="anchor" href="#the-dominance-tree"></a>
+</h2>
 <p>The graph of objects is often too complex to work with. It typically contains hundreds of thousands of objects as soon as the global environment or a namespace (which inherits from the global environment and the search path) is included. It is cyclic because environments may point to themselves (for instance a function bound to the global environment and inheriting from it). Finding leaks and their retainers from a raw snapshot is too difficult.</p>
-<p>Enters the <a href="https://en.wikipedia.org/wiki/Dominator_(graph_theory)">dominance tree</a>. This is a transformation of the graph of R objects into a totally ordered tree where parent relationships towards the root can be followed without cycles. This makes it very useful for debugging leaks. The <strong>immediate dominator</strong> of an object is the closest ancestor through which all paths from the root to the object have to go. If an object has multiple parents, all of them are children or grand-children of its dominator.</p>
+<p>Enters the <a href="https://en.wikipedia.org/wiki/Dominator_(graph_theory)" class="external-link">dominance tree</a>. This is a transformation of the graph of R objects into a totally ordered tree where parent relationships towards the root can be followed without cycles. This makes it very useful for debugging leaks. The <strong>immediate dominator</strong> of an object is the closest ancestor through which all paths from the root to the object have to go. If an object has multiple parents, all of them are children or grand-children of its dominator.</p>
 <p>In practice this means that the dominator of an object is the most direct ancestor that needs to be deleted for the object to be collected by the GC as well. This does not mean that the dominator is necessarily the source of the leak. The source could be higher or lower in the hierarchy. However, the dominator is a useful starting point in leak investigations.</p>
-<p>See <code><a href="https://rdrr.io/pkg/igraph/man/dominator_tree.html">?igraph::dominator_tree</a></code> for a visual representation of the dominance transformation.</p>
+<p>See <code><a href="https://rdrr.io/pkg/igraph/man/dominator_tree.html" class="external-link">?igraph::dominator_tree</a></code> for a visual representation of the dominance transformation.</p>
 </div>
 </div>
-<div id="comparing-snapshots-to-detect-leaked-objects" class="section level1">
-<h1 class="hasAnchor">
-<a href="#comparing-snapshots-to-detect-leaked-objects" class="anchor"></a>Comparing snapshots to detect leaked objects</h1>
+<div class="section level1">
+<h1 id="comparing-snapshots-to-detect-leaked-objects">Comparing snapshots to detect leaked objects<a class="anchor" aria-label="anchor" href="#comparing-snapshots-to-detect-leaked-objects"></a>
+</h1>
 <p>There are two steps to fixing a memory leak:</p>
 <ol style="list-style-type: decimal">
 <li>Detect the unused objects that unexpectedly remain in memory</li>
 <li>Find the objects that are keeping references to the persisting objects</li>
 </ol>
-<p>Sometimes you know right away which objects are leaking and you can directly start with step 2. In other cases you only know from diagnostic tools like <code><a href="https://rdrr.io/r/base/gc.html">gc()</a></code> that some memory is not being reclaimed and you need first to find out what objects hold that memory. Step 1 consists in taking two memory snapshots before and after running a reprex that causes the leak. The snapshots are then compared to find the new objects in memory.</p>
-<div id="a-tidyr-leak" class="section level2">
-<h2 class="hasAnchor">
-<a href="#a-tidyr-leak" class="anchor"></a>A tidyr leak</h2>
-<p>We illustrate step 1 with a real memory leak that affected the tidyr package from August 2020 to March 2021 (<a href="https://github.com/tidyverse/tidyr/issues/1059" class="uri">https://github.com/tidyverse/tidyr/issues/1059</a>).</p>
+<p>Sometimes you know right away which objects are leaking and you can directly start with step 2. In other cases you only know from diagnostic tools like <code><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc()</a></code> that some memory is not being reclaimed and you need first to find out what objects hold that memory. Step 1 consists in taking two memory snapshots before and after running a reprex that causes the leak. The snapshots are then compared to find the new objects in memory.</p>
+<div class="section level2">
+<h2 id="a-tidyr-leak">A tidyr leak<a class="anchor" aria-label="anchor" href="#a-tidyr-leak"></a>
+</h2>
+<p>We illustrate step 1 with a real memory leak that affected the tidyr package from August 2020 to March 2021 (<a href="https://github.com/tidyverse/tidyr/issues/1059" class="external-link uri">https://github.com/tidyverse/tidyr/issues/1059</a>).</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mem_reprex</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">tidyverse</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
 
-  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">n</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">mutate</span><span class="op">(</span>group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">)</span>, each <span class="op">=</span> <span class="va">n</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">nest</span><span class="op">(</span>data <span class="op">=</span> <span class="op">-</span><span class="va">group</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu">spread</span><span class="op">(</span><span class="va">group</span>, <span class="va">data</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">n</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">mutate</span><span class="op">(</span>group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">)</span>, each <span class="op">=</span> <span class="va">n</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">nest</span><span class="op">(</span>data <span class="op">=</span> <span class="op">-</span><span class="va">group</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
+    <span class="fu">spread</span><span class="op">(</span><span class="va">group</span>, <span class="va">data</span><span class="op">)</span> <span class="op"><a href="https://purrr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
     <span class="fu">gather</span><span class="op">(</span><span class="va">group</span>, <span class="va">data</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span>
 
   <span class="co"># Return `NULL` to ensure results are not retained through</span>
   <span class="co"># `.Last.value`</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="fu">mem_reprex</span><span class="op">(</span><span class="fl">1e8</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/gc.html">gc</a></span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)</span>
 <span class="co">#&gt; Ncells  1083632  57.9    2084282  111.4         NA   1232191   65.9</span>
 <span class="co">#&gt; Vcells 51895613 396.0  240310392 1833.5      16384 259081311 1976.7</span></code></pre></div>
 <p>As you can see, a large amount of memory is retained in the vector cells of the R heap, even after deleting the data frame of results. But what exactly is leaking?</p>
 </div>
-<div id="select-a-snapshot-root" class="section level2">
-<h2 class="hasAnchor">
-<a href="#select-a-snapshot-root" class="anchor"></a>Select a snapshot root</h2>
+<div class="section level2">
+<h2 id="select-a-snapshot-root">Select a snapshot root<a class="anchor" aria-label="anchor" href="#select-a-snapshot-root"></a>
+</h2>
 <p>Next, create the first memory snapshot to record the current state of objects in memory. There is a choice to make here, what object are we going to supply to <code><a href="../reference/mem_snapshot.html">mem_snapshot()</a></code>? Ideally, we would take a snapshot of the <strong>GC roots</strong>, the objects from which R’s collector starts tracing. There exists several GC roots which are not made available to the R session.</p>
 <p>In practice, there is only one GC root of interest, the <strong>precious list</strong>. This is (as currently implemented) a pairlist of objects protected from garbage collection through an <code>R_PreserveObject()</code> API call. Preserved objects remain in the precious list until a corresponding <code>R_ReleaseObject()</code> call. Most permanent R objects, such as the namespace registry or the global environment, are protected by the precious list. It is ultimately the most complete starting point to take a memory snapshot from.</p>
 <p>However, the precious list is cumbersome to work with:</p>
@@ -345,21 +341,21 @@
 </ul>
 <p>Since most leaks are caused by a reference that lives inside a namespace, it is often more practical to start from the namespace registry. This registry is an environment that contains all the namespaces loaded in the R session. memtools exposes it as a list to avoid encumbering the snapshots with the internal environment structures:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>
   <span class="fu">memtools</span><span class="fu">::</span><span class="fu"><a href="../reference/roots.html">root_ns_registry</a></span><span class="op">(</span><span class="op">)</span>
 <span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; List of 6</span>
-<span class="co">#&gt;  $ igraph    :&lt;environment: namespace:igraph&gt; </span>
-<span class="co">#&gt;  $ rstudioapi:&lt;environment: namespace:rstudioapi&gt; </span>
-<span class="co">#&gt;  $ knitr     :&lt;environment: namespace:knitr&gt; </span>
-<span class="co">#&gt;  $ magrittr  :&lt;environment: namespace:magrittr&gt; </span>
-<span class="co">#&gt;  $ grDevices :&lt;environment: namespace:grDevices&gt; </span>
-<span class="co">#&gt;  $ R6        :&lt;environment: namespace:R6&gt;</span></code></pre></div>
+<span class="co">#&gt;  $ bslib    :&lt;environment: namespace:bslib&gt; </span>
+<span class="co">#&gt;  $ compiler :&lt;environment: namespace:compiler&gt; </span>
+<span class="co">#&gt;  $ pillar   :&lt;environment: namespace:pillar&gt; </span>
+<span class="co">#&gt;  $ jquerylib:&lt;environment: namespace:jquerylib&gt; </span>
+<span class="co">#&gt;  $ highr    :&lt;environment: namespace:highr&gt; </span>
+<span class="co">#&gt;  $ methods  :&lt;environment: namespace:methods&gt;</span></code></pre></div>
 <p>The namespace registry strikes a good balance between exhaustivity and convenience. It is a good choice of snapshot root to start an investigation.</p>
 </div>
-<div id="compare-before-and-after-snapshots" class="section level2">
-<h2 class="hasAnchor">
-<a href="#compare-before-and-after-snapshots" class="anchor"></a>Compare before and after snapshots</h2>
+<div class="section level2">
+<h2 id="compare-before-and-after-snapshots">Compare before and after snapshots<a class="anchor" aria-label="anchor" href="#compare-before-and-after-snapshots"></a>
+</h2>
 <p>The first thing to do on a fresh session is to create a <strong>dry-run</strong> of the reprex. This dry-run will load any required namespace and possibly allocate global variables that some packages cache in memory the first time they need them. Initialising as much code as possible before taking the first snapshot is going to reduce the amount of noise when we’ll compare it with the second snapshot.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">mem_reprex</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
@@ -396,19 +392,19 @@
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_diff.html">mem_diff</a></span><span class="op">(</span><span class="va">before</span>, <span class="va">after</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
 <span class="co">#&gt; [1] 40</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">retained_size</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">retained_size</span><span class="op">)</span>
 <span class="co">#&gt;  [1]  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B  56B</span>
 <span class="co">#&gt; [14]  56B  56B  56B  56B  56B  56B  56B  56B 112B 112B 112B 112B 112B</span>
 <span class="co">#&gt; [27] 168B 168B 168B 168B 168B 224B 224B 224B 280B 280B 280B 336B 336B</span>
 <span class="co">#&gt; [40] 448B</span></code></pre></div>
 <p>There is only 40 new objects remaining in memory. They are all small and do not explain the memory leak.</p>
 </div>
-<div id="snapshotting-the-precious-list" class="section level2">
-<h2 class="hasAnchor">
-<a href="#snapshotting-the-precious-list" class="anchor"></a>Snapshotting the precious list</h2>
+<div class="section level2">
+<h2 id="snapshotting-the-precious-list">Snapshotting the precious list<a class="anchor" aria-label="anchor" href="#snapshotting-the-precious-list"></a>
+</h2>
 <p>If the leaked objects can’t be found via the namespace registry, there is a good chance that they are leaking via the precious list. We need to change our starting point.</p>
 <p>The workflow is slightly different with the precious list:</p>
 <ol style="list-style-type: decimal">
@@ -450,29 +446,29 @@
 <span id="cb24-14"><a href="#cb24-14"></a><span class="co">#&gt; [71]  76.29MB  76.29MB  76.29MB  76.29MB  76.29MB 381.47MB 381.47MB</span></span>
 <span id="cb24-15"><a href="#cb24-15"></a><span class="co">#&gt; [78] 381.47MB</span></span></code></pre></div>
 <p>Once you’ve identified the leaking nodes, make sure they are indeed leaking through the precious list. If that is the case (and it was here), it usually means that something was preserved through <code>R_PreserveObject()</code> but not released. The snapshot can’t help you anymore. The best way forward is to examine the leaked objects to try and find clues about what they are. Use <code><a href="../reference/deref.html">deref()</a></code> to retrieve the R object of a node.</p>
-<p>In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of the <a href="https://cpp11.r-lib.org/">cpp11 package</a>. It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see <code><a href="../reference/roots.html">?root_cpp11</a></code>). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.</p>
+<p>In our case, the leaked objects were held in a strange circular pairlist. We eventually figured out that this was the precious list of the <a href="https://cpp11.r-lib.org/" class="external-link">cpp11 package</a>. It was recognisable from its structure because it is a doubly linked list whose first element points to itself (see <code><a href="../reference/roots.html">?root_cpp11</a></code>). This leak was fixed a long time ago but the macOS CRAN binaries of tidyr had never been rebuilt. We sent a new version to CRAN to trigger a rebuild and fix the leak.</p>
 </div>
 </div>
-<div id="identifying-the-source-of-a-leak" class="section level1">
-<h1 class="hasAnchor">
-<a href="#identifying-the-source-of-a-leak" class="anchor"></a>Identifying the source of a leak</h1>
+<div class="section level1">
+<h1 id="identifying-the-source-of-a-leak">Identifying the source of a leak<a class="anchor" aria-label="anchor" href="#identifying-the-source-of-a-leak"></a>
+</h1>
 <p>If an object is leaking through the precious list memtools cannot help finding the source. However in many cases leaks occur through unexpected references of live objects. In that case we can find the source of the leak using two graph algorithms: dominance and shortest paths.</p>
-<p>In the second case study we’ll explore why namespaces <a href="https://github.com/r-lib/pkgload/pull/133">unregistered by pkgload</a> fail to be collected by R. It was not surprising that old namespaces would be retained after a <code>load_all()</code>, but we wanted to understand why that was the case.</p>
-<p>In this example we know ahead of time what is the object being leaked and we don’t need to compare snapshots. Instead, we’ll take its adress with <code><a href="https://rlang.r-lib.org/reference/sexp_address.html">sexp_address()</a></code>.</p>
+<p>In the second case study we’ll explore why namespaces <a href="https://github.com/r-lib/pkgload/pull/133" class="external-link">unregistered by pkgload</a> fail to be collected by R. It was not surprising that old namespaces would be retained after a <code>load_all()</code>, but we wanted to understand why that was the case.</p>
+<p>In this example we know ahead of time what is the object being leaked and we don’t need to compare snapshots. Instead, we’ll take its adress with <code><a href="https://rlang.r-lib.org/reference/obj_address.html" class="external-link">obj_address()</a></code>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
 
 <span class="co"># Load rlang a first time. This creates a fake namespace that is</span>
 <span class="co"># leaked on reloads.</span>
-<span class="fu">pkgload</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pkgload/man/load_all.html">load_all</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span>
+<span class="fu">pkgload</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pkgload/man/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span>
 
 <span class="co"># Take the address of the fake namespace</span>
-<span class="va">ns_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rlang.r-lib.org/reference/sexp_address.html">sexp_address</a></span><span class="op">(</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/ns_env.html">ns_env</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">ns_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rlang.r-lib.org/reference/obj_address.html" class="external-link">obj_address</a></span><span class="op">(</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/ns_env.html" class="external-link">ns_env</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Let’s reload rlang and take a memory snapshot of the namespace registry:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Reload rlang and trigger GC</span>
-<span class="fu">pkgload</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pkgload/man/load_all.html">load_all</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/gc.html">gc</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">pkgload</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pkgload/man/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="st">"rlang"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># The previous rlang namespace could now ideally be reclaimed.</span>
 <span class="co"># However it is still there (R would crash or show a different object if it had been collected).</span>
@@ -492,14 +488,14 @@
 <li>Find the dominator</li>
 <li>Find the shortest paths between the dominator and the node</li>
 </ol>
-<div id="the-dominator-of-a-leaked-node" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-dominator-of-a-leaked-node" class="anchor"></a>The dominator of a leaked node</h2>
+<div class="section level2">
+<h2 id="the-dominator-of-a-leaked-node">The dominator of a leaked node<a class="anchor" aria-label="anchor" href="#the-dominator-of-a-leaked-node"></a>
+</h2>
 <p>As explained in the Dominance section, each object has a unique dominator which is the closest parent which is guaranteed to allow the object to be reclaimed by the GC if that parent was itself collected. All the paths from the root to the object must go through the dominator. This does not mean that the dominator will give us the full information about the source of the leak, but it’s the point from which you should start investigating.</p>
 <p>Retrieve the dominator from the node object of the leaking rlang namespace:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Find the row position of the namespace in the snapshot</span>
-<span class="op">(</span><span class="va">ns_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="va">ns_id</span><span class="op">)</span><span class="op">)</span>
+<span class="op">(</span><span class="va">ns_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="va">ns_id</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [1] 122617</span>
 
 <span class="co"># Retrieve the node and its dominator</span>
@@ -528,7 +524,7 @@
 <span class="co">#&gt; gc_depth: 1</span></code></pre></div>
 <p>You can tell that the dominator is the root node because it has a special header. Also, it doesn’t have any parents and its own dominator is <code>NULL</code>. Only the root node does not have any dominator. We can make sure by dereferencing it:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">dom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">dom</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; List of 6</span>
 <span class="co">#&gt;  $ rstudioapi:&lt;environment: namespace:rstudioapi&gt;</span>
 <span class="co">#&gt;  $ magrittr  :&lt;environment: namespace:magrittr&gt;</span>
@@ -539,21 +535,21 @@
 <p>In this case, we didn’t make any progress by taking the dominator. Our starting point is the root node. What this means in practice is that the rlang namespace is leaking through multiple paths, in this case multiple namespaces registered in the R session.</p>
 </div>
 </div>
-<div id="inspecting-shortest-paths" class="section level1">
-<h1 class="hasAnchor">
-<a href="#inspecting-shortest-paths" class="anchor"></a>Inspecting shortest paths</h1>
+<div class="section level1">
+<h1 id="inspecting-shortest-paths">Inspecting shortest paths<a class="anchor" aria-label="anchor" href="#inspecting-shortest-paths"></a>
+</h1>
 <p>We now have two endpoints: our leaked namespace and its dominator, the namespace registry. We are ready to examine the <strong>shortest paths</strong> between these two objects.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_paths_shortest.html">mem_paths_shortest</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">node</span>, from <span class="op">=</span> <span class="va">dom</span><span class="op">)</span>
 <span class="co">#&gt; Adding igraph structure to snapshot as `mem_igraph` attribute...</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">paths</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">paths</span><span class="op">)</span>
 <span class="co">#&gt; [1] 8</span></code></pre></div>
 <p>There are at least 8 paths through which the rlang namespace is retained. There could be additional, longer paths as well. Let’s examine one of these.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">paths</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">p1</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">p1</span><span class="op">)</span>
 <span class="co">#&gt; [1] 8</span>
 
 <span class="co"># This list contains all the nodes of one of the first shortest path between the root ...</span>
@@ -563,9 +559,9 @@
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">8</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p>As a first approach let’s examine the types of each node on the path:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org">purrr</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org" class="external-link">purrr</a></span><span class="op">)</span>
 
-<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
 <span class="co">#&gt; [1] "list"        "environment" "environment" "list"</span>
 <span class="co">#&gt; [5] "pairlist"    "promise"     "closure"     "environment"</span></code></pre></div>
 <p>The <code>environment -&gt; list -&gt; pairlist -&gt; promise</code> part suggests that the leak occurs through a promise bound in an environment (the sequence of environment, list and pairlists is typical of an environment hashtable).</p>
@@ -578,7 +574,7 @@
 <span class="co">#&gt; &lt;environment: 0x7fa8f19487b0&gt;</span>
 <span class="co">#&gt; attr(,"name")</span>
 <span class="co">#&gt; [1] "imports:memtools"</span></code></pre></div>
-<p>The dependencies of a package are loaded lazily via the promise mechanism. This is a common cause of promise objects which are otherwise normally created inside execution environments of functions. You can recognise a lazyload promise from the call to <code><a href="https://rdrr.io/r/base/base-internal.html">lazyLoadDBfetch()</a></code>:</p>
+<p>The dependencies of a package are loaded lazily via the promise mechanism. This is a common cause of promise objects which are otherwise normally created inside execution environments of functions. You can recognise a lazyload promise from the call to <code><a href="https://rdrr.io/r/base/base-internal.html" class="external-link">lazyLoadDBfetch()</a></code>:</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">rlang</span><span class="fu">:::</span><span class="fu">promise_expr</span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; lazyLoadDBfetch(c(678142L, 422L), datafile, compressed, envhook)</span></code></pre></div>
@@ -591,14 +587,14 @@
 <span class="co">#&gt; &lt;bytecode: 0x7f93a63a2068&gt;</span>
 <span class="co">#&gt; &lt;environment: namespace:rlang&gt;</span></code></pre></div>
 <p>In this case this leak is not a bug but the expected behaviour. If objects were imported from our namespace between the time it was loaded and unregistered, it should continue keep working. Maybe there are other paths that are more problematic?</p>
-<div id="lazily-registered-s3-methods" class="section level2">
-<h2 class="hasAnchor">
-<a href="#lazily-registered-s3-methods" class="anchor"></a>Lazily registered S3 methods</h2>
+<div class="section level2">
+<h2 id="lazily-registered-s3-methods">Lazily registered S3 methods<a class="anchor" aria-label="anchor" href="#lazily-registered-s3-methods"></a>
+</h2>
 <p>We fixed the leaks, recorded a new snapshot, took new shortest paths, and found a similar structure. The leak occurs through the pillar namespace:</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">paths</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 
-<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">p1</span>, <span class="st">"type"</span><span class="op">)</span>
 <span class="co">#&gt;  [1] "list"        "environment" "list"        "pairlist"</span>
 <span class="co">#&gt;  [5] "environment" "list"        "pairlist"    "list"</span>
 <span class="co">#&gt;  [9] "closure"     "environment"</span>
@@ -613,53 +609,53 @@
 <span class="co">#&gt; &lt;environment: namespace:rlang&gt;</span></code></pre></div>
 <p>Looking at the TAG fields of the hash table buckets, we see that this time the function inheriting from the rlang namespace leaked through the S3 registration table:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/new_node.html">node_tag</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/new_node.html" class="external-link">node_tag</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; .__NAMESPACE__.</span>
 
-<span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/new_node.html">node_tag</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/new_node.html" class="external-link">node_tag</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">p1</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; S3methods</span></code></pre></div>
-<p>pkgload normally unregisters the S3 methods that are documented in the NAMESPACE file. However, this misses all the methods that are lazily registered. Here are the <a href="https://github.com/r-lib/rlang/blob/e0a0761df78b327e5807875238f5ff73d8de4e10/R/rlang.R#L34-L35">faulty lines</a>.</p>
+<p>pkgload normally unregisters the S3 methods that are documented in the NAMESPACE file. However, this misses all the methods that are lazily registered. Here are the <a href="https://github.com/r-lib/rlang/blob/e0a0761df78b327e5807875238f5ff73d8de4e10/R/rlang.R#L34-L35" class="external-link">faulty lines</a>.</p>
 </div>
 </div>
-<div id="case-study---small-leaks-in-the-precious-list" class="section level1">
-<h1 class="hasAnchor">
-<a href="#case-study---small-leaks-in-the-precious-list" class="anchor"></a>Case study - Small leaks in the precious list</h1>
-<p>In this example we explore a leak that involved asynchronous programming with Shiny <a href="https://github.com/rstudio/pool/issues/114" class="uri">https://github.com/rstudio/pool/issues/114</a>.</p>
+<div class="section level1">
+<h1 id="case-study---small-leaks-in-the-precious-list">Case study - Small leaks in the precious list<a class="anchor" aria-label="anchor" href="#case-study---small-leaks-in-the-precious-list"></a>
+</h1>
+<p>In this example we explore a leak that involved asynchronous programming with Shiny <a href="https://github.com/rstudio/pool/issues/114" class="external-link uri">https://github.com/rstudio/pool/issues/114</a>.</p>
 <p>Here is a reprex that reproduces the leak. It schedules a callback function with the <code>later</code> package and cancels it immediately with an ad hoc mechanism.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">do_later</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span>, <span class="va">t</span> <span class="op">=</span> <span class="fl">3</span>, <span class="va">verbose</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/force.html">force</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/force.html" class="external-link">force</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
 
   <span class="fu">later</span><span class="fu">::</span><span class="fu">later</span><span class="op">(</span>
     <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
-      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
         <span class="kw">if</span> <span class="op">(</span><span class="va">verbose</span><span class="op">)</span> <span class="op">{</span>
-          <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"f was cancelled"</span><span class="op">)</span>
+          <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"f was cancelled"</span><span class="op">)</span>
         <span class="op">}</span>
-        <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">)</span>
+        <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="op">)</span>
       <span class="op">}</span>
       <span class="fu">f</span><span class="op">(</span><span class="op">)</span>
     <span class="op">}</span>,
     delay <span class="op">=</span> <span class="va">t</span>
   <span class="op">)</span>
 
-  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
     <span class="va">f</span> <span class="op">&lt;&lt;-</span> <span class="cn">NULL</span>
   <span class="op">}</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">reprex</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span> <span class="op">=</span> <span class="fl">120</span>, <span class="va">verbose</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">cancel</span> <span class="op">&lt;-</span> <span class="fu">do_later</span><span class="op">(</span>
-    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"This callback has executed"</span><span class="op">)</span>,
+    <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"This callback has executed"</span><span class="op">)</span>,
     <span class="va">t</span>,
     <span class="va">verbose</span>
   <span class="op">)</span>
   <span class="fu">cancel</span><span class="op">(</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p>In the tidyr example, the reprex was leaking large objects. Here we know from preliminary observations that the reprex only causes small leaks. This will make it harder to detect the leaked objects in the snapshot diff because the leaked objects will be indistinguishable from the small objects that are allocated as part of normal R operations. We need another approach: we are going to run the reprex a 100 times and look for leaked objects that appear in multiples of 100. As usual, we’ll start with the namespace registry.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">memtools</span><span class="op">)</span>
 
 <span class="co"># Dry run</span>
 <span class="fu">reprex</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>
@@ -675,14 +671,14 @@
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_diff.html">mem_diff</a></span><span class="op">(</span><span class="va">before</span>, <span class="va">after</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
 <span class="co">#&gt; [1] 84</span></code></pre></div>
 <p>Let’s look at the type distribution of these objects</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org">purrr</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org" class="external-link">purrr</a></span><span class="op">)</span>
 
-<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
+<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
 <span class="co">#&gt; types</span>
 <span class="co">#&gt;  bytecode      char character   closure    double   integer</span>
 <span class="co">#&gt;        13         1         2        13        15         1</span>
@@ -690,10 +686,10 @@
 <span class="co">#&gt;         1        37         1</span></code></pre></div>
 <p>We see bytecode objects, closures, and pairlists. All of the closures inherit from the compiler namespace:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
 
 <span class="co"># All the closures are related to JIT compilation</span>
-<span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos</span><span class="op">]</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos</span><span class="op">]</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [[1]]</span>
 <span class="co">#&gt; &lt;environment: namespace:compiler&gt;</span></code></pre></div>
 <p>And looking at the pairlists, they are formal argument lists for these closures. The 84 new objects have been left behind after JIT compilation. This confirms that we have failed to capture the leak and we need to start over from higher up.</p>
@@ -719,12 +715,12 @@
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_diff.html">mem_diff</a></span><span class="op">(</span><span class="va">stash</span><span class="op">$</span><span class="va">before</span>, <span class="va">stash</span><span class="op">$</span><span class="va">after</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span>
 <span class="co">#&gt; [1] 1710</span>
 
 
-<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
+<span class="va">types</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span>, <span class="st">"type"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>
 <span class="co">#&gt; types</span>
 <span class="co">#&gt;    bytecode        char   character     closure      double</span>
 <span class="co">#&gt;          17           1           3         213          16</span>
@@ -734,15 +730,15 @@
 <span class="co">#&gt;           3</span></code></pre></div>
 <p>There are a little more than 200 closures. Let’s take a closer look.</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">clos_locs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
-<span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos_locs</span><span class="op">]</span>, <span class="va">deref</span><span class="op">)</span>
-<span class="va">clos_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">clos</span>, <span class="va">environment</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">clos_locs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">types</span> <span class="op">==</span> <span class="st">"closure"</span><span class="op">)</span>
+<span class="va">clos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">new</span><span class="op">$</span><span class="va">node</span><span class="op">[</span><span class="va">clos_locs</span><span class="op">]</span>, <span class="va">deref</span><span class="op">)</span>
+<span class="va">clos_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">clos</span>, <span class="va">environment</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># We now have the compiler namespace and 100 unique envs</span>
-<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span>
 <span class="co">#&gt; [1] 101</span>
 
-<span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">clos_envs</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; List of 6</span>
 <span class="co">#&gt;  $ :&lt;environment: 0x7fc604eb7158&gt;</span>
 <span class="co">#&gt;  $ :&lt;environment: 0x7fc604eb0940&gt;</span>
@@ -752,7 +748,7 @@
 <span class="co">#&gt;  $ :&lt;environment: namespace:compiler&gt;</span></code></pre></div>
 <p>We find 100 unique closure environments, a number that matches the number of times we ran the reprex. What do these closures look like?</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">clos</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">clos</span><span class="op">)</span>
 <span class="co">#&gt; [[1]]</span>
 <span class="co">#&gt; function() {</span>
 <span class="co">#&gt;     if (is.null(f)) {</span>
@@ -842,11 +838,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Lionel Henry.</p>
+  <p></p>
+<p>Developed by Lionel Henry.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.0.</p>
 </div>
 
       </footer>
@@ -854,6 +852,8 @@
 
   
 
+
+  
 
   </body>
 </html>
