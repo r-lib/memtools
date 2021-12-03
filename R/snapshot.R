@@ -272,6 +272,28 @@ root_precious_list <- function() {
   the$precious_list()
 }
 
+jit_cache_source <- "
+  #define R_NO_REMAP
+  #include <Rinternals.h>
+
+  extern SEXP JIT_cache;
+
+  [[cpp11::register]]
+  SEXP jit_cache() {
+    return JIT_cache;
+  }
+"
+jit_cache <- function() {
+  check_installed(c("cpp11", "decor"))
+
+  if (is_null(the$jit_cache)) {
+    cpp11::cpp_source(code = jit_cache_source)
+    the$jit_cache <- jit_cache
+  }
+
+  the$jit_cache()
+}
+
 #' Find all shortest or simple paths
 #'
 #' Wrappers around [igraph::all_shortest_paths()] and
