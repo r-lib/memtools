@@ -173,12 +173,16 @@ mem_stash <- function(...) {
 #' @description
 #' These functions return useful starting points to supply to
 #' [mem_snapshot()].
-#' 
+#'
 #' * `root_ns_registry()` returns R's namespace registry as a list. It
 #'   contains all the namespaces currently loaded in the R session.
 #'
 #' * `root_cpp11()` returns the precious list of cpp11. This is a
 #'   doubly linked list preserved in R's own precious list.
+#'
+#' * `root_precious_list()` returns R's precious list. However this
+#'   requires a custom build of R where `R_PreciousList` is exposed as a
+#'   non-static symbol.
 #'
 #' @section The precious list:
 #' The R precious list is (as currently implemented) a pairlist of
@@ -193,9 +197,11 @@ mem_stash <- function(...) {
 #'
 #' R currently does not provide an easy way to get the precious list.
 #' So you will need to either patch R to expose it (e.g. remove its
-#' `static` qualifier) or run R though a debugger like `gdb` or
-#' `lldb`. The latter option is simpler. Once in the debugger, use `p`
-#' to print the address of the list:
+#' `static` qualifier) so that you can call `root_precious_list()`, or
+#' run R though a debugger like `gdb` or `lldb`.
+#'
+#' If you choose to use a debugger, use `p` to print the address of
+#' the list:
 #'
 #' ```
 #' p R_PreciousList
@@ -238,6 +244,32 @@ root_cpp11 <- function() {
 #' @export
 root_ns_registry <- function() {
   as.list(.Call(ffi_root_ns_registry))
+}
+
+the <- new_environment()
+
+precious_list_source <- "
+  #define R_NO_REMAP
+  #include <Rinternals.h>
+
+  extern SEXP R_PreciousList;
+
+  [[cpp11::register]]
+  SEXP precious_list() {
+    return R_PreciousList;
+  }
+"
+#' rdname roots
+#' @export
+root_precious_list <- function() {
+  check_installed(c("cpp11", "decor"))
+
+  if (is_null(the$precious_list)) {
+    cpp11::cpp_source(code = precious_list_source)
+    the$precious_list <- precious_list
+  }
+
+  the$precious_list()
 }
 
 #' Find all shortest or simple paths

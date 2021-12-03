@@ -20,6 +20,7 @@ Imports:
     vctrs
 Suggests: 
     cli,
+    cpp11,
     covr,
     crayon,
     igraph,

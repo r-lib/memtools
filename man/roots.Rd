@@ -18,6 +18,9 @@ These functions return useful starting points to supply to
 contains all the namespaces currently loaded in the R session.
 \item \code{root_cpp11()} returns the precious list of cpp11. This is a
 doubly linked list preserved in R's own precious list.
+\item \code{root_precious_list()} returns R's precious list. However this
+requires a custom build of R where \code{R_PreciousList} is exposed as a
+non-static symbol.
 }
 }
 \section{The precious list}{
@@ -34,9 +37,11 @@ list.
 
 R currently does not provide an easy way to get the precious list.
 So you will need to either patch R to expose it (e.g. remove its
-\code{static} qualifier) or run R though a debugger like \code{gdb} or
-\code{lldb}. The latter option is simpler. Once in the debugger, use \code{p}
-to print the address of the list:\preformatted{p R_PreciousList
+\code{static} qualifier) so that you can call \code{root_precious_list()}, or
+run R though a debugger like \code{gdb} or \code{lldb}.
+
+If you choose to use a debugger, use \code{p} to print the address of
+the list:\preformatted{p R_PreciousList
 #> (SEXP) $0 = 0x000000010107cf58
 }
 
