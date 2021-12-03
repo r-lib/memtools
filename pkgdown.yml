@@ -3,7 +3,7 @@ pkgdown: 2.0.0
 pkgdown_sha: ~
 articles:
   memtools: memtools.html
-last_built: 2021-12-03T09:07Z
+last_built: 2021-12-03T09:10Z
 urls:
   reference: https://memtools.r-lib.org/reference
   article: https://memtools.r-lib.org/articles

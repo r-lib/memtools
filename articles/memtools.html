@@ -95,22 +95,22 @@
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 8</span></span>
 <span class="co">#&gt;    id       type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0x55fc3… list   <span style="color: #949494;">&lt;mmtl</span>…         0          3          9          576B        1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0x55fc3… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          4          288B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0x55fc3… symbol <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0x55fc3… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          176B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0x55fc3… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0x55fc3… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0x55fc3… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0x55fc3… list   <span style="color: #949494;">&lt;mmtl</span>…         1          1          2          168B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0x55fc3… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0x55fc3… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 0x56266… list   <span style="color: #949494;">&lt;mmtl</span>…         0          3          9          576B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0x56266… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          4          288B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0x56265… symbol <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 0x56266… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          176B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 0x56265… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0x56265… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0x56266… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0x56266… list   <span style="color: #949494;">&lt;mmtl</span>…         1          1          2          168B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 0x56266… chara… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0x56265… char   <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
 <ul>
 <li>
 <p><code>id</code>: This is the memory address of the object that serves as a unique identifier for the object. You can also retrieve the original object by dereferencing the address with <code><a href="../reference/deref.html">deref()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; [1] "0x55fc3bf85d78"</span>
+<span class="co">#&gt; [1] "0x56266058dd98"</span>
 
 <span class="fu"><a href="../reference/deref.html">deref</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">id</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; $x</span>
@@ -138,7 +138,7 @@
 
 <span class="va">n</span>
 <span class="co">#&gt; &lt;memtools:node&gt; (root)</span>
-<span class="co">#&gt; id: "0x55fc3bf85d78"</span>
+<span class="co">#&gt; id: "0x56266058dd98"</span>
 <span class="co">#&gt; type: "list"</span>
 <span class="co">#&gt; parents: list [0]</span>
 <span class="co">#&gt; children: list [3]</span>
@@ -188,7 +188,7 @@
 <span class="co"># This is the first child of `n`</span>
 <span class="va">arrow</span><span class="op">$</span><span class="va">to</span>
 <span class="co">#&gt; &lt;memtools:node&gt;</span>
-<span class="co">#&gt; id: "0x55fc3bfc71d0"</span>
+<span class="co">#&gt; id: "0x5626605d3768"</span>
 <span class="co">#&gt; type: "pairlist"</span>
 <span class="co">#&gt; parents: list [1]</span>
 <span class="co">#&gt; children: list [2]</span>
@@ -248,15 +248,15 @@
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 8</span></span>
 <span class="co">#&gt;   id       type    node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x55fc3… enviro… <span style="color: #949494;">&lt;mmtl</span>…         0          2          8          728B        1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x55fc3… list    <span style="color: #949494;">&lt;mmtl</span>…         1          2          6          616B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x55fc3… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x55fc3… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x55fc3… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x55fc3… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0x55fc3… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0x55fc3… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">9</span> 0x55fc3… enviro… <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span></code></pre></div>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x56266… enviro… <span style="color: #949494;">&lt;mmtl</span>…         0          2          8          728B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x56266… list    <span style="color: #949494;">&lt;mmtl</span>…         1          2          6          616B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x56266… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x56265… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x56266… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x56266… pairli… <span style="color: #949494;">&lt;mmtl</span>…         1          2          2          168B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 0x56265… symbol  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 0x56266… double  <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">9</span> 0x56265… enviro… <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span></code></pre></div>
 <p>This environment contains only two double values but the snapshot contains a lot of intervening nodes. These extra objects come from the internal structure of the hash tables of environments: a list contains buckets of pairlists of objects.</p>
 <p>Also be aware that unlike lists, pairlists consist of multiple objects:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -269,12 +269,12 @@
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span>
 <span class="co">#&gt;   id        type   node   n_parents n_children n_retained retained_size gc_depth</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x55fc3c… pairl… <span style="color: #949494;">&lt;mmtl</span>…         0          2          5          336B        1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x55fc3e… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x55fc3c… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          3          224B        2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x55fc3e… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x55fc3c… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x55fc3e… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0x562661… pairl… <span style="color: #949494;">&lt;mmtl</span>…         0          2          5          336B        1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 0x562662… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 0x562661… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          2          3          224B        2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 0x562662… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 0x562661… pairl… <span style="color: #949494;">&lt;mmtl</span>…         1          1          1          112B        3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0x562662… double <span style="color: #949494;">&lt;mmtl</span>…         1          0          0           56B        4</span></code></pre></div>
 <p>That’s because pairlists are structured as <a href="https://en.wikipedia.org/wiki/Linked_list" class="external-link"><strong>linked lists</strong></a>. This is apparent if we plot the their tree structure using igraph:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mem_igraph.html">mem_igraph</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>
