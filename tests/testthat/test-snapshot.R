@@ -16,7 +16,7 @@ test_that("snapshot visits environments and functions", {
     quote(bar),
     quote(baz)
   )
-  addrs <- sapply(objs, sexp_address)
+  addrs <- sapply(objs, obj_address)
 
   s <- mem_snapshot(e)
   expect_true(all(addrs %in% s$id))
@@ -27,8 +27,8 @@ test_that("stashes are not visited", {
   e2 <- new_environment()
   stash <- mem_stash(x = e1)
   s <- mem_snapshot(list(stash, e2))
-  expect_false(sexp_address(e1) %in% s$id)
-  expect_true(sexp_address(e2) %in% s$id)
+  expect_false(obj_address(e1) %in% s$id)
+  expect_true(obj_address(e2) %in% s$id)
 })
 
 test_that("numbers of parents, children, and retained nodes are computed", {
@@ -67,7 +67,7 @@ test_that("snapshot of Tarjan's graph is correct (1979)", {
 
   s <- mem_snapshot(R)
 
-  addrs <- sapply(list(R, A, B, C, D, E, F, G, H, I, J, K, L), sexp_address)
+  addrs <- sapply(list(R, A, B, C, D, E, F, G, H, I, J, K, L), obj_address)
   addrs <- set_names(addrs, c("R", LETTERS[1:12]))
 
   locs <- set_names(match(addrs, s$id), names(addrs))
@@ -228,7 +228,7 @@ test_that("can take shortest paths", {
 
   x <- 1; y <- list(x); z <- list(y, x)
   s <- mem_snapshot(z)
-  p <- mem_paths_shortest(s, sexp_address(x))
+  p <- mem_paths_shortest(s, obj_address(x))
   expect_length(p, 1)
   expect_equal(purrr::map_chr(p[[1]], "id"), s$id[c(1, 3)])
 })

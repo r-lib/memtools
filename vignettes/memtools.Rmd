@@ -382,7 +382,7 @@ If an object is leaking through the precious list memtools cannot help finding t
 
 In the second case study we'll explore why namespaces [unregistered by pkgload](https://github.com/r-lib/pkgload/pull/133) fail to be collected by R. It was not surprising that old namespaces would be retained after a `load_all()`, but we wanted to understand why that was the case.
 
-In this example we know ahead of time what is the object being leaked and we don't need to compare snapshots. Instead, we'll take its adress with `sexp_address()`.
+In this example we know ahead of time what is the object being leaked and we don't need to compare snapshots. Instead, we'll take its adress with `obj_address()`.
 
 ```{r, eval = FALSE}
 library(memtools)
@@ -392,7 +392,7 @@ library(memtools)
 pkgload::load_all("rlang")
 
 # Take the address of the fake namespace
-ns_id <- sexp_address(rlang::ns_env("rlang"))
+ns_id <- obj_address(rlang::ns_env("rlang"))
 ```
 
 Let's reload rlang and take a memory snapshot of the namespace registry:
