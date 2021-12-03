@@ -4,6 +4,6 @@
       (expect_error(root$foobar))
     Output
       <error/rlang_error>
-      Must subset with a known node field.
+      Error in `$`: Must subset with a known node field.
       x Unknown field: `foobar`.
 
