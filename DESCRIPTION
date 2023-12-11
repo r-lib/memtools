@@ -1,6 +1,6 @@
 Package: memtools
 Title: Tools for debugging memory leaks
-Version: 0.1.0.9000
+Version: 0.1.0.9001
 Authors@R: c(
     person("Lionel", "Henry", ,"lionel@rstudio.com", c("aut", "cre")),
     person("RStudio", role = "cph")
@@ -15,7 +15,7 @@ Imports:
     bench,
     pillar,
     purrr,
-    rlang (>= 0.4.10.9000),
+    rlang (>= 1.1.2),
     tibble,
     vctrs
 Suggests: 
@@ -27,8 +27,6 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
-Remotes:
-    r-lib/rlang
 SystemRequirements:
     C++11
 Roxygen: list(markdown = TRUE)
